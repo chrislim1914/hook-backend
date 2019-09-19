@@ -16,7 +16,20 @@ $router->get('/', function () use ($router) {
 });
 
 /**
- * admin dashboard data
+ * user
+ */
+$router->group(['prefix' => 'api/user'], function($router)
+{
+    $router->post('register', ['middleware' => 'cors', 'uses' => 'UserController@registerUser']);
+    $router->post('uploadphoto', ['middleware' => 'cors', 'uses' => 'UserController@uploadProfilePhoto']);
+    
+    $router->post('login', ['middleware' => 'cors', 'uses' => 'UserController@loginUser']);
+    $router->post('logout', ['middleware' => 'cors', 'uses' => 'UserController@logoutUser']);
+    $router->post('refresh', ['middleware' => 'cors', 'uses' => 'UserController@refresh']);
+});
+
+/**
+ * news
  */
 $router->group(['prefix' => 'api'], function($router)
 {
