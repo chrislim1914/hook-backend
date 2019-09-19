@@ -64,13 +64,11 @@ class UserController extends Controller
         }
     }
 
-
     /**
      * method to upload user profile photo
      * 
      * @param Request $request
      * @return response JSON
-     * 
      */
     public function uploadProfilePhoto(Request $request) {
         //use for renaming photo
@@ -193,6 +191,38 @@ class UserController extends Controller
         ]);
     }
 
+    public function getUserData(Request $request) {
+        $header = $request->header('Authorization');
+
+        try {
+            if(! $decoded = Auth::getPayload($header)->toArray()){
+                return response()->json(['message' => 'access denied','result'=> false], 200);
+            }
+
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+
+            return response()->json(['message'=>'Invalid Token','result'=>false], 500);
+
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+
+            return response()->json(['message' => $e->getMessage(),'result'=>false], 401);
+
+        }
+
+        $thisuser = $this->user->getUserData($decoded['sub']);
+
+        if($thisuser != null) {
+            return response()->json([
+                'data'      => $thisuser,
+                'result'    => true
+            ]);
+        } else {
+            return response()->json([
+                'data'      => $thisuser,
+                'result'    => true
+            ]);
+        }
+    }
 
     /**
      * method to hash user password

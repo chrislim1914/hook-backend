@@ -22,10 +22,19 @@ $router->group(['prefix' => 'api/user'], function($router)
 {
     $router->post('register', ['middleware' => 'cors', 'uses' => 'UserController@registerUser']);
     $router->post('uploadphoto', ['middleware' => 'cors', 'uses' => 'UserController@uploadProfilePhoto']);
-    
+
     $router->post('login', ['middleware' => 'cors', 'uses' => 'UserController@loginUser']);
     $router->post('logout', ['middleware' => 'cors', 'uses' => 'UserController@logoutUser']);
     $router->post('refresh', ['middleware' => 'cors', 'uses' => 'UserController@refresh']);
+    $router->get('getUserData', ['middleware' => 'cors', 'uses' => 'UserController@getUserData']);
+});
+
+/**
+ * buy and sell
+ */
+$router->group(['prefix' => 'api/buyandsell'], function($router)
+{
+    $router->get('data', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@getCarousell']);
 });
 
 /**
