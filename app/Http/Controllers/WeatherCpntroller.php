@@ -25,6 +25,16 @@ class WeatherCpntroller extends Controller
         $this->client = $client;
     }
 
+    /**
+     * method to get weather data
+     * using the following
+     * getlocationdata()
+     * get5dayForecast()
+     * getCurrentCondition()
+     * 
+     * @return JSON
+     * 
+     */
     public function getWeatherdata() {
 
         // location info
@@ -43,7 +53,7 @@ class WeatherCpntroller extends Controller
 
         // forecast info
         $forecastdata = $this->get5dayForecast($locationkey, $localizedName);
-        // var_dump($forecastdata); exit;
+        
         // current condition info
         $currenconditiondata = $this->getCurrentCondition($locationkey);
 
