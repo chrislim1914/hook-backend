@@ -30,6 +30,14 @@ $router->group(['prefix' => 'api/user'], function($router)
 });
 
 /**
+ * weather
+ */
+$router->group(['prefix' => 'api'], function($router)
+{
+    $router->get('weather', ['middleware' => 'cors', 'uses' => 'WeatherCpntroller@getWeatherdata']);
+});
+
+/**
  * buy and sell
  */
 $router->group(['prefix' => 'api/buyandsell'], function($router)

@@ -10,17 +10,24 @@ use GuzzleHttp\Client;
 class NewsController extends Controller
 {
     private $url = 'https://newsapi.org/v2/top-headlines?';
-    private $country = 'ph';
 
-    public function feedNews() {
+    public function feedNews(Request $request) {
+
+        // get country code, news apikey
+        $country = $this->newsapi_countrycode($request->countrycode);
         $apikey = $this->getKey();
-        $url = $this->url;
-        $country = $this->country;
 
+        // lets create the newsapi url
+        $newsapi_url = $this->url.'country='.$country.'&apiKey='.$apikey;
+        
+        // if($request->query != null) {
+        //     $newsapi_url = $this->url.'country='.$country.'&q='.$request->query.'&apiKey='.$apikey;
+        // }
+        
         $client = new \GuzzleHttp\Client();
 
         try {
-            $response = $client->request('GET', $url.'country='.$country.'&apiKey='.$apikey,['http_errors' => false]);
+            $response = $client->request('GET', $newsapi_url,['http_errors' => false]);
             $body = json_decode($response->getBody(), true);
 
             //get status
@@ -65,5 +72,32 @@ class NewsController extends Controller
     private function getKey() {
         $key = env('NEWSAPIKEY');
         return $key;
+    }
+
+    protected function newsapi_countrycode($countrycode) {
+
+        $c_code = 'ph'; 
+
+        $array_code =  array(
+           'au',  'ca', 'cn', 'hk', 'id', 'jp', 'kr', 'my', 'nz', 'ph', 'sg',
+        );
+
+        if($countrycode == null) {
+            return $c_code;
+        }
+
+        $search = array_search($countrycode, $array_code);
+
+        if($search != false) {
+            return $countrycode;
+        } else {
+            return $c_code;
+        }
+    }
+
+    protected function newsapi_category() {
+        return array(
+            'business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology'
+        );
     }
 }
