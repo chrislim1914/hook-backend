@@ -53,7 +53,7 @@ class WeatherCpntroller extends Controller
 
         // forecast info
         $forecastdata = $this->get5dayForecast($locationkey, $localizedName);
-        
+
         // current condition info
         $currenconditiondata = $this->getCurrentCondition($locationkey);
 
@@ -89,6 +89,10 @@ class WeatherCpntroller extends Controller
             'data'      => $weatherdata,
             'result'    => false
         ]);
+
+    }
+
+    protected function curlCall($url_to_use) {
 
     }
 
@@ -204,11 +208,16 @@ class WeatherCpntroller extends Controller
      * @return MIX
      */
     protected function getLocalizedLanguage($country) {
-        if($isexist = isset($this->supportedLanguage['$country'])) {
-            return $this->supportedLanguage['$country'];
+        $lang = 'en';
+        
+        foreach($this->supportedLanguage() as $key => $value) {
+            if($key === $country) {
+                $lang = $value;
+                return $lang;
+            }
         }
-
-        return 'en';
+        
+        return $lang;
     }
 
     /**
