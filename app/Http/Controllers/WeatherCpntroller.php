@@ -35,7 +35,7 @@ class WeatherCpntroller extends Controller
      * @return JSON
      * 
      */
-    public function getWeatherdata() {
+    public function getWeatherdata(Request $request) {
 
         // location info
         $locationdatadata = $this->getlocationdata();
@@ -49,13 +49,14 @@ class WeatherCpntroller extends Controller
 
         
         $locationkey = $locationdatadata['Key'];
-        $localizedName = $locationdatadata['Country']['LocalizedName'];
+        // $localizedName = $locationdatadata['Country']['LocalizedName'];
+        $localizedName = $request->countrycode;
 
         // forecast info
         $forecastdata = $this->get5dayForecast($locationkey, $localizedName);
 
         // current condition info
-        $currenconditiondata = $this->getCurrentCondition($locationkey);
+        $currenconditiondata = $this->getCurrentCondition($locationkey, $localizedName);
 
         foreach($currenconditiondata as $newCCdata) {
             $currentfeed = [
@@ -87,12 +88,8 @@ class WeatherCpntroller extends Controller
 
         return response()->json([
             'data'      => $weatherdata,
-            'result'    => false
+            'result'    => true
         ]);
-
-    }
-
-    protected function curlCall($url_to_use) {
 
     }
 
@@ -171,10 +168,11 @@ class WeatherCpntroller extends Controller
      * @param $lkey
      * @return JSON $body
      */
-    protected function getCurrentCondition($lkey) {
+    protected function getCurrentCondition($lkey, $localizedName) {
         $apikey = $this->getKey();
+        $gotlang = $this->getLocalizedLanguage($localizedName);
 
-        $currentcondition_url = $this->current_condition. '/' .$lkey. '?apikey=' .$apikey;
+        $currentcondition_url = $this->current_condition. '/' .$lkey. '?language='.$gotlang.'&apikey='.$apikey;
 
         try {
             $response = $this->client->request('GET', $currentcondition_url,['http_errors' => false]);
@@ -205,10 +203,11 @@ class WeatherCpntroller extends Controller
      * if not found the default language will be EN
      * 
      * @param $country
-     * @return MIX
+     * @return $lang
      */
     protected function getLocalizedLanguage($country) {
-        $lang = 'en';
+        // default language if country not supported
+        $lang = '';
         
         foreach($this->supportedLanguage() as $key => $value) {
             if($key === $country) {
@@ -216,7 +215,7 @@ class WeatherCpntroller extends Controller
                 return $lang;
             }
         }
-        
+
         return $lang;
     }
 
@@ -226,102 +225,108 @@ class WeatherCpntroller extends Controller
      * @return array
      */
     protected function supportedLanguage() {
-        return  array(
-            'Algeria'                       => 'ar-dz',
-            'Bahrain'                       => 'ar-bh',
-            'Egypt'                         => 'ar-eg',
-            'Iraq'                          => 'ar-iq',
-            'Jordan'                        => 'ar-jo',
-            'Kuwait'                        => 'ar-kw',
-            'Lebanon'                       => 'ar-lb',
-            'Libya'                         => 'ar-ly',
-            'Morocco'                       => 'ar-ma',
-            'Oman'                          => 'ar-om',
-            'Qatar'                         => 'ar-qa',
-            'Saudi Arabia'                  => 'ar-sa',
-            'Sudan'                         => 'ar-sd',
-            'Syria'                         => 'ar-sy',
-            'Tunisia'                       => 'ar-tn',
-            'U.A.E.'                        => 'ar-ae',
-            'Yemen'                         => 'ar-ye',
-            'Azerbaijan'                    => 'az-latn-az',
-            'Bangladesh'                    => 'bn-bd',
-            'India'                         => 'bn-in',
-            'Bosnia and Herzegovina'        => 'bs-ba',
-            'Bulgaria'                      => 'bg-bg',
-            'Spain'                         => 'ca-es',
-            'Hong Kong'                     => 'zh-hans-hk',
-            'China'                         => 'zh-hans-cn',
-            'Singapore'                     => 'zh-hans-sg',
-            'Taiwan'                        => 'zh-hant-tw',
-            'Croatia'                       => 'hr-hr',
-            'Czech Republic'                => 'cs-cz',
-            'Denmark'                       => 'da-dk',
-            'Aruba'                         => 'nl-aw',
-            'Belgium'                       => 'nl-be',
-            'Curacao'                       => 'nl-cw',
-            'Netherlands'                   => 'nl-nl',
-            'Sint Maarten'                  => 'nl-sx',
-            'Estonia'                       => 'et-ee',
-            'Philippines'                   => 'en',
-            'Afghanistan'                   => 'fa-af',
-            'Iran'                          => 'fa-ir',
-            'Finland'                       => 'fi-fi',
-            'Benin'                         => 'fr-bj',
-            'Burkina Faso'                  => 'fr-bf',
-            'Burundi'                       => 'fr-bi',
-            'Cameroon'                      => 'fr-cm',
-            'Canada'                        => 'en',
-            'United States'                 => 'en',
-            'Central African Republic'      => 'fr-cf',
-            'Chad'                          => 'fr-td',
-            'Comoros'                       => 'fr-km',
-            'Germany'                       => 'de-de',
-            'Cyprus'                        => 'el-cy',
-            'Greece'                        => 'el-gr',
-            'Israel'                        => 'he-il',
-            'Hungary'                       => 'hu-hu',
-            'Iceland'                       => 'is-is',
-            'Indonesia'                     => 'id-id',
-            'Italy'                         => 'it-it',
-            'Japan'                         => 'ja-jp',
-            'Kazakhstan'                    => 'kk-kz',
-            'South Korea'                   => 'ko-kr',
-            'Latvia'                        => 'lv-lv',
-            'Lithuania'                     => 'lt-lt',
-            'Macedonia'                     => 'mk-mk',
-            'Brunei'                        => 'ms-bn',
-            'Malaysia'                      => 'ms-my',
-            'Poland'                        => 'pl-pl',
-            'Angola'                        => 'pt-ao',
-            'Brazil'                        => 'pt-br',
-            'Cape Verde'                    => 'pt-cv',
-            'Guinea-Bissau'                 => 'pt-gw',
-            'Mozambique'                    => 'pt-mz',
-            'Portugal'                      => 'pt-pt',
-            'Sao Tome and Principe'         => 'pt-st',
-            'Romania'                       => 'ro-ro',
-            'Russia'                        => 'ru-ru',
-            'Ukraine'                       => 'uk-ua',
-            'Bosnia and Herzegovina'        => 'sr-latn-ba',
-            'Montenegrin'                   => 'sr-me',
-            'Serbia'                        => 'sr-rs',
-            'Slovakia'                      => 'sk-sk',
-            'Slovenia'                      => 'sl-sl',
-            'Argentina'                     => 'es-ar',
-            'Mexico'                        => 'es-mx',
-            'Democratic Republic of the Congo'  => 'sw-cd',
-            'Kenya'                         => 'sw-ke',
-            'Tanzania'                      => 'sw-tz',
-            'Uganda'                        => 'sw-ug',
-            'Finland'                       => 'sv-fi',
-            'Sweden'                        => 'sv-se',
-            'Sri Lanka'                     => 'ta-lk',
-            'Thailand'                      => 'th-th',
-            'Turkey'                        => 'tr-tr',
-            'Uzbekistan'                    => 'uz-latn-uz',
-            'Vietnam'                       => 'vi-vn'
+        return array(
+            'jp'    =>  'ja-jp',
+            'cn'    =>  'zh-hans-cn',
+            'kr'    =>  'ko-kr',
+            'ph'    =>  'en'
         );
+        // return  array(
+        //     'Algeria'                       => 'ar-dz',
+        //     'Bahrain'                       => 'ar-bh',
+        //     'Egypt'                         => 'ar-eg',
+        //     'Iraq'                          => 'ar-iq',
+        //     'Jordan'                        => 'ar-jo',
+        //     'Kuwait'                        => 'ar-kw',
+        //     'Lebanon'                       => 'ar-lb',
+        //     'Libya'                         => 'ar-ly',
+        //     'Morocco'                       => 'ar-ma',
+        //     'Oman'                          => 'ar-om',
+        //     'Qatar'                         => 'ar-qa',
+        //     'Saudi Arabia'                  => 'ar-sa',
+        //     'Sudan'                         => 'ar-sd',
+        //     'Syria'                         => 'ar-sy',
+        //     'Tunisia'                       => 'ar-tn',
+        //     'U.A.E.'                        => 'ar-ae',
+        //     'Yemen'                         => 'ar-ye',
+        //     'Azerbaijan'                    => 'az-latn-az',
+        //     'Bangladesh'                    => 'bn-bd',
+        //     'India'                         => 'bn-in',
+        //     'Bosnia and Herzegovina'        => 'bs-ba',
+        //     'Bulgaria'                      => 'bg-bg',
+        //     'Spain'                         => 'ca-es',
+        //     'Hong Kong'                     => 'zh-hans-hk',
+        //     'China'                         => 'zh-hans-cn',
+        //     'Singapore'                     => 'zh-hans-sg',
+        //     'Taiwan'                        => 'zh-hant-tw',
+        //     'Croatia'                       => 'hr-hr',
+        //     'Czech Republic'                => 'cs-cz',
+        //     'Denmark'                       => 'da-dk',
+        //     'Aruba'                         => 'nl-aw',
+        //     'Belgium'                       => 'nl-be',
+        //     'Curacao'                       => 'nl-cw',
+        //     'Netherlands'                   => 'nl-nl',
+        //     'Sint Maarten'                  => 'nl-sx',
+        //     'Estonia'                       => 'et-ee',
+        //     'Philippines'                   => 'en',
+        //     'Afghanistan'                   => 'fa-af',
+        //     'Iran'                          => 'fa-ir',
+        //     'Finland'                       => 'fi-fi',
+        //     'Benin'                         => 'fr-bj',
+        //     'Burkina Faso'                  => 'fr-bf',
+        //     'Burundi'                       => 'fr-bi',
+        //     'Cameroon'                      => 'fr-cm',
+        //     'Canada'                        => 'en',
+        //     'United States'                 => 'en',
+        //     'Central African Republic'      => 'fr-cf',
+        //     'Chad'                          => 'fr-td',
+        //     'Comoros'                       => 'fr-km',
+        //     'Germany'                       => 'de-de',
+        //     'Cyprus'                        => 'el-cy',
+        //     'Greece'                        => 'el-gr',
+        //     'Israel'                        => 'he-il',
+        //     'Hungary'                       => 'hu-hu',
+        //     'Iceland'                       => 'is-is',
+        //     'Indonesia'                     => 'id-id',
+        //     'Italy'                         => 'it-it',
+        //     'Japan'                         => 'ja-jp',
+        //     'Kazakhstan'                    => 'kk-kz',
+        //     'South Korea'                   => 'ko-kr',
+        //     'Latvia'                        => 'lv-lv',
+        //     'Lithuania'                     => 'lt-lt',
+        //     'Macedonia'                     => 'mk-mk',
+        //     'Brunei'                        => 'ms-bn',
+        //     'Malaysia'                      => 'ms-my',
+        //     'Poland'                        => 'pl-pl',
+        //     'Angola'                        => 'pt-ao',
+        //     'Brazil'                        => 'pt-br',
+        //     'Cape Verde'                    => 'pt-cv',
+        //     'Guinea-Bissau'                 => 'pt-gw',
+        //     'Mozambique'                    => 'pt-mz',
+        //     'Portugal'                      => 'pt-pt',
+        //     'Sao Tome and Principe'         => 'pt-st',
+        //     'Romania'                       => 'ro-ro',
+        //     'Russia'                        => 'ru-ru',
+        //     'Ukraine'                       => 'uk-ua',
+        //     'Bosnia and Herzegovina'        => 'sr-latn-ba',
+        //     'Montenegrin'                   => 'sr-me',
+        //     'Serbia'                        => 'sr-rs',
+        //     'Slovakia'                      => 'sk-sk',
+        //     'Slovenia'                      => 'sl-sl',
+        //     'Argentina'                     => 'es-ar',
+        //     'Mexico'                        => 'es-mx',
+        //     'Democratic Republic of the Congo'  => 'sw-cd',
+        //     'Kenya'                         => 'sw-ke',
+        //     'Tanzania'                      => 'sw-tz',
+        //     'Uganda'                        => 'sw-ug',
+        //     'Finland'                       => 'sv-fi',
+        //     'Sweden'                        => 'sv-se',
+        //     'Sri Lanka'                     => 'ta-lk',
+        //     'Thailand'                      => 'th-th',
+        //     'Turkey'                        => 'tr-tr',
+        //     'Uzbekistan'                    => 'uz-latn-uz',
+        //     'Vietnam'                       => 'vi-vn'
+        // );
     }
 
     /**

@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Tymon\JWTAuth\JWTAuth;
 use Illuminate\Support\Facades\File;
+use Jdenticon\Identicon;
 
 class UserController extends Controller
 {
@@ -45,13 +46,38 @@ class UserController extends Controller
             ]); 
         }
 
+        // lets create jdenticon        
+        $name = time();
+
+        $img = new \Jdenticon\Identicon();
+        $img->setValue($request->username);
+        $img->setSize(150);
+        
+        $folderdir = 'img/profile/'.$request->username.'_'.$name.'/';
+        File::makeDirectory($folderdir, 0777, true);
+
+        /**
+         * we need to Turn on output buffering coz there's no way we can get the image
+         * then Clean (erase) the output buffer and turn off output buffering
+         */
+        ob_start();
+            $photo = $img->displayImage('png');
+            $binary = $img->getImageData('png');
+            $identicon = ob_get_contents();
+        ob_end_clean();
+
+        // name of the temporary profile image
+        $filename = $request->username.'_'.$name.'.png';
+
         // ok let save the new user
-        $this->user->email      = $request->email;
-        $this->user->username   = $request->username;
-        $this->user->password   = $this->hashPassword($request->password);
-        $this->user->birthdate  = $request->birthdate;
+        $this->user->email          = $request->email;
+        $this->user->username       = $request->username;
+        $this->user->password       = $this->hashPassword($request->password);
+        $this->user->birthdate      = $request->birthdate;
+        $this->user->profile_photo  = $filename;
 
         if($this->user->save()) {
+            file_put_contents($folderdir . $filename, $identicon);
             return response()->json([
                 'message'   => '',
                 'result'    => true

@@ -34,7 +34,7 @@ $router->group(['prefix' => 'api/user'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('weather', ['middleware' => 'cors', 'uses' => 'WeatherCpntroller@getWeatherdata']);
+    $router->post('weather', ['middleware' => 'cors', 'uses' => 'WeatherCpntroller@getWeatherdata']);
 });
 
 /**
@@ -51,4 +51,12 @@ $router->group(['prefix' => 'api/buyandsell'], function($router)
 $router->group(['prefix' => 'api'], function($router)
 {
     $router->get('news', ['middleware' => 'cors', 'uses' => 'NewsController@feedNews']);
+});
+
+/**
+ * search
+ */
+$router->group(['prefix' => 'api'], function($router)
+{
+    $router->post('search', ['middleware' => 'cors', 'uses' => 'SearchEngineController@doSomeSearching']);
 });
