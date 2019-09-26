@@ -63,7 +63,7 @@ class WeatherCpntroller extends Controller
                 'Date'          => $newCCdata['LocalObservationDateTime'],
                 'EpochDate'     => $newCCdata['EpochTime'],
                 'Temp'          => $newCCdata['Temperature']['Metric']['Value'],
-                'Icon'          => 'img/accuweather-img/'.$newCCdata['WeatherIcon'].'-s.png',
+                'Icon'          => '/img/accuweather-img/'.$newCCdata['WeatherIcon'].'-s.png',
                 'Description'   => $newCCdata['WeatherText']
             ];
         }
@@ -76,7 +76,7 @@ class WeatherCpntroller extends Controller
                 'EpochDate'     => $item['EpochDate'],
                 'Min-Temp'      => $this->convertFtoC($item['Temperature']['Minimum']['Value']),
                 'Max-Temp'      => $this->convertFtoC($item['Temperature']['Maximum']['Value']),
-                'Icon'          => 'img/accuweather-img/'.$item['Day']['Icon'].'-s.png',
+                'Icon'          => '/img/accuweather-img/'.$item['Day']['Icon'].'-s.png',
                 'Description'   => $item['Day']['IconPhrase']
             ];
         }
