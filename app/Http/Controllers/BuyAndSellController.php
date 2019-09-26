@@ -10,18 +10,18 @@ use GuzzleHttp\Client;
 class BuyAndSellController extends Controller
 {
     private $client;
-    private $carousell_url = 'https://www.carousell.ph/api-service/home/?count=20&countryID=';
+    private $carousell_url = 'https://www.carousell.ph/api-service/home/?count=20&countryID=1694008';
 
     public function __construct(Client $client) {
         $this->client = $client;
     }
 
-    public function getCarousell(Request $request) {
+    public function getCarousell() {
         
-        $cid = $this->getCarousellCountryID($request->countryid);       
-        
+        // $cid = $this->getCarousellCountryID($request->countryid);
+
         try {
-            $response = $this->client->request('GET', $cid,['http_errors' => false]);
+            $response = $this->client->request('GET', $this->carousell_url,['http_errors' => false]);
             $body = json_decode($response->getBody(), true);
             
             //get status
@@ -84,9 +84,5 @@ class BuyAndSellController extends Controller
             $new_carousell_url = $this->carousell_url . $countryid;
             return $new_carousell_url;
         }
-    }
-
-    public function getLazada() {
-
     }
 }

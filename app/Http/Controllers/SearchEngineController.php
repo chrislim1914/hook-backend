@@ -43,7 +43,10 @@ class SearchEngineController extends Controller
             $response = $this->client->request('GET', $template_url,['http_errors' => false]);
             $body = json_decode($response->getBody(), true);
             
-            return $body;
+            return response()->json([
+                'data'   => $body['items'],
+                'result'    => true
+            ]);
         }
         catch (\GuzzleHttp\Exception\ClientException $e) {
             return $e;

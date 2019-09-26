@@ -40,9 +40,9 @@ $router->group(['prefix' => 'api'], function($router)
 /**
  * buy and sell
  */
-$router->group(['prefix' => 'api/buyandsell'], function($router)
+$router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('data', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@getCarousell']);
+    $router->get('buyandsell', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@getCarousell']);
 });
 
 /**
@@ -50,7 +50,7 @@ $router->group(['prefix' => 'api/buyandsell'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('news', ['middleware' => 'cors', 'uses' => 'NewsController@feedNews']);
+    $router->post('news', ['middleware' => 'cors', 'uses' => 'NewsController@feedNews']);
 });
 
 /**
