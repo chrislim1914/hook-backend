@@ -9,12 +9,13 @@ namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Carbon;
+use Stichoza\GoogleTranslate\GoogleTranslate;
 
 class Functions extends Controller
 {
     public $hashPassword;
 
-//Password Encryption Function
+    //Password Encryption Function
 
     /**
      * method to hash password using bcrypt
@@ -110,5 +111,28 @@ class Functions extends Controller
             $left = $timelapse->diffInYears($current);
             return ($left == 1 ? $left. ' year ago' :  $left. ' years ago');
         }
+    }
+
+    /**
+     * method to translate text
+     * 
+     * @param $item, $countrycode
+     * @return $translated
+     */
+    public function translator($item, $countrycode) {
+        // set the translator
+        $tr = new GoogleTranslate(); // Translates to 'en' from auto-detected language by default
+        $tr->setSource('en'); // Translate from English
+        $tr->setTarget($countrycode); // Translate to baesd on countrycode localization
+
+        if($item == null) {
+            $translated = null;
+        } elseif ($countrycode === 'ph') {
+            $translated = $item;
+        } else {
+            $translated = $tr->translate($item);
+        }
+
+        return $translated;
     }
 }

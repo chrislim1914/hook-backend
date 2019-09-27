@@ -29,7 +29,7 @@ class BuyAndSellController extends Controller
             // var_dump($status);
             return response()->json([
                 'data'   => $body['data']['results'],
-                'result'    => true
+                'result' => true
             ]);
         }
         catch (\GuzzleHttp\Exception\ClientException $e) {

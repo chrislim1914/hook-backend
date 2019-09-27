@@ -6,64 +6,96 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Client;
+use App\Http\Controllers\Functions;
 
 class NewsController extends Controller
 {
-    private $url = 'https://newsapi.org/v2/top-headlines?';
+    private $url = 'https://newsapi.org/v2/top-headlines?country=ph';
 
     public function feedNews(Request $request) {
 
         // get country code, news apikey
-        $country = $this->newsapi_countrycode($request->countrycode);
-        $apikey = $this->getKey();
+        $country =  $this->newsapi_countrycode($request->countrycode);
+        $apikey =   $this->getKey();
 
         // lets create the newsapi url
-        $newsapi_url = $this->url.'country='.$country.'&apiKey='.$apikey;
-        
-        // if($request->query != null) {
-        //     $newsapi_url = $this->url.'country='.$country.'&q='.$request->query.'&apiKey='.$apikey;
-        // }
-        
+        $newsapi_url = $this->url.'&apiKey='.$apikey;
+
+        // call the Functions Class
+        $function = new Functions();
+                
         $client = new \GuzzleHttp\Client();
 
         try {
             $response = $client->request('GET', $newsapi_url,['http_errors' => false]);
-            $body = json_decode($response->getBody(), true);
+            $newsbody = json_decode($response->getBody(), true);
 
             //get status
-            $status = $response->getStatusCode();
+            if($newsbody['status'] !== 'ok') {
+                return response()->json([
+                    'data'      => "Something went wrong on our side!",
+                    'result'    => false
+                ]);
+            }
+
+            // lets build the json data and even translate if neccesary
+            $newsfeed = [];
+            foreach($newsbody as $news) {
+                foreach($newsbody['articles'] as $source) {
+                    $newsource      = $source['source']['name'];
+                    $author         = $source['author'];
+                    $title          = $source['title'];
+                    $description    = $source['description'];
+                    $url            = $source['url'];
+                    $image          = $source['urlToImage'];
+                    $publishedAt    = $source['publishedAt'];
+                    $content        = $source['content'];
+                   
+                    $newsfeed[] = [
+                        'Source'            =>  $newsource,
+                        'author'            =>  $author,
+                        'title'             =>  $function->translator($title, $country),
+                        'description'       =>  $function->translator($description, $country),
+                        'url'               =>  $url,
+                        'image'             =>  $image,
+                        'publishedAt'       =>  $publishedAt,
+                        // 'content'           =>  $this->checkifNull($content, $country),
+                    ];
+                }                               
+            }
+
             return response()->json([
-                'data'   => $body,
+                'data'      => $newsfeed,
                 'result'    => true
             ]);
         }
         catch (\GuzzleHttp\Exception\ClientException $e) {
             return response()->json([
-                'message'   => '',
+                'message'   => 'Something went wrong on our side!',
                 'result'    => false
             ]);
         }
         catch (\GuzzleHttp\Exception\GuzzleException $e) {
             return response()->json([
-                'message'   => '',
+                'message'   => 'Something went wrong on our side!',
                 'result'    => false
             ]);
         }
         catch (\GuzzleHttp\Exception\ConnectException $e) {
             return response()->json([
-                'message'   => '',
+                'message'   => 'Something went wrong on our side!',
                 'result'    => false
             ]);
         }
         catch (\GuzzleHttp\Exception\ServerException $e) {
             return response()->json([
-                'message'   => '',
+                'message'   => 'Something went wrong on our side!',
                 'result'    => false
             ]);
         }
         catch (\Exception $e) {
             return response()->json([
-                'message'   => '',
+                'message'   => 'Something went wrong on our side!',
                 'result'    => false
             ]);
         }
@@ -79,20 +111,24 @@ class NewsController extends Controller
         $c_code = 'ph'; 
 
         $array_code =  array(
-           'au',  'ca', 'cn', 'hk', 'id', 'jp', 'kr', 'my', 'nz', 'ph', 'sg',
+           'jp' =>  'ja',
+           'kr' =>  'ko',
+           'cn' =>  'zh',
+           'ph' =>  'en'
         );
 
         if($countrycode == null) {
             return $c_code;
         }
-
-        $search = array_search($countrycode, $array_code);
-
-        if($search != false) {
-            return $countrycode;
-        } else {
-            return $c_code;
+        
+        foreach($array_code as $key => $value) {
+            if($key === $countrycode) {
+                $c_code = $value;
+                return $c_code;
+            }
         }
+
+        return $c_code;
     }
 
     protected function newsapi_category() {
