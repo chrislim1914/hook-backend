@@ -123,7 +123,7 @@ class Functions extends Controller
         // set the translator
         $tr = new GoogleTranslate(); // Translates to 'en' from auto-detected language by default
         $tr->setSource('en'); // Translate from English
-        $tr->setTarget($countrycode); // Translate to baesd on countrycode localization
+        $tr->setTarget($countrycode); // Translate to based on countrycode localization
 
         if($item == null) {
             $translated = null;

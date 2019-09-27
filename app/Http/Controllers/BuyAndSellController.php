@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Client;
+use App\Http\Controllers\Functions;
 
 class BuyAndSellController extends Controller
 {
@@ -16,21 +17,51 @@ class BuyAndSellController extends Controller
         $this->client = $client;
     }
 
-    public function getCarousell() {
+    public function getCarousell(Request $request) {
         
         // $cid = $this->getCarousellCountryID($request->countryid);
+        // call the Functions Class
+        $function = new Functions();
 
         try {
             $response = $this->client->request('GET', $this->carousell_url,['http_errors' => false]);
             $body = json_decode($response->getBody(), true);
-            
-            //get status
-            // $status = $response->getStatusCode();
-            // var_dump($status);
-            return response()->json([
-                'data'   => $body['data']['results'],
-                'result' => true
-            ]);
+
+            // check if there is result in the body
+            if(array_key_exists('results',$body['data'])) {
+                
+                $carousellfeed = [];
+                foreach($body['data']['results'] as $cfeed) {
+                    foreach($cfeed as $innercfeed) {
+                        foreach($innercfeed['belowFold'] as $belowFold) {
+                            $deatail[] = [
+                                // 'stringContent' => $function->translator($belowFold['stringContent'], $request->countrycode)
+                                'stringContent' => $belowFold['stringContent']
+                            ];
+                        }
+                        foreach($innercfeed['marketPlace'] as $key => $value) {
+                            $key = 'name' ? $location =  $value :$location = '';
+                        }
+
+                        $carousellfeed[] = [
+                            'id'        =>  $innercfeed['id'],
+                            'seller'    =>  $innercfeed['seller'],
+                            'photoUrls' =>  $innercfeed['photoUrls'],
+                            'info'      =>  $deatail,
+                            'location'  =>  $location
+                        ];
+                    }
+                }
+                return response()->json([
+                    'data'      => $carousellfeed,
+                    'result'    => true
+                ]);
+            } else {
+                return response()->json([
+                'message'   => 'Error getting data!',
+                'result'    => false
+                ]);
+            }            
         }
         catch (\GuzzleHttp\Exception\ClientException $e) {
             return response()->json([
