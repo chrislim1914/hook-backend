@@ -40,28 +40,33 @@ class NewsController extends Controller
 
             // lets build the json data and even translate if neccesary
             $newsfeed = [];
-            foreach($newsbody as $news) {
-                foreach($newsbody['articles'] as $source) {
-                    $newsource      = $source['source']['name'];
-                    $author         = $source['author'];
-                    $title          = $source['title'];
-                    $description    = $source['description'];
-                    $url            = $source['url'];
-                    $image          = $source['urlToImage'];
-                    $publishedAt    = $source['publishedAt'];
-                    $content        = $source['content'];
-                   
-                    $newsfeed[] = [
-                        'Source'            =>  $newsource,
-                        'author'            =>  $author,
-                        'title'             =>  $function->translator($title, $country),
-                        'description'       =>  $function->translator($description, $country),
-                        'url'               =>  $url,
-                        'image'             =>  $image,
-                        'publishedAt'       =>  $publishedAt,
-                        // 'content'           =>  $this->checkifNull($content, $country),
-                    ];
-                }                               
+            $count = 0;
+            foreach($newsbody['articles'] as $source) {
+                if($count >=5){
+                    break;
+                } 
+                $newsource      = $source['source']['name'];
+                $author         = $source['author'];
+                $title          = $source['title'];
+                $description    = $source['description'];
+                $url            = $source['url'];
+                $image          = $source['urlToImage'];
+                $publishedAt    = $source['publishedAt'];
+                $content        = $source['content'];
+                
+                $newsfeed[] = [
+                    'Source'            =>  $newsource,
+                    'author'            =>  $author,
+                    // 'title'             =>  $function->translator($title, $country),
+                    'title'             =>  $title,
+                    // 'description'       =>  $function->translator($description, $country),
+                    'description'       =>  $description,
+                    'url'               =>  $url,
+                    'image'             =>  $image,
+                    'publishedAt'       =>  $publishedAt,
+                    // 'content'           =>  $this->checkifNull($content, $country),
+                ];
+                $count++;
             }
 
             return response()->json([

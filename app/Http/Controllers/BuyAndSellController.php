@@ -31,26 +31,33 @@ class BuyAndSellController extends Controller
             if(array_key_exists('results',$body['data'])) {
                 
                 $carousellfeed = [];
+                $deatail = [];
+                $location = [];
+                $count = 0;
                 foreach($body['data']['results'] as $cfeed) {
+                    if($count >= 5){
+                        break;
+                    } 
                     foreach($cfeed as $innercfeed) {
+                        
                         foreach($innercfeed['belowFold'] as $belowFold) {
                             $deatail[] = [
                                 // 'stringContent' => $function->translator($belowFold['stringContent'], $request->countrycode)
                                 'stringContent' => $belowFold['stringContent']
                             ];
                         }
-                        foreach($innercfeed['marketPlace'] as $key => $value) {
-                            $key = 'name' ? $location =  $value :$location = '';
-                        }
-
+                        
                         $carousellfeed[] = [
-                            'id'        =>  $innercfeed['id'],
-                            'seller'    =>  $innercfeed['seller'],
-                            'photoUrls' =>  $innercfeed['photoUrls'],
-                            'info'      =>  $deatail,
-                            'location'  =>  $location
+                            'id'            =>  $innercfeed['id'],
+                            'seller'        =>  $innercfeed['seller'],
+                            'photoUrls'     =>  $innercfeed['photoUrls'],
+                            'info'          =>  $deatail,
+                            'location'      =>  $innercfeed['marketPlace']['name'],
+                            'coordinates'   =>  $innercfeed['marketPlace']['location'],
+                            'source'        =>  'Carousell'
                         ];
                     }
+                    $count++;
                 }
                 return response()->json([
                     'data'      => $carousellfeed,
