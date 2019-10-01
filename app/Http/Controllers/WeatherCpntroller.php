@@ -2,15 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Weather;
 use Illuminate\Http\Request;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Config;
+use Carbon\Carbon;
 
 class WeatherCpntroller extends Controller
 {
     private $client;
-
+    public $weather;
     // accuweather url for forecast
     private $url = 'http://dataservice.accuweather.com/forecasts/v1/daily/5day';
 
@@ -21,8 +24,9 @@ class WeatherCpntroller extends Controller
     private $locationAPI = 'http://dataservice.accuweather.com/locations/v1/cities/ipaddress';
 
     // instantiate GuzzleHttp\Client
-    public function __construct(Client $client) {
+    public function __construct(Client $client, Weather $weather) {
         $this->client = $client;
+        $this->weather = $weather;
     }
 
     /**
@@ -39,14 +43,13 @@ class WeatherCpntroller extends Controller
 
         // location info
         $locationdatadata = $this->getlocationdata();
-
-        if(!is_array($locationdatadata)) {
+        
+        if(!array_key_exists('Key', $locationdatadata)) {
             return response()->json([
                 'message'   => 'Error in getting user location data!',
                 'result'    => false
             ]);
         }
-
         
         $locationkey = $locationdatadata['Key'];
         // $localizedName = $locationdatadata['Country']['LocalizedName'];
@@ -57,6 +60,7 @@ class WeatherCpntroller extends Controller
 
         // current condition info
         $currenconditiondata = $this->getCurrentCondition($locationkey, $localizedName);
+        $currentfeed = [];
 
         foreach($currenconditiondata as $newCCdata) {
             $currentfeed = [
@@ -85,7 +89,7 @@ class WeatherCpntroller extends Controller
             'Current_Condition' => $currentfeed,
             'Forecast'  => $weatherFeed
         ];
-
+        $this->setWeather($weatherdata);
         return response()->json([
             'data'      => $weatherdata,
             'result'    => true
@@ -98,16 +102,31 @@ class WeatherCpntroller extends Controller
      * 
      * @return JSON $body
      */
-    protected function getlocationdata() {
-        $apikey = $this->getKey();
-
-        $getlocationdata_url = $this->locationAPI.'?apikey='.$apikey;
-
+    public function getlocationdata() {
+        
         try {
-            $response = $this->client->request('GET', $getlocationdata_url,['http_errors' => false]);
-            $body = json_decode($response->getBody(), true);
-            
-            return $body;
+            $keys = config('weather.weatherapikey');
+
+            for($i=0;$i<count($keys);$i++) {
+                $apikey = $keys[$i];
+                
+                $getlocationdata_url = $this->locationAPI.'?apikey='.$apikey;
+
+                $response = $this->client->request('GET', $getlocationdata_url,['http_errors' => false]);
+                $body = json_decode($response->getBody(), true);
+
+                /**
+                 * decode the $response
+                 * see if there is key named "Code"
+                 * there is something wrong
+                 */
+                if(array_key_exists('Key',$body)) {
+                    return $body;
+                }
+                if($i >= (count($keys) - 1)) {
+                    return $body;
+                }
+            }
         }
         catch (\GuzzleHttp\Exception\ClientException $e) {
             return $e;
@@ -133,17 +152,29 @@ class WeatherCpntroller extends Controller
      * @return JSON $body
      */
     protected function get5dayForecast($lkey, $localizedName) {
-        $apikey = $this->getKey();
-        $gotlang = $this->getLocalizedLanguage($localizedName);
-        // lets build the url
-        $accuweather_url = $this->url.'/'.$lkey.'?language='.$gotlang.'&apikey='.$apikey;
 
-        // do the GET method call
         try {
-            $response = $this->client->request('GET', $accuweather_url,['http_errors' => false]);
-            $bodyForecast = json_decode($response->getBody(), true);
-            
-            return $bodyForecast;
+            $keys = config('weather.weatherapikey');
+            $gotlang = $this->getLocalizedLanguage($localizedName);
+            for($q=0;$q<count($keys);$q++) {
+                $apikey = $keys[$q];
+                $accuweather_url = $this->url.'/'.$lkey.'?language='.$gotlang.'&apikey='.$apikey;
+
+                $response = $this->client->request('GET', $accuweather_url,['http_errors' => false]);
+                $bodyForecast = json_decode($response->getBody(), true);
+
+                /**
+                 * decode the $response
+                 * see if there is key named "Code"
+                 * there is something wrong
+                 */
+                if(array_key_exists('Key',$bodyForecast)) {
+                    return $bodyForecast;
+                }
+                if($q >= (count($keys) - 1)) {
+                    return $bodyForecast;
+                }
+            }
         }
         catch (\GuzzleHttp\Exception\ClientException $e) {
             return $e;
@@ -169,16 +200,31 @@ class WeatherCpntroller extends Controller
      * @return JSON $body
      */
     protected function getCurrentCondition($lkey, $localizedName) {
-        $apikey = $this->getKey();
-        $gotlang = $this->getLocalizedLanguage($localizedName);
-
-        $currentcondition_url = $this->current_condition. '/' .$lkey. '?language='.$gotlang.'&apikey='.$apikey;
 
         try {
-            $response = $this->client->request('GET', $currentcondition_url,['http_errors' => false]);
-            $bodyCurrentCondition = json_decode($response->getBody(), true);
-            
-            return $bodyCurrentCondition;
+
+            $keys = config('weather.weatherapikey');
+            $gotlang = $this->getLocalizedLanguage($localizedName);
+            for($w=0;$w<count($keys);$w++) {
+                $apikey = $keys[$w];
+                
+                $currentcondition_url = $this->current_condition. '/' .$lkey. '?language='.$gotlang.'&apikey='.$apikey;
+
+                $response = $this->client->request('GET', $currentcondition_url,['http_errors' => false]);
+                $bodyCurrentCondition = json_decode($response->getBody(), true);
+
+                /**
+                 * decode the $response
+                 * see if there is key named "Code"
+                 * there is something wrong
+                 */
+                if(array_key_exists('Key',$bodyCurrentCondition)) {
+                    return $bodyCurrentCondition;
+                }
+                if($w >= (count($keys) - 1)) {
+                    return $bodyCurrentCondition;
+                }
+            }
         }
         catch (\GuzzleHttp\Exception\ClientException $e) {
             return $e;
@@ -341,13 +387,33 @@ class WeatherCpntroller extends Controller
         return number_format((float)$celsius, 2, '.', '');
     }
 
-    /**
-     * method to get accuweather key on .env
-     * 
-     * @return $key
-     */
-    private function getKey() {
-        $key = env('ACCUWEATHERKEY');
-        return $key;
+    protected function getWeather() {
+        $today = Carbon::today()->toDateString();
+
+
+    }
+
+    protected function setWeather($wdata) {
+        var_dump($wdata);
+        $turnout = false;
+        // get the date from getWeatherdata()
+        $weatherfeeddate = substr($wdata['Current_Condition']['Date'], 0, 10);
+
+        $today = Carbon::today()->toDateString();
+
+        // check the database
+        $check = $this->weather::whereDate('weatherdate', '>=', $today)->orderBy('idweathers', 'desc')->limit(1)->first();
+
+        /**
+         * if $check is null means we need to save some
+         */
+        if($check == null) {
+            $this->weather->weatherdate = $today;
+            $this->weather->weatherdata = $wdata;
+            $this->weather->save();
+            return $turnout = true;
+        }
+
+        return $turnout;
     }
 }

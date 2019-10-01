@@ -57,13 +57,13 @@ class NewsController extends Controller
                 $newsfeed[] = [
                     'Source'            =>  $newsource,
                     'author'            =>  $author,
-                    // 'title'             =>  $function->translator($title, $country),
-                    'title'             =>  $title,
-                    // 'description'       =>  $function->translator($description, $country),
-                    'description'       =>  $description,
+                    'title'             =>  $country === 'ph' ? $title : $function->translator($title, $country),
+                    // 'title'             =>  $title,
+                    'description'       =>  $country === 'ph' ? $description : $function->translator($description, $country),
+                    // 'description'       =>  $description,
                     'url'               =>  $url,
                     'image'             =>  $image,
-                    'publishedAt'       =>  $publishedAt,
+                    'publishedAt'       =>  $function->timeLapse($publishedAt),
                     // 'content'           =>  $this->checkifNull($content, $country),
                 ];
                 $count++;

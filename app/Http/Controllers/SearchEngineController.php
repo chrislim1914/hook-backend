@@ -72,9 +72,9 @@ class SearchEngineController extends Controller
     }
 
     protected function getCredential() {
-        $gapikey             = env('GOOGLEAPIKEY');
-        $gsearchengineid     = env('GOOGLESEARCHENGINEID');
-        $csearchengineid  = env('CAROUSELLSEARCHENGINEID');
+        $gapikey            = env('GOOGLEAPIKEY');
+        $gsearchengineid    = env('GOOGLESEARCHENGINEID');
+        $csearchengineid    = env('CAROUSELLSEARCHENGINEID');
 
         return array(
             'googleapikey'              => $gapikey,
