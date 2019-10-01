@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Client;
+use Illuminate\Config;
 
 class SearchEngineController extends Controller
 {
@@ -17,7 +18,7 @@ class SearchEngineController extends Controller
     }
 
     public function doSomeSearching(Request $request) {
-
+        
         // lets check if the param is empty
         if($request->search == null) {
             return response()->json([
@@ -32,21 +33,40 @@ class SearchEngineController extends Controller
         }
 
         // get the credentials
-        $credential = $this->getCredential();
-        $googleapikey = $credential['googleapikey'];
-        $engineid = $request->engine === 'google' ? $credential['googlesearchengineid'] : $credential['carousellsearchengineid'];
+        // $credential = $this->getCredential();
+        // $googleapikey = $credential['googleapikey'];
+        // $engineid = $request->engine === 'google' ? $credential['googlesearchengineid'] : $credential['carousellsearchengineid'];
 
-        // build the search url
-        $template_url = $this->search_url .'?key='. $googleapikey .'&cx='. $engineid .'&q='. $request->search . ($request->page == null ? '' : '&start='. $this->startPage($request->page)) ;
         
         try {
-            $response = $this->client->request('GET', $template_url,['http_errors' => false]);
-            $body = json_decode($response->getBody(), true);
+            $keys = config('engine');
+            $count = 0;
+            do {
+                if($count>=2) {
+                    return response()->json([
+                        'message'   => $engineid,
+                        'result'    => false
+                    ]); 
+                }
+                $googleapikey = $keys['googleapikey'][$count];
+                $engineid = $request->engine === 'google' ? $keys['googleengine'][$count] : $keys['carousellengine'][$count];
+
+                // build the search url
+                $template_url = $this->search_url .'?key='. $googleapikey .'&cx='. $engineid .'&q='. $request->search . ($request->page == null ? '' : ($request->page == 1 ? '' : '&start='. $this->startPage($request->page)));
             
-            return response()->json([
-                'data'   => $body['items'],
-                'result'    => true
-            ]);
+                $response = $this->client->request('GET', $template_url,['http_errors' => false]);
+                $body = json_decode($response->getBody(), true);
+                
+                if(array_key_exists('error', $body)) {
+                    $count++;
+                } else {
+                    return response()->json([
+                        'data'  => $body,
+                        'result'=> true
+                    ]);
+                }
+                
+            } while ($count < 2);
         }
         catch (\GuzzleHttp\Exception\ClientException $e) {
             return $e;
