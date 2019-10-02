@@ -51,7 +51,11 @@ class SearchEngineController extends Controller
             $template_url = $this->search_url .'?key='. $googleapikey .'&cx='. $engineid .'&q='. $treat . ($request->page == null ? '' : ($request->page == 1 ? '' : '&start='. $this->startPage($request->page)));
         
             $searching = $this->function->guzzleHttpCall($template_url);
-
+            // return response()->json([
+            //     'message'   => $searching,
+            //     'result'    => false
+            // ]);
+            // exit;
             //get status
             if(!is_array($searching) || $searching == false) {
                 return response()->json([
@@ -86,14 +90,10 @@ class SearchEngineController extends Controller
                     } else {
                         $image = null;
                     }
-
-                    foreach($newitem['pagemap']['metatags'] as $oglink) {
-                        $link = $oglink['og:url'];
-                    };
-                    
+                                        
                     $searchdata[] = [
                         'title'             => $country === 'ph' ? $newitem['title'] : $this->function->translator($newitem['title'], $country),
-                        'link'              => $link,
+                        'link'              => array_key_exists('og:url', $newitem['pagemap']['metatags'][0]) ? $newitem['pagemap']['metatags'][0]['og:url'] : $newitem['link'],
                         'snippet'           => $country === 'ph' ? $newitem['snippet'] : $this->function->translator($newitem['snippet'], $country),
                         'image'             => $image,
                         'thumbnailimage'    => $thumbnailimage,
