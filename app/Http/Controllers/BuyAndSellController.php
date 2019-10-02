@@ -11,93 +11,65 @@ use App\Http\Controllers\Functions;
 class BuyAndSellController extends Controller
 {
     private $client;
+    private $function;
     private $carousell_url = 'https://www.carousell.ph/api-service/home/?count=20&countryID=1694008';
 
-    public function __construct(Client $client) {
-        $this->client = $client;
+    public function __construct(Client $client, Functions $function) {
+        $this->client   = $client;
+        $this->function = $function;
     }
 
     public function getCarousell(Request $request) {
         
-        // $cid = $this->getCarousellCountryID($request->countryid);
-        // call the Functions Class
-        $function = new Functions();
+        $carouselldata = $this->function->guzzleHttpCall($this->carousell_url);
 
-        try {
-            $response = $this->client->request('GET', $this->carousell_url,['http_errors' => false]);
-            $body = json_decode($response->getBody(), true);
+        if($carouselldata == false) {
+            return response()->json([
+                'message'   => "Something went wrong on our side!",
+                'result'    => false
+            ]);
+        }
 
-            // check if there is result in the body
-            if(array_key_exists('results',$body['data'])) {
-                
-                $carousellfeed = [];
-                $deatail = [];
-                $location = [];
-                $count = 0;
-                foreach($body['data']['results'] as $cfeed) {
-                    if($count >= 5){
-                        break;
-                    } 
-                    foreach($cfeed as $innercfeed) {
-                        
-                        foreach($innercfeed['belowFold'] as $belowFold) {
-                            $deatail[] = [
-                                // 'stringContent' => $function->translator($belowFold['stringContent'], $request->countrycode)
-                                'stringContent' => $belowFold['stringContent']
-                            ];
-                        }
-                        
-                        $carousellfeed[] = [
-                            'id'            =>  $innercfeed['id'],
-                            'seller'        =>  $innercfeed['seller'],
-                            'photoUrls'     =>  $innercfeed['photoUrls'],
-                            'info'          =>  $deatail,
-                            'location'      =>  $innercfeed['marketPlace']['name'],
-                            'coordinates'   =>  $innercfeed['marketPlace']['location'],
-                            'source'        =>  'Carousell'
+        // check if there is result in the body
+        if(array_key_exists('results',$carouselldata['data'])) {            
+            $carousellfeed = [];
+            $deatail = [];
+            $location = [];
+            $count = 0;
+            foreach($carouselldata['data']['results'] as $cfeed) {
+                if($count >= 5){
+                    break;
+                } 
+                foreach($cfeed as $innercfeed) {
+                    
+                    $deatail = [];
+                    foreach($innercfeed['belowFold'] as $belowFold) {
+                        $deatail[] = [
+                            // 'stringContent' => $function->translator($belowFold['stringContent'], $request->countrycode)
+                            'stringContent' => $belowFold['stringContent']
                         ];
                     }
-                    $count++;
+                    
+                    $carousellfeed[] = [
+                        'id'            =>  $innercfeed['id'],
+                        'seller'        =>  $innercfeed['seller'],
+                        'photoUrls'     =>  $innercfeed['photoUrls'],
+                        'info'          =>  $deatail,
+                        'location'      =>  $innercfeed['marketPlace']['name'],
+                        'coordinates'   =>  $innercfeed['marketPlace']['location'],
+                        'source'        =>  'Carousell'
+                    ];
                 }
-                return response()->json([
-                    'data'      => $carousellfeed,
-                    'result'    => true
-                ]);
-            } else {
-                return response()->json([
-                'message'   => 'Error getting data!',
-                'result'    => false
-                ]);
-            }            
-        }
-        catch (\GuzzleHttp\Exception\ClientException $e) {
+                $count++;
+            }
             return response()->json([
-                'message'   => $e,
-                'result'    => false
+                'data'      => $carousellfeed,
+                'result'    => true
             ]);
-        }
-        catch (\GuzzleHttp\Exception\GuzzleException $e) {
+        } else {
             return response()->json([
-                'message'   => $e,
-                'result'    => false
-            ]);
-        }
-        catch (\GuzzleHttp\Exception\ConnectException $e) {
-            return response()->json([
-                'message'   => $e,
-                'result'    => false
-            ]);
-        }
-        catch (\GuzzleHttp\Exception\ServerException $e) {
-            return response()->json([
-                'message'   => $e,
-                'result'    => false
-            ]);
-        }
-        catch (\Exception $e) {
-            return response()->json([
-                'message'   => $e,
-                'result'    => false
+            'message'   => 'Error getting data!',
+            'result'    => false
             ]);
         }
     }

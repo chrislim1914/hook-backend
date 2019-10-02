@@ -43,34 +43,41 @@ class SearchEngineController extends Controller
         $count = 0;
 
         do {
-            if($count>=2) {
-                return response()->json([
-                    'message'   => 'Something went wrong!',
-                    'result'    => false
-                ]); 
-            }
+            
             $googleapikey = $keys['googleapikey'][$count];
             $engineid = $request->engine === 'google' ? $keys['googleengine'][$count] : $keys['carousellengine'][$count];
 
             // build the search url
             $template_url = $this->search_url .'?key='. $googleapikey .'&cx='. $engineid .'&q='. $treat . ($request->page == null ? '' : ($request->page == 1 ? '' : '&start='. $this->startPage($request->page)));
         
-            $response = $this->client->request('GET', $template_url,['http_errors' => false]);
-            $body = json_decode($response->getBody(), true);
+            $searching = $this->function->guzzleHttpCall($template_url);
 
-            if(array_key_exists('error', $body)) {
+            //get status
+            if(!is_array($searching) || $searching == false) {
+                return response()->json([
+                    'message'   => "Something went wrong on our side!",
+                    'result'    => false
+                ]);
+            }
+            if(array_key_exists('error', $searching)) {                
                 $count++;
+                if($count>=2) {
+                    return response()->json([
+                        'message'   => 'Something went wrong on our side!',
+                        'result'    => false
+                    ]); 
+                }
             } else {
                 // create new json data
-                foreach($body['items'] as $newitem) {
+                foreach($searching['items'] as $newitem) {
+
                     if(array_key_exists('cse_image', $newitem['pagemap'])) {
                         foreach($newitem['pagemap']['cse_image'] as $innerthumbimage) {
                             $thumbnailimage = $innerthumbimage['src'];
                         };
                     } else {
                         $thumbnailimage = null;
-                    }
-                    
+                    }                    
 
                     if(array_key_exists('cse_thumbnail', $newitem['pagemap'])) {
                         foreach($newitem['pagemap']['cse_thumbnail'] as $innerimage) {
@@ -79,10 +86,14 @@ class SearchEngineController extends Controller
                     } else {
                         $image = null;
                     }
+
+                    foreach($newitem['pagemap']['metatags'] as $oglink) {
+                        $link = $oglink['og:url'];
+                    };
                     
                     $searchdata[] = [
                         'title'             => $country === 'ph' ? $newitem['title'] : $this->function->translator($newitem['title'], $country),
-                        'link'              => $newitem['link'],
+                        'link'              => $link,
                         'snippet'           => $country === 'ph' ? $newitem['snippet'] : $this->function->translator($newitem['snippet'], $country),
                         'image'             => $image,
                         'thumbnailimage'    => $thumbnailimage,

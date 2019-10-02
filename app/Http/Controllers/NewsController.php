@@ -27,7 +27,7 @@ class NewsController extends Controller
         $newsapi_url = $this->url.'&apiKey='.$apikey;
 
         $httpcall = $this->function->guzzleHttpCall($newsapi_url);
-
+        
         //get status
         if($httpcall['status'] !== 'ok' || !is_array($httpcall)) {
             return response()->json([
@@ -38,7 +38,7 @@ class NewsController extends Controller
         // lets build the json data and even translate if neccesary
         $newsfeed = [];
         $count = 0;
-        
+
         foreach($httpcall['articles'] as $source) {
             if($count >=5){
                 break;
