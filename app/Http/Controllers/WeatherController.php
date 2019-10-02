@@ -8,17 +8,20 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
+use App\Http\Controllers\Functions;
 
 class WeatherController extends Controller
 {
     private $ipapi = 'http://ip-api.com/php/';
+    private $function;
     private $client;
     private $currentcondition_url = 'https://api.openweathermap.org/data/2.5/weather';
     private $forecast_url = 'https://api.openweathermap.org/data/2.5/forecast';
 
     // instantiate GuzzleHttp\Client
-    public function __construct(Client $client) {
+    public function __construct(Client $client, Functions $function) {
         $this->client = $client;
+        $this->function = $function;
     }
 
     public function getCCandFC(Request $request) {
@@ -41,81 +44,84 @@ class WeatherController extends Controller
 
         // get language syupport
         $gotlang = $this->getLocalizedLanguage($request->countrycode);
-        try {
-                            
-            $cc_url = $this->currentcondition_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$apikey;
-            $fc_url = $this->forecast_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$apikey;
 
-            $response_cc = $this->client->request('GET', $cc_url,['http_errors' => false]);
-            $cc_body = json_decode($response_cc->getBody(), true);
+        $cc_url = $this->currentcondition_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$apikey;
+        $fc_url = $this->forecast_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$apikey;
 
-            $response_fc = $this->client->request('GET', $fc_url,['http_errors' => false]);
-            $fc_body = json_decode($response_fc->getBody(), true);
+        $cc_body = $this->function->guzzleHttpCall($cc_url);
+        $fc_body = $this->function->guzzleHttpCall($fc_url);
 
-            // check if success
-            if($cc_body['cod'] != 200) {
-                return false;
+        // check if success
+        if($cc_body['cod'] != 200 || $cc_body == false) {
+            return response()->json([
+                'message'   => 'Something went wrong on our side!',
+                'result'    => false
+            ]); 
+        }
+        if($fc_body['cod'] != 200  || $fc_body == false) {
+            return response()->json([
+                'message'   => 'Something went wrong on our side!',
+                'result'    => false
+            ]); 
+        }
+
+        $currentfeed = [];
+
+        foreach($cc_body['weather'] as $icondata) {
+            $icon = $icondata['icon'];
+            $description = $icondata['description'];
+        }
+
+        $currentfeed = [
+            'Date'          => date("Y-m-d",$cc_body['dt']),
+            'EpochDate'     => $cc_body['dt'],
+            'Temp'          => $cc_body['main']['temp'],
+            'Icon'          => 'http://openweathermap.org/img/wn/'.$icon.'@2x.png',
+            'Description'   => $description
+        ];
+
+        $fcFeed = [];
+        $count = 0;
+
+        foreach($fc_body['list'] as $item) {
+            foreach($item['weather'] as $innerdata) {
+                $innericon = $innerdata['icon'];
+                $innerdes = $innerdata['description'];
             }
-            if($fc_body['cod'] != 200) {
-                return false;
-            }
 
-            $currentfeed = [];
+            $thistime = strtotime(date("Y-m-d",$item['dt']).' 11:00');
 
-            foreach($cc_body['weather'] as $icondata) {
-                $icon = $icondata['icon'];
-                $description = $icondata['description'];
-            }
-
-            $currentfeed = [
-                'Date'          => date("Y-m-d\TH:i:s\Z",$cc_body['dt']),
-                'EpochDate'     => $cc_body['dt'],
-                'Temp'          => $cc_body['main']['temp'],
-                'Icon'          => 'http://openweathermap.org/img/wn/'.$icon.'@2x.png',
-                'Description'   => $description
-            ];
-
-            $fcFeed = [];
-            foreach($fc_body['list'] as $item) {
-                foreach($item['weather'] as $innerdata) {
-                    $innericon = $innerdata['icon'];
-                    $innerdes = $innerdata['description'];
-                }
+            if($count == 0){
                 $fcFeed[] = [
-                    'Date'          => date("Y-m-d\TH:i:s\Z",$item['dt']),
+                    'Date'          => date("Y-m-d H:i",$item['dt']),
                     'EpochDate'     => $item['dt'],
                     'Min-Temp'      => $item['main']['temp_min'],
                     'Max-Temp'      => $item['main']['temp_max'],
                     'Icon'          => 'http://openweathermap.org/img/wn/'.$innericon.'@2x.png',
                     'Description'   => $innerdes
                 ];
-            }
+            }elseif($thistime == $item['dt']) {
+                $fcFeed[] = [
+                    'Date'          => date("Y-m-d H:i",$item['dt']),
+                    'EpochDate'     => $item['dt'],
+                    'Min-Temp'      => $item['main']['temp_min'],
+                    'Max-Temp'      => $item['main']['temp_max'],
+                    'Icon'          => 'http://openweathermap.org/img/wn/'.$innericon.'@2x.png',
+                    'Description'   => $innerdes
+                ];
+            }            
+            $count++;
+        }
 
-            $weatherdata = [
-                'Current_Condition' => $currentfeed,
-                'Forecast'  => $fcFeed
-            ];
-            
-            return response()->json([
-                'data'      => $weatherdata,
-                'result'    => true
-            ]);
-        }
-        catch (\GuzzleHttp\Exception\ClientException $e) {
-            return $e;
-        }
-        catch (\GuzzleHttp\Exception\GuzzleException $e) {
-            return $e;
-        }
-        catch (\GuzzleHttp\Exception\ConnectException $e) {
-            return $e;
-        }
-        catch (\GuzzleHttp\Exception\ServerException $e) {
-            return $e;
-        }
-        catch (\Exception $e) {
-            return $e;
-        }
+        $weatherdata = [
+            'Current_Condition' => $currentfeed,
+            'Forecast'  => $fcFeed
+        ];
+        
+        return response()->json([
+            'data'      => $weatherdata,
+            'result'    => true
+        ]);
     }
 
     protected function getipInfo($ipaddress) {

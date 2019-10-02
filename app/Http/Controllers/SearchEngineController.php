@@ -51,11 +51,7 @@ class SearchEngineController extends Controller
             $template_url = $this->search_url .'?key='. $googleapikey .'&cx='. $engineid .'&q='. $treat . ($request->page == null ? '' : ($request->page == 1 ? '' : '&start='. $this->startPage($request->page)));
         
             $searching = $this->function->guzzleHttpCall($template_url);
-            // return response()->json([
-            //     'message'   => $searching,
-            //     'result'    => false
-            // ]);
-            // exit;
+            
             //get status
             if(!is_array($searching) || $searching == false) {
                 return response()->json([

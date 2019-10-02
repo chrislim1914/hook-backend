@@ -78,6 +78,8 @@ class Functions extends Controller
 
         // Set the timezone via DateTimeZone instance or string
         $current->timezone = new \DateTimeZone(getenv('APP_TIMEZONE'));
+
+        $current->toDateString(); 
         
         return $current;
     }
