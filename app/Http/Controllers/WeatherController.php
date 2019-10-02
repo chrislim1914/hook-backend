@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Weather;
 use Illuminate\Http\Request;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
@@ -18,9 +17,8 @@ class WeatherController extends Controller
     private $forecast_url = 'https://api.openweathermap.org/data/2.5/forecast';
 
     // instantiate GuzzleHttp\Client
-    public function __construct(Client $client, Weather $weather) {
+    public function __construct(Client $client) {
         $this->client = $client;
-        $this->weather = $weather;
     }
 
     public function getCCandFC(Request $request) {
