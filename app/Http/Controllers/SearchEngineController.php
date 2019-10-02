@@ -31,12 +31,6 @@ class SearchEngineController extends Controller
                 'result'    => false
             ]);
         }
-
-        // get the credentials
-        // $credential = $this->getCredential();
-        // $googleapikey = $credential['googleapikey'];
-        // $engineid = $request->engine === 'google' ? $credential['googlesearchengineid'] : $credential['carousellsearchengineid'];
-
         
         try {
             $keys = config('engine');
@@ -44,7 +38,7 @@ class SearchEngineController extends Controller
             do {
                 if($count>=2) {
                     return response()->json([
-                        'message'   => $engineid,
+                        'message'   => 'Something went wrong!',
                         'result'    => false
                     ]); 
                 }
@@ -56,12 +50,35 @@ class SearchEngineController extends Controller
             
                 $response = $this->client->request('GET', $template_url,['http_errors' => false]);
                 $body = json_decode($response->getBody(), true);
-                
+
                 if(array_key_exists('error', $body)) {
                     $count++;
                 } else {
+                    // create new json data
+                    foreach($body['items'] as $newitem) {
+                        foreach($newitem['pagemap']['cse_image'] as $innerthumbimage) {
+                            $thumbnailimage = $innerthumbimage['src'];
+                        };
+
+                        if(array_key_exists('cse_thumbnail', $newitem['pagemap'])) {
+                            foreach($newitem['pagemap']['cse_thumbnail'] as $innerimage) {
+                                $image = $innerimage['src'];
+                            };
+                        } else {
+                            $image = null;
+                        }
+                        
+                        $searchdata[] = [
+                            'title' => $newitem['title'],
+                            'link' => $newitem['link'],
+                            'snippet' => $newitem['snippet'],
+                            'image' => $image,
+                            'thumbnailimage' => $thumbnailimage,
+                        ];
+                    }
+                    
                     return response()->json([
-                        'data'  => $body,
+                        'data'  => $searchdata,
                         'result'=> true
                     ]);
                 }
@@ -89,17 +106,5 @@ class SearchEngineController extends Controller
         $start = ($pagenum * 10) -10;
 
         return $start;
-    }
-
-    protected function getCredential() {
-        $gapikey            = env('GOOGLEAPIKEY');
-        $gsearchengineid    = env('GOOGLESEARCHENGINEID');
-        $csearchengineid    = env('CAROUSELLSEARCHENGINEID');
-
-        return array(
-            'googleapikey'              => $gapikey,
-            'googlesearchengineid'      => $gsearchengineid,
-            'carousellsearchengineid'   => $csearchengineid
-        );
     }
 }
