@@ -10,6 +10,9 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Carbon;
 use Stichoza\GoogleTranslate\GoogleTranslate;
+use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Exception\ConnectException;
+use GuzzleHttp\Client;
 
 class Functions extends Controller
 {
@@ -134,5 +137,70 @@ class Functions extends Controller
         }
 
         return $translated;
+    }
+
+    /**
+     * method for getting support language using Stichoza\GoogleTranslate\GoogleTranslate
+     * 
+     * @param $countrycode
+     * @return $c_code
+     */
+    public function countrycodeforlanguage($countrycode) {
+
+        $c_code = 'ph'; 
+
+        $array_code =  array(
+           'jp' =>  'ja',
+           'kr' =>  'ko',
+           'cn' =>  'zh',
+           'ph' =>  'en'
+        );
+
+        if($countrycode == null) {
+            return $c_code;
+        }
+        
+        foreach($array_code as $key => $value) {
+            if($key === $countrycode) {
+                $c_code = $value;
+                return $c_code;
+            }
+        }
+
+        return $c_code;
+    }
+
+    /**
+     * method to use GuzzleHttp\Client
+     * 
+     * @param $template_url
+     * @return Mix
+     */
+    public function guzzleHttpCall($template_url) {
+        
+        $client = new Client();
+
+        try {
+                    
+            $response = $client->request('GET', $template_url,['http_errors' => false]);
+            $body = json_decode($response->getBody(), true);
+            
+            return $body;
+        }
+        catch (\GuzzleHttp\Exception\ClientException $e) {
+            return false;
+        }
+        catch (\GuzzleHttp\Exception\GuzzleException $e) {
+            return false;
+        }
+        catch (\GuzzleHttp\Exception\ConnectException $e) {
+            return false;
+        }
+        catch (\GuzzleHttp\Exception\ServerException $e) {
+            return false;
+        }
+        catch (\Exception $e) {
+            return false;
+        }
     }
 }
