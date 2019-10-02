@@ -43,7 +43,7 @@ class WeatherController extends Controller
         $countrycode = strtolower($ipdata['countryCode']);
 
         // get language syupport
-        $gotlang = $this->getLocalizedLanguage($request->countrycode);
+        $gotlang = $this->function->getLanguageCode($request->languagecode);
 
         $cc_url = $this->currentcondition_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$apikey;
         $fc_url = $this->forecast_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$apikey;
@@ -132,42 +132,6 @@ class WeatherController extends Controller
         }
 
         return false;
-    }
-    
-    /**
-     * method to get user localize language
-     * 
-     * if not found the default language will be EN
-     * 
-     * @param $country
-     * @return $lang
-     */
-    protected function getLocalizedLanguage($country) {
-        // default language if country not supported
-        $lang = 'en';
-        
-        foreach($this->supportedLanguage() as $key => $value) {
-            if($key === $country) {
-                $lang = $value;
-                return $lang;
-            }
-        }
-
-        return $lang;
-    }
-
-    /**
-     * constant list of language supported by accuweather API
-     * 
-     * @return array
-     */
-    protected function supportedLanguage() {
-        return array(
-            'jp' =>  'ja',
-            'kr' =>  'kr',
-            'cn' =>  'zh_cn',
-            'ph' =>  'en'
-        );
     }
 
     protected function getCredential() {        

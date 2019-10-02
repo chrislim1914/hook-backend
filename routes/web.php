@@ -64,3 +64,11 @@ $router->group(['prefix' => 'api'], function($router)
 {
     $router->get('search', ['middleware' => 'cors', 'uses' => 'SearchEngineController@doSomeSearching']);
 });
+
+/**
+ * to test something
+ */
+$router->group(['prefix' => 'api'], function($router)
+{
+    $router->get('test/{inputlang}', ['middleware' => 'cors', 'uses' => 'Functions@getLanguageCodeForWeather']);
+});

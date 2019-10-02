@@ -37,7 +37,7 @@ class BuyAndSellController extends Controller
             $location = [];
             $count = 0;
             foreach($carouselldata['data']['results'] as $cfeed) {
-                if($count >= 5){
+                if($count >= 10){
                     break;
                 } 
                 foreach($cfeed as $innercfeed) {

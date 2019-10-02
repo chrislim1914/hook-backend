@@ -13,6 +13,7 @@ use Stichoza\GoogleTranslate\GoogleTranslate;
 use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Config;
 
 class Functions extends Controller
 {
@@ -139,6 +140,52 @@ class Functions extends Controller
         }
 
         return $translated;
+    }
+
+    /**
+     * method to check if the language 
+     * inputed is supported in our language.php
+     * 
+     * @param $language
+     * @return $langcode
+     */
+    public function getLanguageCode($inputlang) {
+        // default language
+        $langcode = '';
+
+        $lang = config('language');
+
+        // make sure that the input language code is in lower string        
+        $inputlang = strtolower($inputlang);
+
+        if(array_key_exists($inputlang, $lang)) {
+            return $langcode = $inputlang;
+        } else {
+            return $langcode = 'en';
+        }        
+    }
+
+    /**
+     * method to check if the language 
+     * inputed is supported in our language.php
+     * 
+     * @param $language
+     * @return $langcode
+     */
+    public function getLanguageCodeForWeather($inputlang) {
+        // default language
+        $langcode = '';
+
+        $lang = config('language');
+        
+        // make sure that the input language code is in lower string        
+        $inputlang = strtolower($inputlang);
+
+        if(array_key_exists($inputlang, $lang)) {
+            return $langcode = $lang[$inputlang];
+        } else {
+            return $langcode = 'en';
+        }        
     }
 
     /**

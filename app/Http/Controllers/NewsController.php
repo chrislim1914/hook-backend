@@ -20,7 +20,7 @@ class NewsController extends Controller
     public function feedNews(Request $request) {
 
         // get country code, news apikey
-        $country =  $this->function->countrycodeforlanguage($request->countrycode);
+        $langcode =  $this->function->getLanguageCode($request->languagecode);
         $apikey =   $this->getKey();
 
         // lets create the newsapi url
@@ -55,14 +55,14 @@ class NewsController extends Controller
             $newsfeed[] = [
                 'Source'            =>  $newsource,
                 'author'            =>  $author,
-                'title'             =>  $country === 'ph' ? $title : $this->function->translator($title, $country),
-                // 'title'             =>  $title,
-                'description'       =>  $country === 'ph' ? $description : $this->function->translator($description, $country),
-                // 'description'       =>  $description,
+                // 'title'             =>  $langcode === 'ph' ? $title : $this->function->translator($title, $langcode),
+                'title'             =>  $title,
+                // 'description'       =>  $langcode === 'ph' ? $description : $this->function->translator($description, $langcode),
+                'description'       =>  $description,
                 'url'               =>  $url,
                 'image'             =>  $image,
                 'publishedAt'       =>  $this->function->timeLapse($publishedAt),
-                // 'content'           =>  $this->checkifNull($content, $country),
+                // 'content'           =>  $this->checkifNull($content, $langcode),
             ];
             $count++;
         }

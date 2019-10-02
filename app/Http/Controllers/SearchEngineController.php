@@ -37,7 +37,7 @@ class SearchEngineController extends Controller
         }
         
         // get country code language localization
-        $country =  $this->function->countrycodeforlanguage($request->countrycode);
+        $langcode =  $this->function->getLanguageCode($request->languagecode);
         
         $keys = config('engine');
         $count = 0;
@@ -88,9 +88,9 @@ class SearchEngineController extends Controller
                     }
                                         
                     $searchdata[] = [
-                        'title'             => $country === 'ph' ? $newitem['title'] : $this->function->translator($newitem['title'], $country),
+                        'title'             => $langcode === 'ph' ? $newitem['title'] : $this->function->translator($newitem['title'], $langcode),
                         'link'              => array_key_exists('og:url', $newitem['pagemap']['metatags'][0]) ? $newitem['pagemap']['metatags'][0]['og:url'] : $newitem['link'],
-                        'snippet'           => $country === 'ph' ? $newitem['snippet'] : $this->function->translator($newitem['snippet'], $country),
+                        'snippet'           => $langcode === 'ph' ? $newitem['snippet'] : $this->function->translator($newitem['snippet'], $langcode),
                         'image'             => $image,
                         'thumbnailimage'    => $thumbnailimage,
                     ];
