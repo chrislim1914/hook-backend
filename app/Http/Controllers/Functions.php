@@ -77,7 +77,7 @@ class Functions extends Controller
         $current = Carbon::now();
 
         // Set the timezone via DateTimeZone instance or string
-        $current->timezone = new \DateTimeZone(getenv('APP_TIMEZONE'));
+        $current->timezone = new \DateTimeZone('Asia/Manila');
 
         $current->toDateString(); 
         
