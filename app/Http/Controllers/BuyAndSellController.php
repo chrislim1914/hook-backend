@@ -21,6 +21,9 @@ class BuyAndSellController extends Controller
 
     public function getCarousell(Request $request) {
         
+        // get country code, news apikey
+        $langcode =  $this->function->getLanguageCode($request->languagecode);
+
         $carouselldata = $this->function->guzzleHttpCall($this->carousell_url);
 
         if($carouselldata == false) {
@@ -29,7 +32,7 @@ class BuyAndSellController extends Controller
                 'result'    => false
             ]);
         }
-
+        
         // check if there is result in the body
         if(array_key_exists('results',$carouselldata['data'])) {            
             $carousellfeed = [];
@@ -45,8 +48,8 @@ class BuyAndSellController extends Controller
                     $deatail = [];
                     foreach($innercfeed['belowFold'] as $belowFold) {
                         $deatail[] = [
-                            // 'stringContent' => $function->translator($belowFold['stringContent'], $request->countrycode)
-                            'stringContent' => $belowFold['stringContent']
+                            // 'stringContent' => $belowFold['stringContent']
+                            'stringContent' => $langcode === 'ph' ? $belowFold['stringContent'] : $this->function->translator($belowFold['stringContent'], $langcode),
                         ];
                     }
                     
