@@ -49,7 +49,7 @@ class BuyAndSellController extends Controller
                     foreach($innercfeed['belowFold'] as $belowFold) {
                         $deatail[] = [
                             // 'stringContent' => $belowFold['stringContent']
-                            'stringContent' => $langcode === 'ph' ? $belowFold['stringContent'] : $this->function->translator($belowFold['stringContent'], $langcode),
+                            'stringContent' => $langcode === 'en' ? $belowFold['stringContent'] : $this->function->translator($belowFold['stringContent'], $langcode),
                         ];
                     }
                     

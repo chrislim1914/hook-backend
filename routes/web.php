@@ -70,5 +70,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->post('test', ['middleware' => 'cors', 'uses' => 'ChinaBRandController@getList']);
+    $router->post('test', ['middleware' => 'cors', 'uses' => 'Functions@translator']);
 });

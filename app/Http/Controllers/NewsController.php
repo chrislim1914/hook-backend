@@ -45,8 +45,8 @@ class NewsController extends Controller
             } 
             $newsource      = $source['source']['name'];
             $author         = $source['author'];
-            $title          = $source['title'];
-            $description    = $source['description'];
+            $title          = $langcode == 'en' ? $source['title'] : $this->function->translator($source['title'], $langcode);
+            $description    = $langcode == 'en' ? $source['description'] : $this->function->translator($source['description'], $langcode);
             $url            = $source['url'];
             $image          = $source['urlToImage'];
             $publishedAt    = $source['publishedAt'];
@@ -55,10 +55,8 @@ class NewsController extends Controller
             $newsfeed[] = [
                 'Source'            =>  $newsource,
                 'author'            =>  $author,
-                'title'             =>  $langcode === 'ph' ? $title : $this->function->translator($title, $langcode),
-                // 'title'             =>  $title,
-                'description'       =>  $langcode === 'ph' ? $description : $this->function->translator($description, $langcode),
-                // 'description'       =>  $description,
+                'title'             =>  $title,
+                'description'       =>  $description,
                 'url'               =>  $url,
                 'image'             =>  $image,
                 'publishedAt'       =>  $this->function->timeLapse($publishedAt),
