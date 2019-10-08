@@ -70,5 +70,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('test/{inputlang}', ['middleware' => 'cors', 'uses' => 'Functions@getLanguageCodeForWeather']);
+    $router->post('test', ['middleware' => 'cors', 'uses' => 'ChinaBRandController@getList']);
 });

@@ -16,9 +16,9 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Config;
 
 class Functions extends Controller
-{
+{    
     public $hashPassword;
-
+    
     //Password Encryption Function
 
     /**
@@ -127,9 +127,19 @@ class Functions extends Controller
      */
     public function translator($item, $countrycode) {
         // set the translator
-        $tr = new GoogleTranslate(); // Translates to 'en' from auto-detected language by default
-        $tr->setSource('en'); // Translate from English
-        $tr->setTarget($countrycode); // Translate to based on countrycode localization
+        // $tr = new GoogleTranslate(); // Translates to 'en' from auto-detected language by default
+        // $tr->setSource('en'); // Translate from English
+        // $tr->setTarget($countrycode); // Translate to based on countrycode localization
+        $tr = new GoogleTranslate($countrycode, 'en', [
+            'config' => [
+                'curl' => [
+                    'CURLOPT_PROXY' => '*.*.*.*',
+                    'CURLOPT_PROXYPORT' => '*',
+                    'CURLOPT_PROXYUSERPWD' => '*:*',
+                    'CURLOPT_HTTPPROXYTUNNEL' => 1
+                ]
+            ]
+        ]);
 
         if($item == null) {
             $translated = null;
@@ -186,37 +196,6 @@ class Functions extends Controller
         } else {
             return $langcode = 'en';
         }        
-    }
-
-    /**
-     * method for getting support language using Stichoza\GoogleTranslate\GoogleTranslate
-     * 
-     * @param $countrycode
-     * @return $c_code
-     */
-    public function countrycodeforlanguage($countrycode) {
-
-        $c_code = 'ph'; 
-
-        $array_code =  array(
-           'jp' =>  'ja',
-           'kr' =>  'ko',
-           'cn' =>  'zh',
-           'ph' =>  'en'
-        );
-
-        if($countrycode == null) {
-            return $c_code;
-        }
-        
-        foreach($array_code as $key => $value) {
-            if($key === $countrycode) {
-                $c_code = $value;
-                return $c_code;
-            }
-        }
-
-        return $c_code;
     }
 
     /**

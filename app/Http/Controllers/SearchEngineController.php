@@ -51,7 +51,8 @@ class SearchEngineController extends Controller
             $template_url = $this->search_url .'?key='. $googleapikey .'&cx='. $engineid .'&q='. $treat . ($request->page == null ? '' : ($request->page == 1 ? '' : '&start='. $this->startPage($request->page)));
         
             $searching = $this->function->guzzleHttpCall($template_url);
-            
+
+            // lets check mfor error, and no items return on json body
             //get status
             if(!is_array($searching) || $searching == false) {
                 return response()->json([
@@ -59,7 +60,7 @@ class SearchEngineController extends Controller
                     'result'    => false
                 ]);
             }
-            if(array_key_exists('error', $searching)) {                
+            if(array_key_exists('error', $searching) || !array_key_exists('items', $searching)) {                
                 $count++;
                 if($count>=2) {
                     return response()->json([
