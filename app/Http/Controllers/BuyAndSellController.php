@@ -32,7 +32,7 @@ class BuyAndSellController extends Controller
                 'result'    => false
             ]);
         }
-        
+
         // check if there is result in the body
         if(array_key_exists('results',$carouselldata['data'])) {            
             $carousellfeed = [];
@@ -40,7 +40,7 @@ class BuyAndSellController extends Controller
             $location = [];
             $count = 0;
             foreach($carouselldata['data']['results'] as $cfeed) {
-                if($count >= 10){
+                if($count >= 5){
                     break;
                 } 
                 foreach($cfeed as $innercfeed) {
