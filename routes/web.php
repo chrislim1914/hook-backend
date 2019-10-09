@@ -55,6 +55,7 @@ $router->group(['prefix' => 'api'], function($router)
 $router->group(['prefix' => 'api'], function($router)
 {
     $router->get('news', ['middleware' => 'cors', 'uses' => 'NewsController@feedNews']);
+    $router->get('newscategory', ['middleware' => 'cors', 'uses' => 'NewsController@feedNewsByCategory']);
 });
 
 /**

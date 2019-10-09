@@ -133,9 +133,9 @@ class Functions extends Controller
         $tr = new GoogleTranslate($countrycode, 'en', [
             'config' => [
                 'curl' => [
-                    'CURLOPT_PROXY' => '*.*.*.*',
-                    'CURLOPT_PROXYPORT' => '*',
-                    'CURLOPT_PROXYUSERPWD' => '*:*',
+                    'CURLOPT_PROXY' => '172.16.1.1/255',
+                    'CURLOPT_PROXYPORT' => '3128',
+                    'CURLOPT_PROXYUSERPWD' => ':',
                     'CURLOPT_HTTPPROXYTUNNEL' => 1
                 ]
             ]
@@ -143,10 +143,11 @@ class Functions extends Controller
 
         if($item == null) {
             $translated = null;
-        } elseif ($countrycode === 'ph') {
+        } elseif ($countrycode === 'en') {
             $translated = $item;
         } else {
             $translated = $tr->translate($item);
+            $translated == null ? $translated = $item : $translated;
         }
 
         return $translated;
