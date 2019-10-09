@@ -11,6 +11,7 @@ use App\Http\Controllers\Functions;
 class NewsController extends Controller
 {
     private $url = 'https://newsapi.org/v2/top-headlines?country=ph&pageSize=5';
+    private $everything_url = 'https://newsapi.org/v2/everything?domains=abs-cbn.com,rappler.com,gmanetwork.com&sortBy=popularity&pageSize=5';
     private $function;
 
     public function __construct(Functions $function) {
@@ -72,13 +73,16 @@ class NewsController extends Controller
         }
 
         // lets create the newsapi url
-        if($cat === 'top_stories') {
+        if($request->category === 'top_stories') {
             $newsapi_url = $this->url.'&apiKey='.$apikey.'&page='.$page;
+        } elseif($request->category === 'local') {
+            $newsapi_url = $this->everything_url.'&apiKey='.$apikey;
         } else {
             $newsapi_url = $this->url.'&apiKey='.$apikey.'&category='.$request->category.'&page='.$page;
         }
 
         $httpcall = $this->function->guzzleHttpCall($newsapi_url);
+
         //get status
         if($httpcall['status'] !== 'ok' || !is_array($httpcall)) {
             return response()->json([
@@ -96,6 +100,12 @@ class NewsController extends Controller
         ]);
     }
 
+    /**
+     * method to create json body for newsapi.org feed data
+     * 
+     * @param $newsbody, $langcode
+     * @return $newsfeed
+     */
     protected function createNewsJsonBody($newsbody, $langcode) {
         
         // lets build the json data and even translate if neccesary
@@ -109,7 +119,6 @@ class NewsController extends Controller
             $url            = $source['url'];
             $image          = $source['urlToImage'];
             $publishedAt    = $source['publishedAt'];
-            $content        = $source['content'];
             
             $newsfeed[] = [
                 'Source'            =>  $newsource,
