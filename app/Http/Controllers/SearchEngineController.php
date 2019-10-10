@@ -51,7 +51,6 @@ class SearchEngineController extends Controller
             $template_url = $this->search_url .'?key='. $googleapikey .'&cx='. $engineid .'&q='. $treat . ($request->page == null ? '' : ($request->page == 1 ? '' : '&start='. $this->startPage($request->page)));
         
             $searching = $this->function->guzzleHttpCall($template_url);
-
             // lets check mfor error, and no items return on json body
             //get status
             if(!is_array($searching) || $searching == false) {
@@ -143,7 +142,6 @@ class SearchEngineController extends Controller
 
     protected function startPage($pagenum) {
         $start = ($pagenum * 10) -10;
-
         return $start;
     }
 }
