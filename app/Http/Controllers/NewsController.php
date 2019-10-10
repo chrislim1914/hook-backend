@@ -13,9 +13,17 @@ class NewsController extends Controller
     private $url = 'https://newsapi.org/v2/top-headlines?country=ph&pageSize=5';
     private $everything_url = 'https://newsapi.org/v2/everything?domains=abs-cbn.com,rappler.com,gmanetwork.com&sortBy=popularity&pageSize=5';
     private $function;
+    private $apikey;
 
+    /**
+     * __contruct()
+     * instantiate Functions class
+     * 
+     * @param Functions $function
+     */
     public function __construct(Functions $function) {
         $this->function = $function;
+        $this->apikey   = $this->getKey();
     }
 
     /**
@@ -25,13 +33,11 @@ class NewsController extends Controller
      * @return JSON
      */
     public function feedNews(Request $request) {
-
         // get country code, news apikey
         $langcode =  $this->function->getLanguageCode($request->languagecode);
-        $apikey =   $this->getKey();
 
         // lets create the newsapi url
-        $newsapi_url = $this->url.'&apiKey='.$apikey;
+        $newsapi_url = $this->url.'&apiKey='.$this->apikey;
 
         $httpcall = $this->function->guzzleHttpCall($newsapi_url);
         
@@ -60,7 +66,6 @@ class NewsController extends Controller
     public function feedNewsByCategory(Request $request) {
         // get country code, news apikey
         $langcode =  $this->function->getLanguageCode($request->languagecode);
-        $apikey =   $this->getKey();
 
         // check input category and page
         $cat = $this->newsapi_category($request->category);
@@ -74,11 +79,11 @@ class NewsController extends Controller
 
         // lets create the newsapi url
         if($request->category === 'top_stories') {
-            $newsapi_url = $this->url.'&apiKey='.$apikey.'&page='.$page;
+            $newsapi_url = $this->url.'&apiKey='.$this->apikey.'&page='.$page;
         } elseif($request->category === 'local') {
-            $newsapi_url = $this->everything_url.'&apiKey='.$apikey;
+            $newsapi_url = $this->everything_url.'&apiKey='.$this->apikey;
         } else {
-            $newsapi_url = $this->url.'&apiKey='.$apikey.'&category='.$request->category.'&page='.$page;
+            $newsapi_url = $this->url.'&apiKey='.$this->apikey.'&category='.$request->category.'&page='.$page;
         }
 
         $httpcall = $this->function->guzzleHttpCall($newsapi_url);

@@ -14,6 +14,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Config;
+use App\Http\Controllers\IbmController;
 
 class Functions extends Controller
 {    
@@ -126,10 +127,41 @@ class Functions extends Controller
      * @return $translated
      */
     public function translator($item, $countrycode) {
-        // set the translator
-        // $tr = new GoogleTranslate(); // Translates to 'en' from auto-detected language by default
-        // $tr->setSource('en'); // Translate from English
-        // $tr->setTarget($countrycode); // Translate to based on countrycode localization
+        $lang = $this->getLanguageCode($countrycode);
+        $trans_text = $this->transIBM($item, $countrycode);
+        if($trans_text == null) {
+            $trans_text = $this->transGoogle($item, $countrycode);
+            return $trans_text;
+        }
+        return $trans_text;
+    }
+
+    /**
+     * method to translate text using IBM Language Translation
+     * 
+     * @param $item, $countrycode
+     * @return $translated
+     */
+    protected function transIBM($item, $countrycode) { 
+        $ibmTranslator = new IbmController();
+        $translated = $ibmTranslator->ibmTranslate($item, $countrycode);
+        if($translated == null) {
+            return null;
+        }
+        return $translated;  
+    }
+
+    /**
+     * method to translate text using Google text Translation
+     * 
+     * @param $item, $countrycode
+     * @return $translated
+     */
+    protected function transGoogle($item, $countrycode) {
+        $tr = new GoogleTranslate(); // Translates to 'en' from auto-detected language by default
+        $tr->setSource('en'); // Translate from English
+        $tr->setTarget($countrycode); // Translate to based on countrycode localization
+
         $tr = new GoogleTranslate($countrycode, 'en', [
             'config' => [
                 'curl' => [
@@ -142,7 +174,7 @@ class Functions extends Controller
         ]);
 
         if($item == null) {
-            $translated = null;
+            $translated = $item;
         } elseif ($countrycode === 'en') {
             $translated = $item;
         } else {

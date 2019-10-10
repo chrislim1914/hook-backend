@@ -71,5 +71,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->post('test', ['middleware' => 'cors', 'uses' => 'Functions@translator']);
+    $router->post('test', ['middleware' => 'cors', 'uses' => 'IbmController@ibmTranslate']);
 });

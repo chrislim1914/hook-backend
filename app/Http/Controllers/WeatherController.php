@@ -17,16 +17,24 @@ class WeatherController extends Controller
     private $client;
     private $currentcondition_url = 'https://api.openweathermap.org/data/2.5/weather';
     private $forecast_url = 'https://api.openweathermap.org/data/2.5/forecast';
+    private $apikey;
 
-    // instantiate GuzzleHttp\Client
+    /**
+     * __contruct()
+     * instantiate Functions class
+     * 
+     * @param Client $client, 
+     * @param Functions $function
+     */
     public function __construct(Client $client, Functions $function) {
-        $this->client = $client;
+        $this->client   = $client;
         $this->function = $function;
+        $this->apikey   = $this->getCredential();
     }
 
     public function getCCandFC(Request $request) {
         // get api key
-        $apikey = $this->getCredential();
+        $this->apikey = $this->getCredential();
 
         // get ip data
         $ipdata = $this->getipInfo($request->ipaddress);
@@ -45,12 +53,11 @@ class WeatherController extends Controller
         // get language syupport
         $gotlang = $this->function->getLanguageCode($request->languagecode);
 
-        $cc_url = $this->currentcondition_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$apikey;
-        $fc_url = $this->forecast_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$apikey;
+        $cc_url = $this->currentcondition_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$this->apikey;
+        $fc_url = $this->forecast_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$this->apikey;
 
         $cc_body = $this->function->guzzleHttpCall($cc_url);
         $fc_body = $this->function->guzzleHttpCall($fc_url);
-
         // check if success
         if($cc_body['cod'] != 200 || $cc_body == false) {
             return response()->json([
@@ -124,6 +131,13 @@ class WeatherController extends Controller
         ]);
     }
 
+    /**
+     * method to get info using client ip address
+     * utilizing http://ip-api.com/php/
+     * 
+     * @param $ipaddress
+     * @return Mix
+     */
     protected function getipInfo($ipaddress) {
         $getipInfo = @unserialize(file_get_contents('http://ip-api.com/php/'.$ipaddress));
 
@@ -134,6 +148,11 @@ class WeatherController extends Controller
         return false;
     }
 
+    /**
+     * method to get openweather app key
+     * 
+     * @return $openweatherapikey
+     */
     protected function getCredential() {        
         $openweatherapikey  = env('OPENWEATHERAPIKEY');
         return $openweatherapikey;

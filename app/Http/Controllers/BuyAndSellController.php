@@ -14,6 +14,13 @@ class BuyAndSellController extends Controller
     private $function;
     private $carousell_url = 'https://www.carousell.ph/api-service/home/?count=20&countryID=1694008';
 
+    /**
+     * __contruct()
+     * instantiate Functions class
+     * 
+     * @param Client $client, 
+     * @param Functions $function
+     */
     public function __construct(Client $client, Functions $function) {
         $this->client   = $client;
         $this->function = $function;
