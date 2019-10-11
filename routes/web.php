@@ -26,6 +26,7 @@ $router->group(['prefix' => 'api/user'], function($router)
 {
     $router->post('register', ['middleware' => 'cors', 'uses' => 'UserController@registerUser']);
     $router->post('uploadphoto', ['middleware' => 'cors', 'uses' => 'UserController@uploadProfilePhoto']);
+    $router->post('sns', ['middleware' => 'cors', 'uses' => 'UserController@snsSignupSignin']);
 
     $router->post('login', ['middleware' => 'cors', 'uses' => 'UserController@loginUser']);
     $router->post('logout', ['middleware' => 'cors', 'uses' => 'UserController@logoutUser']);
@@ -64,7 +65,7 @@ $router->group(['prefix' => 'api'], function($router)
 $router->group(['prefix' => 'api'], function($router)
 {
     $router->get('searchGoogle', ['middleware' => 'cors', 'uses' => 'SearchEngineController@doGoogleSearch']);
-    $router->get('searchcarousell', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@doCarousellSearch']);
+    $router->get('searchCarousell', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@doCarousellSearch']);
 });
 
 /**

@@ -26,7 +26,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $fillable = [
-        'iduser', 'email', 'username', 'password', 'birthdate', 'profile_photo',
+        'iduser', 'email', 'username', 'password', 'birthdate', 'profile_photo', 'snsproviderid',
     ];
 
     /**
@@ -79,6 +79,15 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function isemailExist($email) {
         $email_exist = User::where('email', $email)->first();
         if($email_exist != null){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    public function issnsprovideridExist($snsproviderid) {
+        $snsproviderid_exist = User::where('snsproviderid', $snsproviderid)->first();
+        if($snsproviderid_exist != null){
             return true;
         }else{
             return false;
