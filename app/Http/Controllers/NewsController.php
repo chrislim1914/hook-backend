@@ -10,8 +10,9 @@ use App\Http\Controllers\Functions;
 
 class NewsController extends Controller
 {
-    private $url = 'https://newsapi.org/v2/top-headlines?country=ph&pageSize=5';
+    private $url            = 'https://newsapi.org/v2/top-headlines?country=ph&pageSize=5';
     private $everything_url = 'https://newsapi.org/v2/everything?domains=abs-cbn.com,rappler.com,gmanetwork.com&sortBy=popularity&pageSize=5';
+    private $world_url      = 'https://newsapi.org/v2/everything?domains=bbc.com,cnn.com,aljazeera.com&sortBy=popularity&pageSize=5';
     private $function;
     private $apikey;
 
@@ -81,7 +82,9 @@ class NewsController extends Controller
         if($request->category === 'top_stories') {
             $newsapi_url = $this->url.'&apiKey='.$this->apikey.'&page='.$page;
         } elseif($request->category === 'local') {
-            $newsapi_url = $this->everything_url.'&apiKey='.$this->apikey;
+            $newsapi_url = $this->everything_url.'&apiKey='.$this->apikey.'&page='.$page;
+        } elseif($request->category === 'world') {
+            $newsapi_url = $this->world_url.'&apiKey='.$this->apikey.'&page='.$page;
         } else {
             $newsapi_url = $this->url.'&apiKey='.$this->apikey.'&category='.$request->category.'&page='.$page;
         }
@@ -91,7 +94,7 @@ class NewsController extends Controller
         //get status
         if($httpcall['status'] !== 'ok' || !is_array($httpcall)) {
             return response()->json([
-                'message'      => "Something went wrong on our side!",
+                'message'   => "Something went wrong on our side!",
                 'result'    => false
             ]);
         }
@@ -157,7 +160,7 @@ class NewsController extends Controller
      */
     public function newsapi_category($category) {
         $categories =  array(
-            'business', 'entertainment', 'local', 'health', 'science', 'sports', 'technology', 'top_stories'
+            'business', 'entertainment', 'local', 'health', 'science', 'sports', 'technology', 'top_stories', "world"
         );
 
         $value = gettype(array_search($category, $categories));
