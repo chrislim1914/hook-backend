@@ -20,16 +20,11 @@ class SearchEngineController extends Controller
         $this->function = $function;
     }
 
-    public function doSomeSearching(Request $request) {
+    public function doGoogleSearch(Request $request) {
 
         $treat = $this->treatSearchParam($request->search);
 
-        if($request->engine == null){
-            return response()->json([
-                'message'   => 'search engine require!',
-                'result'    => false
-            ]);
-        }elseif(is_array($treat)) {
+        if(is_array($treat)) {
             return response()->json([
                 'message'   => $treat['message'],
                 'result'    => false
@@ -45,10 +40,10 @@ class SearchEngineController extends Controller
         do {
             
             $googleapikey = $keys['googleapikey'][$count];
-            $engineid = $request->engine === 'google' ? $keys['googleengine'][$count] : $keys['carousellengine'][$count];
+            $engineid = $keys['googleengine'][$count];
 
             // build the search url
-            $template_url = $this->search_url .'?key='. $googleapikey .'&cx='. $engineid .'&q='. $treat . ($request->page == null ? '' : ($request->page == 1 ? '' : '&start='. $this->startPage($request->page)));
+            $template_url = $this->search_url .'?key='. $googleapikey .'&cx='. $engineid .'&q='. $treat . ($request->page == null ? '' : ($request->page == 1 || $request->page == null ? '' : '&start='. $this->startPage($request->page)));
         
             $searching = $this->function->guzzleHttpCall($template_url);
             // lets check mfor error, and no items return on json body

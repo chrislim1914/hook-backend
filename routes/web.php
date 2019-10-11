@@ -63,7 +63,7 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('search', ['middleware' => 'cors', 'uses' => 'SearchEngineController@doSomeSearching']);
+    $router->get('searchGoogle', ['middleware' => 'cors', 'uses' => 'SearchEngineController@doGoogleSearch']);
     $router->get('searchcarousell', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@doCarousellSearch']);
 });
 

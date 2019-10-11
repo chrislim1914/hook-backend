@@ -129,6 +129,7 @@ class BuyAndSellController extends Controller
 
             // let's get the total result of search query
             $totalquery = $resultdata['data']['total']['value']['low'];
+
             // lets create virtual pagination
             $endat = $page > $totalquery ? $totalquery : $page;
             $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
@@ -159,9 +160,7 @@ class BuyAndSellController extends Controller
                     $still=0;
                     $snippet = [];
                     foreach($sfeed['listingCard']['belowFold'] as $snippetdesc) {
-                        if($count > 2) {
-                            break;
-                        }  
+                       
                         // $snippet[]          = $snippetdesc['stringContent'];
                         $snippet[]          = $langcode === 'en' ? $snippetdesc['stringContent'] : $this->function->translator($snippetdesc['stringContent'], $langcode);
                                           
