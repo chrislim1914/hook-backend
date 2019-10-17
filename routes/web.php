@@ -57,6 +57,7 @@ $router->group(['prefix' => 'api'], function($router)
 {
     $router->get('news', ['middleware' => 'cors', 'uses' => 'NewsController@feedNews']);
     $router->get('newscategory', ['middleware' => 'cors', 'uses' => 'NewsController@feedNewsByCategory']);
+    $router->get('viewnews', ['middleware' => 'cors', 'uses' => 'NewsController@viewNewsArticle']);
 });
 
 /**
@@ -73,5 +74,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->post('test', ['middleware' => 'cors', 'uses' => 'IbmController@ibmTranslate']);
+    $router->post('test', ['middleware' => 'cors', 'uses' => 'ScrapController@scrapBbc']);
 });

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a703ab2b091391c55d93c5ddfe37ed15",
+    "content-hash": "99fd378c26597838dcb9f110ad6c039c",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -379,6 +379,61 @@
                 "parser"
             ],
             "time": "2019-03-17T18:48:37+00:00"
+        },
+        {
+            "name": "fabpot/goutte",
+            "version": "v3.2.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/FriendsOfPHP/Goutte.git",
+                "reference": "3f0eaf0a40181359470651f1565b3e07e3dd31b8"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/FriendsOfPHP/Goutte/zipball/3f0eaf0a40181359470651f1565b3e07e3dd31b8",
+                "reference": "3f0eaf0a40181359470651f1565b3e07e3dd31b8",
+                "shasum": ""
+            },
+            "require": {
+                "guzzlehttp/guzzle": "^6.0",
+                "php": ">=5.5.0",
+                "symfony/browser-kit": "~2.1|~3.0|~4.0",
+                "symfony/css-selector": "~2.1|~3.0|~4.0",
+                "symfony/dom-crawler": "~2.1|~3.0|~4.0"
+            },
+            "require-dev": {
+                "symfony/phpunit-bridge": "^3.3 || ^4"
+            },
+            "type": "application",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.2-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Goutte\\": "Goutte"
+                },
+                "exclude-from-classmap": [
+                    "Goutte/Tests"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                }
+            ],
+            "description": "A simple PHP Web Scraper",
+            "homepage": "https://github.com/FriendsOfPHP/Goutte",
+            "keywords": [
+                "scraper"
+            ],
+            "time": "2018-06-29T15:13:57+00:00"
         },
         {
             "name": "flipbox/lumen-generator",
@@ -2141,6 +2196,70 @@
             "time": "2019-05-24T18:30:49+00:00"
         },
         {
+            "name": "league/html-to-markdown",
+            "version": "4.8.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/thephpleague/html-to-markdown.git",
+                "reference": "e747489191f8e9144a7270eb61f8b9516e99e413"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/thephpleague/html-to-markdown/zipball/e747489191f8e9144a7270eb61f8b9516e99e413",
+                "reference": "e747489191f8e9144a7270eb61f8b9516e99e413",
+                "shasum": ""
+            },
+            "require": {
+                "ext-dom": "*",
+                "ext-xml": "*",
+                "php": ">=5.3.3"
+            },
+            "require-dev": {
+                "mikehaertl/php-shellcommand": "~1.1.0",
+                "phpunit/phpunit": "4.*",
+                "scrutinizer/ocular": "~1.1"
+            },
+            "bin": [
+                "bin/html-to-markdown"
+            ],
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.9-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "League\\HTMLToMarkdown\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Colin O'Dell",
+                    "email": "colinodell@gmail.com",
+                    "homepage": "https://www.colinodell.com",
+                    "role": "Lead Developer"
+                },
+                {
+                    "name": "Nick Cernis",
+                    "email": "nick@cern.is",
+                    "homepage": "http://modernnerd.net",
+                    "role": "Original Author"
+                }
+            ],
+            "description": "An HTML-to-markdown conversion helper for PHP",
+            "homepage": "https://github.com/thephpleague/html-to-markdown",
+            "keywords": [
+                "html",
+                "markdown"
+            ],
+            "time": "2019-08-02T11:57:39+00:00"
+        },
+        {
             "name": "monolog/monolog",
             "version": "1.25.1",
             "source": {
@@ -2478,6 +2597,145 @@
                 "random"
             ],
             "time": "2018-07-02T15:55:56+00:00"
+        },
+        {
+            "name": "pilipinews/bulletin",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pilipinews/bulletin.git",
+                "reference": "3f8463e8dbd5edb2901c6fec59565cf68ac3e95a"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pilipinews/bulletin/zipball/3f8463e8dbd5edb2901c6fec59565cf68ac3e95a",
+                "reference": "3f8463e8dbd5edb2901c6fec59565cf68ac3e95a",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0",
+                "pilipinews/common": "~0.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.2|~5.7",
+                "scrutinizer/ocular": "~1.1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Pilipinews\\Website\\Bulletin\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rougin Gutib",
+                    "email": "rougingutib@gmail.com",
+                    "homepage": "https://rougin.github.io",
+                    "role": "Software Engineer"
+                }
+            ],
+            "description": "Crawler/scraper for Manila Bulletin.",
+            "homepage": "https://pilipinews.github.io/",
+            "time": "2019-08-15T06:52:28+00:00"
+        },
+        {
+            "name": "pilipinews/common",
+            "version": "v0.2.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pilipinews/common.git",
+                "reference": "a7c808161346dc22fa3e72a9e0bbe1af5b8a01bc"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pilipinews/common/zipball/a7c808161346dc22fa3e72a9e0bbe1af5b8a01bc",
+                "reference": "a7c808161346dc22fa3e72a9e0bbe1af5b8a01bc",
+                "shasum": ""
+            },
+            "require": {
+                "league/html-to-markdown": "~4.8",
+                "php": ">=5.3.0",
+                "symfony/css-selector": ">=2.8.45",
+                "symfony/dom-crawler": ">=2.8.45"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.2|~5.7",
+                "scrutinizer/ocular": "~1.1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Pilipinews\\Common\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rougin Gutib",
+                    "email": "rougingutib@gmail.com",
+                    "homepage": "https://rougin.github.io",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Abstractions and interfaces for Pilipinews packages.",
+            "homepage": "https://pilipinews.github.io",
+            "time": "2019-01-04T18:16:59+00:00"
+        },
+        {
+            "name": "pilipinews/gma",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/pilipinews/gma.git",
+                "reference": "8bb76ac80d04315a6600245a883174c396b298a0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/pilipinews/gma/zipball/8bb76ac80d04315a6600245a883174c396b298a0",
+                "reference": "8bb76ac80d04315a6600245a883174c396b298a0",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0",
+                "pilipinews/common": "~0.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4.2|~5.7",
+                "scrutinizer/ocular": "~1.1.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Pilipinews\\Website\\Gma\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Rougin Gutib",
+                    "email": "rougingutib@gmail.com",
+                    "homepage": "https://rougin.github.io",
+                    "role": "Software Engineer"
+                }
+            ],
+            "description": "Crawler/scraper for GMA News.",
+            "homepage": "https://pilipinews.github.io/",
+            "time": "2019-08-19T07:18:30+00:00"
         },
         {
             "name": "psr/container",
@@ -2981,6 +3239,65 @@
             "time": "2019-04-21T09:21:45+00:00"
         },
         {
+            "name": "symfony/browser-kit",
+            "version": "v4.3.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/browser-kit.git",
+                "reference": "78b7611c45039e8ce81698be319851529bf040b1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/browser-kit/zipball/78b7611c45039e8ce81698be319851529bf040b1",
+                "reference": "78b7611c45039e8ce81698be319851529bf040b1",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3",
+                "symfony/dom-crawler": "~3.4|~4.0"
+            },
+            "require-dev": {
+                "symfony/css-selector": "~3.4|~4.0",
+                "symfony/http-client": "^4.3",
+                "symfony/mime": "^4.3",
+                "symfony/process": "~3.4|~4.0"
+            },
+            "suggest": {
+                "symfony/process": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\BrowserKit\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony BrowserKit Component",
+            "homepage": "https://symfony.com",
+            "time": "2019-09-10T11:25:17+00:00"
+        },
+        {
             "name": "symfony/console",
             "version": "v4.3.4",
             "source": {
@@ -3057,16 +3374,16 @@
         },
         {
             "name": "symfony/css-selector",
-            "version": "v4.3.4",
+            "version": "v4.3.5",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/css-selector.git",
-                "reference": "c6e5e2a00db768c92c3ae131532af4e1acc7bd03"
+                "reference": "f4b3ff6a549d9ed28b2b0ecd1781bf67cf220ee9"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/css-selector/zipball/c6e5e2a00db768c92c3ae131532af4e1acc7bd03",
-                "reference": "c6e5e2a00db768c92c3ae131532af4e1acc7bd03",
+                "url": "https://api.github.com/repos/symfony/css-selector/zipball/f4b3ff6a549d9ed28b2b0ecd1781bf67cf220ee9",
+                "reference": "f4b3ff6a549d9ed28b2b0ecd1781bf67cf220ee9",
                 "shasum": ""
             },
             "require": {
@@ -3106,7 +3423,7 @@
             ],
             "description": "Symfony CssSelector Component",
             "homepage": "https://symfony.com",
-            "time": "2019-08-20T14:07:54+00:00"
+            "time": "2019-10-02T08:36:26+00:00"
         },
         {
             "name": "symfony/debug",
@@ -3163,6 +3480,67 @@
             "description": "Symfony Debug Component",
             "homepage": "https://symfony.com",
             "time": "2019-08-20T14:27:59+00:00"
+        },
+        {
+            "name": "symfony/dom-crawler",
+            "version": "v4.3.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/dom-crawler.git",
+                "reference": "e9f7b4d19d69b133bd638eeddcdc757723b4211f"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/dom-crawler/zipball/e9f7b4d19d69b133bd638eeddcdc757723b4211f",
+                "reference": "e9f7b4d19d69b133bd638eeddcdc757723b4211f",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^7.1.3",
+                "symfony/polyfill-ctype": "~1.8",
+                "symfony/polyfill-mbstring": "~1.0"
+            },
+            "conflict": {
+                "masterminds/html5": "<2.6"
+            },
+            "require-dev": {
+                "masterminds/html5": "^2.6",
+                "symfony/css-selector": "~3.4|~4.0"
+            },
+            "suggest": {
+                "symfony/css-selector": ""
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "4.3-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Component\\DomCrawler\\": ""
+                },
+                "exclude-from-classmap": [
+                    "/Tests/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Fabien Potencier",
+                    "email": "fabien@symfony.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony DomCrawler Component",
+            "homepage": "https://symfony.com",
+            "time": "2019-09-28T21:25:05+00:00"
         },
         {
             "name": "symfony/event-dispatcher",
@@ -6074,7 +6452,10 @@
     ],
     "aliases": [],
     "minimum-stability": "dev",
-    "stability-flags": [],
+    "stability-flags": {
+        "pilipinews/gma": 20,
+        "pilipinews/bulletin": 20
+    },
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {

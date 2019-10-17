@@ -3,14 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Client;
 use App\Http\Controllers\Functions;
+use App\Http\Controllers\ScrapController;
+use Goutte\Client;
 
 class NewsController extends Controller
 {
-    private $url            = 'https://newsapi.org/v2/top-headlines?country=ph&pageSize=5';
+    private $url            = 'https://newsapi.org/v2/top-headlines?country=ph';
     private $everything_url = 'https://newsapi.org/v2/everything?domains=abs-cbn.com,rappler.com,gmanetwork.com&sortBy=popularity&pageSize=5';
     private $world_url      = 'https://newsapi.org/v2/everything?domains=bbc.com,cnn.com,aljazeera.com&sortBy=popularity&pageSize=5';
     private $function;
@@ -25,6 +24,61 @@ class NewsController extends Controller
     public function __construct(Functions $function) {
         $this->function = $function;
         $this->apikey   = $this->getKey();
+    }
+
+    public function viewNewsArticle(Request $request) {
+        $newsscrapper = new ScrapController();
+        
+        switch ($request->agency) {
+            case 'Rappler.com':
+                $viewnews = $newsscrapper->scrapRapplerNews($request->url);                
+                return response()->json([
+                    'data'      => $viewnews['body'],
+                    'result'    => $viewnews['result']
+                ]);
+            case 'Abs-cbn.com':
+                $viewnews = $newsscrapper->scrapAbsCbnNews($request->url);                
+                return response()->json([
+                    'data'      => $viewnews['body'],
+                    'result'    => $viewnews['result']
+                ]);
+            case 'Cnnphilippines.com':
+                $viewnews = $newsscrapper->scrapCnnPhilNews($request->url);                
+                return response()->json([
+                    'data'      => $viewnews['body'],
+                    'result'    => $viewnews['result']
+                ]);
+            case 'Mb.com.ph':
+                $viewnews = $newsscrapper->scrapMBNews($request->url);                
+                return response()->json([
+                    'data'      => $viewnews['body'],
+                    'result'    => $viewnews['result']
+                ]);
+            case 'Gmanetwork.com':
+                $viewnews = $newsscrapper->scrapGmaNews($request->url);                
+                return response()->json([
+                    'data'      => $viewnews['body'],
+                    'result'    => $viewnews['result']
+                ]);
+            case 'CNN':
+                $viewnews = $newsscrapper->scrapCnnInt($request->url);                
+                return response()->json([
+                    'data'      => $viewnews['body'],
+                    'result'    => $viewnews['result']
+                ]);
+            case 'Bbc.com':
+                $viewnews = $newsscrapper->scrapBbc($request->url);                
+                return response()->json([
+                    'data'      => $viewnews['body'],
+                    'result'    => $viewnews['result']
+                ]);
+            case 'Al Jazeera English':
+                $viewnews = $newsscrapper->scrapAljazeera($request->url);                
+                return response()->json([
+                    'data'      => $viewnews['body'],
+                    'result'    => $viewnews['result']
+                ]);
+        }
     }
 
     /**
@@ -118,25 +172,32 @@ class NewsController extends Controller
         
         // lets build the json data and even translate if neccesary
         $newsfeed = [];
-        
+        $feedcount = 0;
         foreach($newsbody['articles'] as $source) {
-            $newsource      = $source['source']['name'];
-            $author         = $source['author'];
-            $title          = $langcode == 'en' ? $source['title'] : $this->function->translator($source['title'], $langcode);
-            $description    = $langcode == 'en' ? $source['description'] : $this->function->translator($source['description'], $langcode);
-            $url            = $source['url'];
-            $image          = $source['urlToImage'];
-            $publishedAt    = $source['publishedAt'];
-            
-            $newsfeed[] = [
-                'Source'            =>  $newsource,
-                'author'            =>  $author,
-                'title'             =>  $title,
-                'description'       =>  $description,
-                'url'               =>  $url,
-                'image'             =>  $image,
-                'publishedAt'       =>  $this->function->timeLapse($publishedAt)
-            ];
+
+            // filter supported news agency
+            if($feedcount > 5) {
+                break;
+            }elseif($this->supportedNewsAgency($source['source']['name']) == true ) {
+                $newsource      = $source['source']['name'];
+                $author         = $source['author'];
+                $title          = $langcode == 'en' ? $source['title'] : $this->function->translator($source['title'], $langcode);
+                $description    = $langcode == 'en' ? $source['description'] : $this->function->translator($source['description'], $langcode);
+                $url            = $source['url'];
+                $image          = $source['urlToImage'];
+                $publishedAt    = $source['publishedAt'];
+                
+                $newsfeed[] = [
+                    'Source'            =>  $newsource,
+                    'author'            =>  $author,
+                    'title'             =>  $title,
+                    'description'       =>  $description,
+                    'url'               =>  $url,
+                    'image'             =>  $image,
+                    'publishedAt'       =>  $this->function->timeLapse($publishedAt)
+                ];
+            $feedcount++;
+            }            
         }
 
         return $newsfeed;
@@ -156,7 +217,7 @@ class NewsController extends Controller
      * method to check input category if in the list
      * 
      * @param $category
-     * @return $cat
+     * @return Boolean
      */
     public function newsapi_category($category) {
         $categories =  array(
@@ -169,6 +230,31 @@ class NewsController extends Controller
         } else {
             return false;
         }        
+    }
+
+    /**
+     * supported news agency to display
+     * 
+     * @param $agency
+     * @return Boolean
+     */
+    protected function supportedNewsAgency($agency) {
+        $newsagency = array(
+            'Rappler.com',
+            'Cnnphilippines.com',
+            'Abs-cbn.com',
+            'Gmanetwork.com',
+            'Mb.com.ph',
+            'CNN',
+            'Bbc.com',
+            'Al Jazeera English'
+        );
+        $value = gettype(array_search($agency, $newsagency));
+        if($value == 'integer') {
+            return true;
+        } else {
+            return false;
+        }    
     }
 
     /**

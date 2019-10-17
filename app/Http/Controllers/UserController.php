@@ -46,7 +46,7 @@ class UserController extends Controller
             $authuser = $this->authSnsUser($snsproviderid);
 
             return response()->json([
-                'message'   => $authuser['message'],
+                'token'     => $authuser['message'],
                 'result'    => $authuser['result']
             ]);
         }
@@ -72,7 +72,7 @@ class UserController extends Controller
             'email'             => $email,
             'username'          => $username,
             'password'          => '',
-            'birthdate'         => $request->has('birthdate') ? $request->birthdate : '',
+            'birthdate'         => '',
             'snsproviderid'     => $snsproviderid,
         );
 
@@ -88,7 +88,7 @@ class UserController extends Controller
         $authuser = $this->authSnsUser($snsproviderid);
 
         return response()->json([
-            'message'   => $authuser['message'],
+            'token'   => $authuser['message'],
             'result'    => $authuser['result']
         ]);
 

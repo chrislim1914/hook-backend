@@ -3,9 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\Exception\ConnectException;
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Config;
 use Carbon\Carbon;
 use App\Http\Controllers\Functions;
@@ -14,7 +11,6 @@ class WeatherController extends Controller
 {
     private $ipapi = 'http://ip-api.com/php/';
     private $function;
-    private $client;
     private $currentcondition_url = 'https://api.openweathermap.org/data/2.5/weather';
     private $forecast_url = 'https://api.openweathermap.org/data/2.5/forecast';
     private $apikey;
@@ -23,11 +19,9 @@ class WeatherController extends Controller
      * __contruct()
      * instantiate Functions class
      * 
-     * @param Client $client, 
      * @param Functions $function
      */
-    public function __construct(Client $client, Functions $function) {
-        $this->client   = $client;
+    public function __construct(Functions $function) {
         $this->function = $function;
         $this->apikey   = $this->getCredential();
     }
