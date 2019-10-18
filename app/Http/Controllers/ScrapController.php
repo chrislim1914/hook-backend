@@ -165,8 +165,8 @@ class ScrapController extends Controller
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$abscbn->subtitle()),
             'publish'   => $is_sports == true ? $pub[1] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->publish()),
             'editor'    => $is_sports == true ? $pub[0] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",$abscbn->body()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $abscbn->body())),
+            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $abscbn->body())),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",$abscbn->media()),
             'media'     => '/img/news-img/abscbn.png',
         );
 
