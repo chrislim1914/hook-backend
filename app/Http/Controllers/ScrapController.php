@@ -337,7 +337,7 @@ class ScrapController extends Controller
         : $editor = null ;  
 
         $body = $scrapnews->filter($newsdata['body'])->each(function ($node) {
-            return $node->text();
+            return $node->html();
         });
 
         // $media = $scrapnews->filter($newsdata['media'])->eq(0)->attr($newsdata['img-link']);
