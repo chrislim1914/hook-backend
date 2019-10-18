@@ -13,9 +13,9 @@ class ScrapController extends Controller
 {
     
 
-    public function scrapCarousell($id) {
+    public function scrapCarousell(Request $request) {
 
-        $carousell_url = 'https://www.carousell.ph/p/'.$id;
+        $carousell_url = 'https://www.carousell.ph/p/'.$request->id;
 
         $client = new Client();
 
@@ -409,7 +409,7 @@ class ScrapController extends Controller
         });
         
         $media = $scrapnews->filter($newsdata['media'])->eq(0)->attr($newsdata['img-link']);
-        
+
         if(count($title) == 0 || count($body) == 0) {
             return false;
         }
