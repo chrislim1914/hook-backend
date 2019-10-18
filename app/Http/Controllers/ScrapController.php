@@ -158,11 +158,13 @@ class ScrapController extends Controller
             );
         }
 
+        $pub = explode('on', str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()));
+
         $abscbn_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$abscbn->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$abscbn->subtitle()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$abscbn->publish()),
-            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()),
+            'publish'   => $is_sports == true ? $pub[1] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->publish()),
+            'editor'    => $is_sports == true ? $pub[0] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",$abscbn->body()),
             'image'     => str_replace($this->getThatAnnoyingChar(),"",$abscbn->media()),
             'media'     => '/img/news-img/abscbn.png',
@@ -481,7 +483,7 @@ class ScrapController extends Controller
             $editor[0], 
             implode("','",$body), 
             $media, 
-            $publish[0]);
+            array_key_exists('sport', $newsdata) ? $publish : $publish[0]);
     }
 
     protected function findVideoOnCnn($url){
