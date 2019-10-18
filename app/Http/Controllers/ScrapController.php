@@ -58,10 +58,11 @@ class ScrapController extends Controller
         ];
 
         $newcarousell_item = [
-            'media'     => $media,
-            'price'     => $price[0],
-            'itemname'  => $itemname[0],
-            'description'  => $description,
+            'url'               => $carousell_url,
+            'media'             => $media,
+            'price'             => $price[0],
+            'itemname'          => $itemname[0],
+            'description'       => $description,
             'Mailing&Delivery'  => $shipping 
         ];
 
@@ -120,17 +121,34 @@ class ScrapController extends Controller
      * @param $url
      */
     public function scrapAbsCbnNews($url) {
-        // prepare the news filter
-        $abscbnfilter = array(
-            'url'       => $url,
-            'title'     => '.news-title',
-            'subtitle'  => '',
-            'editor'    => '',
-            'body'      => '.article-content',
-            // 'media'     => '.article-content .embed-wrap img',
-            // 'img-link'  => 'src',
-        );
+        $is_sports = $this->isAbscbnSports($url);
 
+        // prepare the news filter
+        if($is_sports == true) {
+            $abscbnfilter = array(
+                'url'       => $url,
+                'title'     => '.mbr-container h2',
+                'subtitle'  => '',
+                'publish'   => '.timestamp-entry',
+                'editor'    => '.mbr-title span',
+                'body'      => '#content2-4 .container .mbr-text',
+                'media'     => '.image-block amp-img',
+                'img-link'  => 'src',
+                'sport'     => 'yes'
+            );
+        }else {
+            $abscbnfilter = array(
+                'url'       => $url,
+                'title'     => '.news-title',
+                'subtitle'  => '',
+                'publish'   => '.timestamp-entry',
+                'editor'    => '.author-details .editor',
+                'body'      => '.article-content',
+                'media'     => '.article-content .embed-wrap img',
+                'img-link'  => 'src',
+            );
+        }
+        
         $abscbn = $this->getNewsData($abscbnfilter);
 
         if($abscbn == false) {
@@ -143,8 +161,10 @@ class ScrapController extends Controller
         $abscbn_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$abscbn->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$abscbn->subtitle()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$abscbn->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",$abscbn->body()),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",$abscbn->media()),
             'media'     => '/img/news-img/abscbn.png',
         );
 
@@ -160,17 +180,35 @@ class ScrapController extends Controller
      * @param $url
      */
     public function scrapCnnPhilNews($url) {
-        // prepare the news filter
-        $cnnphilfilter = array(
-            'url'       => $url,
-            'title'     => '.title',
-            'subtitle'  => '',
-            'editor'    => '.author-byline',
-            'body'      => '.article-maincontent-p #content-body-244757-498257',
-            'media'     => '.margin-bottom-15 .img-container img',
-            'img-link'  => 'src',
-        );
+        // check the url if there is videos on address
+        $is_video = $this->findVideoOnCnn($url);
 
+        // prepare the news 
+        if($is_video == true) {
+            $cnnphilfilter = array(
+                'url'       => $url,
+                'title'     => '.title',
+                'subtitle'  => '',
+                'publish'   => '.dateString',
+                'editor'    => '.author-byline',
+                'body'      => '.article-maincontent-p #content-body-244757-498257',
+                'video'     => '.video-container iframe',
+                'video-link'=> 'src',
+            );
+        }else{
+            $cnnphilfilter = array(
+                'url'       => $url,
+                'title'     => '.title',
+                'subtitle'  => '',
+                'publish'   => '.dateString',
+                'editor'    => '.author-byline',
+                'body'      => '.article-maincontent-p #content-body-244757-498257',
+                'media'     => '.margin-bottom-15 .img-container img',
+                'img-link'  => 'src',
+            );
+        }
+
+        // scrap
         $cnnphil = $this->getNewsData($cnnphilfilter);
 
         if($cnnphil == false) {
@@ -179,12 +217,15 @@ class ScrapController extends Controller
                 'result'    => false
             );
         }
+        // get youtube video ID
+        $ytid = $this->getYTid($cnnphil->media());
 
         $cnnphil_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->subtitle()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->editor()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",'http://cnnphilippines.com'.$cnnphil->media()),
+            'image'     => $is_video === true ? 'https://i.ytimg.com/vi/'.$ytid[4].'/sddefault.jpg' : str_replace($this->getThatAnnoyingChar(),"",'http://cnnphilippines.com'.$cnnphil->media()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->body()),
             'media'     => '/img/news-img/cnnphil.png',
         );
@@ -384,35 +425,87 @@ class ScrapController extends Controller
         $client = new Client();
         $scrapnews = $client->request('GET', $newsdata['url']);
 
+        // get news title
         $title = $scrapnews->filter($newsdata['title'])->each(function ($node) {
             return $node->text();
         });
 
+        // get news sub title
         $newsdata['subtitle'] !== '' ? 
             ($subtitle = $scrapnews->filter($newsdata['subtitle'])->each(function ($node) {
                 return $node->text();
             }))
         : $subtitle = null ;        
 
+        // get news author
         $newsdata['editor'] !== '' ? 
             ($editor = $scrapnews->filter($newsdata['editor'])->each(function ($node) {
                 return $node->text();
             }))
         : $editor = null ;  
 
+        // get news body
         $body = $scrapnews->filter($newsdata['body'])->each(function ($node) {
             return $node->html();
         });
 
-        $publish = $scrapnews->filter($newsdata['publish'])->each(function ($node) {
-            return $node->text();
-        });
-        
-        $media = $scrapnews->filter($newsdata['media'])->eq(0)->attr($newsdata['img-link']);
+        // get news publish date
+        $newsdata['publish'] !== '' ? 
+            ($publish = $scrapnews->filter($newsdata['publish'])->each(function ($node) {
+                return $node->text();
+            }))
+        : $publish = null ;  
+
+        // get news media
+        if(array_key_exists('video', $newsdata)) {
+            try {
+                $media = $scrapnews->filter($newsdata['video'])->eq(0)->attr($newsdata['video-link']);
+            } catch (\Exception $e) {
+                $media = '';
+            }
+        }else{
+            try {
+                $media = $scrapnews->filter($newsdata['media'])->eq(0)->attr($newsdata['img-link']);
+            } catch (\Exception $e) {
+                $media = '';
+            }
+        }
 
         if(count($title) == 0 || count($body) == 0) {
             return false;
         }
-        return new NewsArticle($title[0], $subtitle[0], $editor[0], implode("','",$body), $media, $publish[0]);
+        
+        return new NewsArticle(
+            array_key_exists('sport', $newsdata) ? $title[1] : $title[0], 
+            $subtitle[0], 
+            $editor[0], 
+            implode("','",$body), 
+            $media, 
+            $publish[0]);
+    }
+
+    protected function findVideoOnCnn($url){
+        $someurl = array();
+        $parts = explode("/", $url);
+        if(in_array("videos", $parts)) {
+            return true;
+        }else{
+            return false;
+        }        
+    }
+
+    protected function getYTid($yt_url) {
+       return $yt =   explode("/", $yt_url);       
+    }
+
+    protected function isAbscbnSports($url) {
+        $someurl = array();
+        $parts = explode('/', $url);
+        $small = explode('.', $parts[2]);
+        if(in_array("sports", $small)) {
+            return true;
+        }else{
+            return false;
+        }   
     }
 }
