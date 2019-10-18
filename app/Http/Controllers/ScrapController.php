@@ -166,7 +166,7 @@ class ScrapController extends Controller
             'publish'   => $is_sports == true ? $pub[1] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->publish()),
             'editor'    => $is_sports == true ? $pub[0] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",$abscbn->body()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",$abscbn->media()),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $rappler->body())),
             'media'     => '/img/news-img/abscbn.png',
         );
 
@@ -228,7 +228,7 @@ class ScrapController extends Controller
             'publish'   => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->editor()),
             'image'     => $is_video === true ? 'https://i.ytimg.com/vi/'.$ytid[4].'/sddefault.jpg' : str_replace($this->getThatAnnoyingChar(),"",'http://cnnphilippines.com'.$cnnphil->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->body()),
+            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $rappler->body())),
             'media'     => '/img/news-img/cnnphil.png',
         );
         
@@ -244,20 +244,52 @@ class ScrapController extends Controller
      * @param $url
      */
     public function scrapMBNews($url) {
-        $mb = new MBScraper();
-        $mbnews = $mb->scrape($url);
+        $client = new Client();
+        $scrapnews = $client->request('GET', $url);
+
+        // get news title
+        $title = $scrapnews->filter('#tm-content .uk-article-title')->each(function ($node) {
+            return $node->text();
+        });
+
+        // get news title
+        $editor = $scrapnews->filter('#tm-content .my-article-subtitle')->each(function ($node) {
+            return $node->text();
+        });
+
+        $publish = $scrapnews->filter('#tm-content .updated_date')->each(function ($node) {
+            return $node->text();
+        });
+
         $mb_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$mbnews->title()),
+            'title'     => str_replace($this->getThatAnnoyingChar(),"",$title[0]),
             'subtitle'  => '',
-            'editor'    => '',
-            'body'   => str_replace($this->getThatAnnoyingChar(),"",$mbnews->body()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$publish[0]),
+            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$editor[0]),
+            // 'image'     => $is_video === true ? 'https://i.ytimg.com/vi/'.$ytid[4].'/sddefault.jpg' : str_replace($this->getThatAnnoyingChar(),"",'http://cnnphilippines.com'.$cnnphil->media()),
+            // 'body'      => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->body()),
             'media'     => '/img/news-img/mb.png',
         );
-
-        return response()->json([
-            'data'      => $mb_data,
+        
+        return array(
+            'body'      => $mb_data,
             'result'    => true
-        ]);
+        );
+
+        // $mb = new MBScraper();
+        // $mbnews = $mb->scrape($url);
+        // $mb_data = array(
+        //     'title'     => str_replace($this->getThatAnnoyingChar(),"",$mbnews->title()),
+        //     'subtitle'  => '',
+        //     'editor'    => '',
+        //     'body'   => str_replace($this->getThatAnnoyingChar(),"",$mbnews->body()),
+        //     'media'     => '/img/news-img/mb.png',
+        // );
+
+        // return array(
+        //     'body'      => $mb_data,
+        //     'result'    => true
+        // );
     }
 
     /**
@@ -278,10 +310,10 @@ class ScrapController extends Controller
             'media'     => '/img/news-img/gma.png',
         );
        
-        return response()->json([
-            'data'      => $gma_data,
+        return array(
+            'body'      => $gma_data,
             'result'    => true
-        ]);
+        );
     }
 
     /**                      **/
@@ -483,7 +515,8 @@ class ScrapController extends Controller
             $editor[0], 
             implode("','",$body), 
             $media, 
-            array_key_exists('sport', $newsdata) ? $publish : $publish[0]);
+            array_key_exists('sport', $newsdata) ? $publish : $publish[0]
+        );
     }
 
     protected function findVideoOnCnn($url){
