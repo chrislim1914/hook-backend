@@ -43,7 +43,7 @@ class NewsController extends Controller
                     'result'    => $viewnews['result']
                 ]);
             case 'Cnnphilippines.com':
-                $viewnews = $newsscrapper->scrapCnnPhilNews($request->url);                
+                $viewnews = $newsscrapper->scrapCnnPhilNews($request->url);        
                 return response()->json([
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']

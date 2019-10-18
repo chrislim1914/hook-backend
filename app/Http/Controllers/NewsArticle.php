@@ -9,6 +9,7 @@ class NewsArticle
     protected $editor = '';
     protected $body = '';
     protected $media = '';
+    protected $publish = '';
 
     /**
      * Initializes the article instance.
@@ -17,14 +18,15 @@ class NewsArticle
      * @param string $subtitle
      * @param string $editor
      * @param string $body
-    //  * @param string $media
+     * @param string $media
      */
-    public function __construct($title, $subtitle = null, $editor = null, $body) {
+    public function __construct($title, $subtitle = null, $editor = null, $body, $media, $publish) {
         $this->title        = $title;
         $this->subtitle     = $subtitle;
         $this->editor       = $editor;
         $this->body         = $body;
-        // $this->media        = $media;
+        $this->media        = $media;
+        $this->publish      = $publish;
     }
 
     /**
@@ -70,5 +72,14 @@ class NewsArticle
      */
     public function media() {
         return $this->media;
+    }
+
+    /**
+     * Returns the publish.
+     *
+     * @return string
+     */
+    public function publish() {
+        return $this->publish;
     }
 }

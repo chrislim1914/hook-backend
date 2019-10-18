@@ -48,6 +48,7 @@ $router->group(['prefix' => 'api'], function($router)
 $router->group(['prefix' => 'api'], function($router)
 {
     $router->get('buyandsell', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@getCarousell']);
+    $router->get('buyandsellview', ['middleware' => 'cors', 'uses' => 'ScrapController@scrapCarousell']);
 });
 
 /**
@@ -74,5 +75,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->post('test', ['middleware' => 'cors', 'uses' => 'ScrapController@scrapBbc']);
+    $router->post('test', ['middleware' => 'cors', 'uses' => 'ScrapController@scrapCarousell']);
 });

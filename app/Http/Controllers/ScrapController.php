@@ -11,6 +11,66 @@ use App\Http\Controllers\NewsArticle;
 
 class ScrapController extends Controller
 {
+    
+
+    public function scrapCarousell($id) {
+
+        $carousell_url = 'https://www.carousell.ph/p/'.$id;
+
+        $client = new Client();
+
+        $description = [];
+        $newcarousell_item = [];
+
+        $scrapnews = $client->request('GET', $carousell_url);
+        $media = $scrapnews->filter('.styles__container___2zBd_ img')->eq(0)->attr('src');
+        $price = $scrapnews->filter('.styles__price___K6Kjb')->each(function ($node) {
+            return $node->text();
+        });
+        $itemname = $scrapnews->filter('.styles__titleWrapper___3jSxG h1')->each(function ($node) {
+            return $node->text();
+        });
+
+        $details = $scrapnews->filter('.styles__body___VSdV5 p')->each(function ($node) {
+            return $node->text();
+        });
+
+        $desc = $scrapnews->filter('.styles__textTruncate___2Mx1R .styles__overflowBreakWord___2rtT6')->each(function ($node) {
+            return $node->text();
+        });
+
+        $shipping = $scrapnews->filter('.styles__textWithLeftLabel___20RQO .styles__text___1gJzw')->each(function ($node) {
+            return $node->text();
+        });
+
+        $locationicon = 'https://sl3-cdn.karousell.com/components/location_v3.svg';
+        $listingicon  = 'https://sl3-cdn.karousell.com/components/caroupay_listing_details_v7.svg';
+        $conditionicon = 'https://sl3-cdn.karousell.com/components/condition_v3.svg';
+
+        $description = [
+            'meetupicon'    => $locationicon,
+            'meetup'        => $details[0],
+            'listingicon'   => $listingicon,
+            'listing'       => $details[1],
+            'conditionicon' => $conditionicon,
+            'condition'     => $details[2],
+            'description'   => $desc[0],
+        ];
+
+        $newcarousell_item = [
+            'media'     => $media,
+            'price'     => $price[0],
+            'itemname'  => $itemname[0],
+            'description'  => $description,
+            'Mailing&Delivery'  => $shipping 
+        ];
+
+        return response()->json([
+            'data'          => $newcarousell_item,
+            'result'        => true
+        ]);
+    }
+
     /**
      * Rappler.com news Scrapping
      * 
@@ -22,10 +82,11 @@ class ScrapController extends Controller
             'url'       => $url,
             'title'     => '.select-headline',
             'subtitle'  => '.select-metadesc',
+            'publish'   => '.published',
             'editor'    => '.byline',
             'body'      => '.cXenseParse',
-            // 'media'     => '.cXenseParse .p1 img',
-            // 'img-link'  => 'data-original',
+            'media'     => '.cXenseParse img',
+            'img-link'  => 'data-original',
         );
 
         $rappler = $this->getNewsData($rapplerfilter);
@@ -40,8 +101,10 @@ class ScrapController extends Controller
         $rappler_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$rappler->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$rappler->subtitle()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$rappler->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$rappler->editor()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",$rappler->body()),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",$rappler->media()),
+            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $rappler->body())),
             'media'     => '/img/news-img/rappler.jpg',
         );
 
@@ -103,9 +166,9 @@ class ScrapController extends Controller
             'title'     => '.title',
             'subtitle'  => '',
             'editor'    => '.author-byline',
-            'body'      => '.article-maincontent-p',
-            // 'media'     => '.margin-bottom-15 .img-container img',
-            // 'img-link'  => 'src',
+            'body'      => '.article-maincontent-p #content-body-244757-498257',
+            'media'     => '.margin-bottom-15 .img-container img',
+            'img-link'  => 'src',
         );
 
         $cnnphil = $this->getNewsData($cnnphilfilter);
@@ -121,14 +184,15 @@ class ScrapController extends Controller
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->subtitle()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->editor()),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",'http://cnnphilippines.com'.$cnnphil->media()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->body()),
             'media'     => '/img/news-img/cnnphil.png',
         );
-
-        return response()->json([
-            'data'      => $cnnphil_data,
+        
+        return array(
+            'body'      => $cnnphil_data,
             'result'    => true
-        ]);
+        );
     }
 
     /**
@@ -340,10 +404,15 @@ class ScrapController extends Controller
             return $node->html();
         });
 
-        // $media = $scrapnews->filter($newsdata['media'])->eq(0)->attr($newsdata['img-link']);
+        $publish = $scrapnews->filter($newsdata['publish'])->each(function ($node) {
+            return $node->text();
+        });
+        
+        $media = $scrapnews->filter($newsdata['media'])->eq(0)->attr($newsdata['img-link']);
+        
         if(count($title) == 0 || count($body) == 0) {
             return false;
         }
-        return new NewsArticle($title[0], $subtitle[0], $editor[0], implode("','",$body));
+        return new NewsArticle($title[0], $subtitle[0], $editor[0], implode("','",$body), $media, $publish[0]);
     }
 }
