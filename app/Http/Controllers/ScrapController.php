@@ -166,7 +166,7 @@ class ScrapController extends Controller
             'publish'   => $is_sports == true ? $pub[1] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->publish()),
             'editor'    => $is_sports == true ? $pub[0] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",$abscbn->body()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $rappler->body())),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $abscbn->body())),
             'media'     => '/img/news-img/abscbn.png',
         );
 
@@ -228,7 +228,7 @@ class ScrapController extends Controller
             'publish'   => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->editor()),
             'image'     => $is_video === true ? 'https://i.ytimg.com/vi/'.$ytid[4].'/sddefault.jpg' : str_replace($this->getThatAnnoyingChar(),"",'http://cnnphilippines.com'.$cnnphil->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $rappler->body())),
+            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $cnnphil->body())),
             'media'     => '/img/news-img/cnnphil.png',
         );
         
