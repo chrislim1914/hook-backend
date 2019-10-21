@@ -122,6 +122,8 @@ class BuyAndSellController extends Controller
         $result=curl_exec ($ch);
         curl_close ($ch);
 
+        $resultdata = json_decode($result, true);
+
         // check if there is result in the body
         if(array_key_exists('results',$resultdata['data'])) {
 
@@ -133,7 +135,7 @@ class BuyAndSellController extends Controller
             $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
 
             // let see if there are still data to output
-            if(count($resultdata['data']['results']) < 0 ) {
+            if(count($resultdata['data']['results']) <= 0 ) {
                 return response()->json([
                     'data'      => [],
                     'total'     => $totalquery,
