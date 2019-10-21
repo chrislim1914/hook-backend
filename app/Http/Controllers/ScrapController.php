@@ -391,6 +391,7 @@ class ScrapController extends Controller
             'url'       => $url,
             'title'     => '.pg-headline',
             'subtitle'  => '',
+            'publish'   => '',
             'editor'    => '.metadata__byline__author',
             'body'      => '.pg-rail-tall__body',
             // 'media'     => '.margin-bottom-15 .img-container img',
@@ -409,6 +410,7 @@ class ScrapController extends Controller
         $cnn_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->subtitle()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->editor()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->body()),
             'media'     => '/img/news-img/cnn.png',
@@ -431,6 +433,7 @@ class ScrapController extends Controller
             'url'       => $url,
             'title'     => '.story-body__h1',
             'subtitle'  => '',
+            'publish'   => '',
             'editor'    => '',
             'body'      => '.story-body__inner p',
             // 'media'     => '.margin-bottom-15 .img-container img',
@@ -449,6 +452,7 @@ class ScrapController extends Controller
         $bbc_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$bbc->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$bbc->subtitle()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$bbc->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$bbc->editor()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",$bbc->body()),
             'media'     => '/img/news-img/bbc-news.jpg',
@@ -471,6 +475,7 @@ class ScrapController extends Controller
             'url'       => $url,
             'title'     => '.post-title',
             'subtitle'  => '.article-heading-des',
+            'publish'   => '',
             'editor'    => '.article-heading-author-name',
             'body'      => '.article-p-wrapper',
             // 'media'     => '.margin-bottom-15 .img-container img',
@@ -489,6 +494,7 @@ class ScrapController extends Controller
         $aljazeera_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->subtitle()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->editor()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->body()),
             'media'     => '/img/news-img/aljazeera.jpg',
