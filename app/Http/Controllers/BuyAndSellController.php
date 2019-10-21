@@ -122,8 +122,6 @@ class BuyAndSellController extends Controller
         $result=curl_exec ($ch);
         curl_close ($ch);
 
-        $resultdata = json_decode($result, true);
-
         // check if there is result in the body
         if(array_key_exists('results',$resultdata['data'])) {
 
@@ -146,9 +144,8 @@ class BuyAndSellController extends Controller
             // json body to output
             $searchfeed = [];
             
-            for($i = $startfrom; $i < $endat; $i++){
+            for($i = $startfrom; $i < count($resultdata['data']['results']); $i++){
                 foreach($resultdata['data']['results'][$i] as $sfeed) {
-                    
                     // for image "photos": []
                     foreach($sfeed['photos'] as $imageurl) {
                         $image          = $imageurl['thumbnailUrl'];
@@ -177,7 +174,6 @@ class BuyAndSellController extends Controller
                         $still++;
                     }
                     $searchfeed[] = [
-                        '#'                 =>  $i,
                         'id'                =>  $sfeed['id'],
                         'title'             =>  $title,
                         'snippet'           =>  $snippet,
