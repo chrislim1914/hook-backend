@@ -60,6 +60,12 @@ class NewsController extends Controller
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']
                 ]);
+            case 'Bworldonline.com':
+                $viewnews = $newsscrapper->scrapBWNews($request->url);                
+                return response()->json([
+                    'data'      => $viewnews['body'],
+                    'result'    => $viewnews['result']
+                ]);
             case 'CNN':
                 $viewnews = $newsscrapper->scrapCnnInt($request->url);                
                 return response()->json([
@@ -240,11 +246,14 @@ class NewsController extends Controller
      */
     protected function supportedNewsAgency($agency) {
         $newsagency = array(
+            // local news
             'Rappler.com',
             'Cnnphilippines.com',
             'Abs-cbn.com',
-            'Gmanetwork.com',
+            // 'Gmanetwork.com',
             'Mb.com.ph',
+            'Bworldonline.com',
+            // international news
             'CNN',
             'Bbc.com',
             'Al Jazeera English'

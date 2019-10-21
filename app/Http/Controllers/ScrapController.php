@@ -244,52 +244,41 @@ class ScrapController extends Controller
      * @param $url
      */
     public function scrapMBNews($url) {
-        $client = new Client();
-        $scrapnews = $client->request('GET', $url);
+        // prepare the news filter
+        $mbfilter = array(
+            'url'       => $url,
+            'title'     => '#tm-content .uk-article-title',
+            'subtitle'  => '',
+            'publish'   => '.uk-article .published_date',
+            'editor'    => '.uk-article em',
+            'body'      => '.uk-article',
+            'media'     => '.uk-article img',
+            'img-link'  => 'src',
+        );
 
-        // get news title
-        $title = $scrapnews->filter('#tm-content .uk-article-title')->each(function ($node) {
-            return $node->text();
-        });
+        $mb = $this->getNewsData($mbfilter);
 
-        // get news title
-        $editor = $scrapnews->filter('#tm-content .my-article-subtitle')->each(function ($node) {
-            return $node->text();
-        });
-
-        $publish = $scrapnews->filter('#tm-content .updated_date')->each(function ($node) {
-            return $node->text();
-        });
+        if($mb == false) {
+            return array(
+                'body'      => "Something went wrong on our side!",
+                'result'    => false
+            );
+        }
 
         $mb_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$title[0]),
-            'subtitle'  => '',
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$publish[0]),
-            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$editor[0]),
-            // 'image'     => $is_video === true ? 'https://i.ytimg.com/vi/'.$ytid[4].'/sddefault.jpg' : str_replace($this->getThatAnnoyingChar(),"",'http://cnnphilippines.com'.$cnnphil->media()),
-            // 'body'      => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->body()),
+            'title'     => str_replace($this->getThatAnnoyingChar(),"",$mb->title()),
+            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$mb->subtitle()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$mb->publish()),
+            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$mb->editor()),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",$mb->media()),
+            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $mb->body())),
             'media'     => '/img/news-img/mb.png',
         );
-        
+
         return array(
             'body'      => $mb_data,
             'result'    => true
         );
-
-        // $mb = new MBScraper();
-        // $mbnews = $mb->scrape($url);
-        // $mb_data = array(
-        //     'title'     => str_replace($this->getThatAnnoyingChar(),"",$mbnews->title()),
-        //     'subtitle'  => '',
-        //     'editor'    => '',
-        //     'body'   => str_replace($this->getThatAnnoyingChar(),"",$mbnews->body()),
-        //     'media'     => '/img/news-img/mb.png',
-        // );
-
-        // return array(
-        //     'body'      => $mb_data,
-        //     'result'    => true
-        // );
     }
 
     /**
@@ -297,7 +286,31 @@ class ScrapController extends Controller
      * 
      * @param $url
      */
-    public function scrapGmaNews($url) {
+    public function scrapGmaNews() {
+        // $url = 'https://www.gmanetwork.com/news/news/nation/712384/iranian-beauty-queen-barred-from-entering-phl-over-assault-charges-doj/story/';
+
+        // $client = new Client();
+        // $scrapnews = $client->request('GET', $url);
+
+        // // get news title
+        // $title = $scrapnews->filter('.storyContainer #story_container')->each(function ($node) {
+        //     return $node->html();
+        // });
+        // var_dump($title);
+        // $gma_data = array(
+        //     'title'      => str_replace($this->getThatAnnoyingChar(),"",$title[0]),
+        //     // 'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$title),
+        //     // 'publish'   => str_replace($this->getThatAnnoyingChar(),"",$title),
+        //     // 'editor'    => str_replace($this->getThatAnnoyingChar(),"",$title),
+        //     // 'image'     => str_replace($this->getThatAnnoyingChar(),"",$title),
+        //     // 'body'      => str_replace($this->getThatAnnoyingChar(),"",$title),
+        //     'media'     => '/img/news-img/gma.png',
+        // );
+
+        // return array(
+        //     'body'      => $gma_data,
+        //     'result'    => true
+        // );
         $gma = new Scraper();
 
         $gmanews = $gma->scrape($url);
@@ -312,6 +325,49 @@ class ScrapController extends Controller
        
         return array(
             'body'      => $gma_data,
+            'result'    => true
+        );
+    }
+
+    /**
+     *Bworldonline.com news Scrapping
+     * 
+     * @param $url
+     */
+    public function scrapBWNews($url) {
+        // prepare the news filter
+        $bwfilter = array(
+            'url'       => $url,
+            'title'     => '.article-title .entry-title',
+            'subtitle'  => '',
+            'publish'   => '.td-post-date .entry-date',
+            'editor'    => '.td-post-content-area b',
+            'body'      => '.td-post-content-area .td-post-content',
+            'media'     => '',
+            'img-link'  => '',
+        );
+
+        $bw = $this->getNewsData($bwfilter);
+
+        if($bw == false) {
+            return array(
+                'body'      => "Something went wrong on our side!",
+                'result'    => false
+            );
+        }
+
+        $bw_data = array(
+            'title'     => str_replace($this->getThatAnnoyingChar(),"",$bw->title()),
+            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$bw->subtitle()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$bw->publish()),
+            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$bw->editor()),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",$bw->media()),
+            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $bw->body())),
+            'media'     => '/img/news-img/BW.png',
+        );
+
+        return array(
+            'body'      => $bw_data,
             'result'    => true
         );
     }
@@ -491,7 +547,9 @@ class ScrapController extends Controller
         : $publish = null ;  
 
         // get news media
-        if(array_key_exists('video', $newsdata)) {
+        if($newsdata['media'] == '') {
+            $media = '';
+        } elseif(array_key_exists('video', $newsdata)) {
             try {
                 $media = $scrapnews->filter($newsdata['video'])->eq(0)->attr($newsdata['video-link']);
             } catch (\Exception $e) {
