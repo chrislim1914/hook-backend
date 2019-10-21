@@ -386,17 +386,62 @@ class ScrapController extends Controller
      * @param $url
      */
     public function scrapCnnInt($url) {
+        // check what type of link is
+        $whattype_url = $this->checkCnnIntLink($url);
+
         // prepare the news filter
-        $cnnfilter = array(
-            'url'       => $url,
-            'title'     => '.pg-headline',
-            'subtitle'  => '',
-            'publish'   => '',
-            'editor'    => '.metadata__byline__author',
-            'body'      => '.pg-rail-tall__body',
-            // 'media'     => '.margin-bottom-15 .img-container img',
-            // 'img-link'  => 'src',
-        );
+        switch ($whattype_url){
+            case 'videos':
+                $cnnfilter = array(
+                    'url'       => $url,
+                    'title'     => '.media__video-headline',
+                    'subtitle'  => '',
+                    'publish'   => '',
+                    'editor'    => '.el__video-collection__meta-wrapper .metadata--show__name',
+                    'body'      => '.media__video-description',
+                    'media'     => '.video__end-slate__top-wrapper .js-el__video__replayer-wrapper  img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'travel':
+                $cnnfilter = array(
+                    'url'       => $url,
+                    'title'     => '.Article__title',
+                    'subtitle'  => '',
+                    'publish'   => '',
+                    'editor'    => '.Article__subtitle',
+                    'body'      => '.Article__body',
+                    'media'     => '',
+                    'img-link'  => '',
+                );
+                break;
+            case 'style':
+                $cnnfilter = array(
+                    'url'       => $url,
+                    'title'     => '.PageHead__title',
+                    'subtitle'  => '',
+                    'publish'   => '.PageHead__published',
+                    'editor'    => '.Authors__writers a',
+                    'body'      => '.BasicArticle__body',
+                    'media'     => '',
+                    'img-link'  => '',
+                );
+                break;
+            case false:
+                $cnnfilter = array(
+                    'url'       => $url,
+                    'title'     => '.pg-headline',
+                    'subtitle'  => '',
+                    'publish'   => '.update-time',
+                    'editor'    => '.metadata__byline__author',
+                    'body'      => '.pg-rail-tall__body',
+                    'media'     => '.margin-bottom-15 .img-container img',
+                    'img-link'  => 'src',
+                );
+                break;
+        }
+        
+        
 
         $cnnInt = $this->getNewsData($cnnfilter);
 
@@ -412,14 +457,15 @@ class ScrapController extends Controller
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->subtitle()),
             'publish'   => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->editor()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->body()),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->media()),
+            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $cnnInt->body())),
             'media'     => '/img/news-img/cnn.png',
         );
 
-        return response()->json([
-            'data'      => $cnn_data,
+        return array(
+            'body'      => $cnn_data,
             'result'    => true
-        ]);
+        );
     }
 
     /**
@@ -436,7 +482,7 @@ class ScrapController extends Controller
             'publish'   => '',
             'editor'    => '',
             'body'      => '.story-body__inner p',
-            'media'     => '.margin-bottom-15 .img-container img',
+            'media'     => '.image-and-copyright-container img',
             'img-link'  => 'src',
         );
 
@@ -502,7 +548,7 @@ class ScrapController extends Controller
         );
 
         return response()->json([
-            'data'      => $aljazeera_data,
+            'body'      => $aljazeera_data,
             'result'    => true
         ]);
     }
@@ -585,13 +631,25 @@ class ScrapController extends Controller
     }
 
     protected function findVideoOnCnn($url){
-        $someurl = array();
         $parts = explode("/", $url);
         if(in_array("videos", $parts)) {
             return true;
         }else{
             return false;
-        }        
+        }
+    }
+
+    protected function checkCnnIntLink($url) {
+        $cnnint = explode("/", $url);
+        if(in_array("videos", $cnnint)) {
+            return 'videos';
+        }elseif(in_array("travel", $cnnint)){
+            return 'travel';
+        }elseif(in_array("style", $cnnint)){
+            return 'style';
+        }else{
+            return false;
+        }
     }
 
     protected function getYTid($yt_url) {
@@ -599,7 +657,6 @@ class ScrapController extends Controller
     }
 
     protected function isAbscbnSports($url) {
-        $someurl = array();
         $parts = explode('/', $url);
         $small = explode('.', $parts[2]);
         if(in_array("sports", $small)) {
