@@ -135,7 +135,7 @@ class BuyAndSellController extends Controller
             $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
 
             // let see if there are still data to output
-            if($page > count($resultdata['data']['results'])) {
+            if(count($resultdata['data']['results']) < 0 ) {
                 return response()->json([
                     'data'      => [],
                     'total'     => $totalquery,
