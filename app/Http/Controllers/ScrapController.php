@@ -436,8 +436,8 @@ class ScrapController extends Controller
             'publish'   => '',
             'editor'    => '',
             'body'      => '.story-body__inner p',
-            // 'media'     => '.margin-bottom-15 .img-container img',
-            // 'img-link'  => 'src',
+            'media'     => '.margin-bottom-15 .img-container img',
+            'img-link'  => 'src',
         );
 
         $bbc = $this->getNewsData($bbcfilter);
@@ -454,6 +454,7 @@ class ScrapController extends Controller
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$bbc->subtitle()),
             'publish'   => str_replace($this->getThatAnnoyingChar(),"",$bbc->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$bbc->editor()),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",$bbc->media()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",$bbc->body()),
             'media'     => '/img/news-img/bbc-news.jpg',
         );
