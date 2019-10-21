@@ -134,8 +134,18 @@ class BuyAndSellController extends Controller
             $endat = $page > $totalquery ? $totalquery : $page;
             $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
 
+            // let see if there are still data to output
+            if($page > count($resultdata['data']['results'])) {
+                return response()->json([
+                    'data'      => [],
+                    'total'     => $totalquery,
+                    'result'    => true
+                    ]);
+            }
+
             // json body to output
             $searchfeed = [];
+            
             for($i = $startfrom; $i < $endat; $i++){
                 foreach($resultdata['data']['results'][$i] as $sfeed) {
                     
@@ -167,6 +177,7 @@ class BuyAndSellController extends Controller
                         $still++;
                     }
                     $searchfeed[] = [
+                        '#'                 =>  $i,
                         'id'                =>  $sfeed['id'],
                         'title'             =>  $title,
                         'snippet'           =>  $snippet,
