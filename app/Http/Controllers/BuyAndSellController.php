@@ -137,17 +137,17 @@ class BuyAndSellController extends Controller
             // json body to output
             $searchfeed = [];
             for($i = $startfrom; $i < $endat; $i++){
-                foreach($resultdata['data']['results'] as $sfeed) {
+                foreach($resultdata['data']['results'][$i] as $sfeed) {
                     
                     // for image "photos": []
-                    foreach($sfeed['listingCard']['photos'] as $imageurl) {
+                    foreach($sfeed['photos'] as $imageurl) {
                         $image          = $imageurl['thumbnailUrl'];
                         $thumbnailimage = array_key_exists('thumbnailProgressiveUrl', $imageurl) == false ? $image : $imageurl['thumbnailProgressiveUrl'];
                     }
                     
                     // for title
                     $count=0;
-                    foreach($sfeed['listingCard']['belowFold'] as $titledesc) {
+                    foreach($sfeed['belowFold'] as $titledesc) {
                         if($count == 0) {
                             // $title          = $titledesc['stringContent'];
                             $title          = $langcode === 'en' ? $titledesc['stringContent'] : $this->function->translator($titledesc['stringContent'], $langcode);
@@ -159,28 +159,28 @@ class BuyAndSellController extends Controller
                     // for description
                     $still=0;
                     $snippet = [];
-                    foreach($sfeed['listingCard']['belowFold'] as $snippetdesc) {
+                    foreach($sfeed['belowFold'] as $snippetdesc) {
                        
-                        // $snippet[]          = $snippetdesc['stringContent'];
-                        $snippet[]          = $langcode === 'en' ? $snippetdesc['stringContent'] : $this->function->translator($snippetdesc['stringContent'], $langcode);
+                        $snippet[]          = $snippetdesc['stringContent'];
+                        // $snippet[]          = $langcode === 'en' ? $snippetdesc['stringContent'] : $this->function->translator($snippetdesc['stringContent'], $langcode);
                                           
                         $still++;
                     }
                     $searchfeed[] = [
-                        'id'                =>  $sfeed['listingCard']['id'],
+                        'id'                =>  $sfeed['id'],
                         'title'             =>  $title,
                         'snippet'           =>  $snippet,
-                        'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['listingCard']['id'],
+                        'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
                         'image'             =>  $image,
                         'thumbnailimage'    =>  $thumbnailimage,
                     ];
                 }
-                return response()->json([
-                    'data'      => $searchfeed,
-                    'total'     => $totalquery,
-                    'result'    => true
-                ]);                
             }
+            return response()->json([
+                'data'      => $searchfeed,
+                'total'     => $totalquery,
+                'result'    => true
+            ]); 
         } else {
             return response()->json([
             'message'   => 'Error getting data!',
