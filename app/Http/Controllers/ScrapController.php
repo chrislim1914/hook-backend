@@ -442,7 +442,7 @@ class ScrapController extends Controller
 
         $bbc = $this->getNewsData($bbcfilter);
 
-        if($bbc == false) {
+        if($bbc == false) {            
             return array(
                 'body'      => "Something went wrong on our side!",
                 'result'    => false
@@ -459,10 +459,10 @@ class ScrapController extends Controller
             'media'     => '/img/news-img/bbc-news.jpg',
         );
 
-        return response()->json([
-            'data'      => $bbc_data,
+        return array(
+            'body'      => $bbc_data,
             'result'    => true
-        ]);
+        );
     }
 
     /**
