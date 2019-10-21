@@ -474,17 +474,27 @@ class ScrapController extends Controller
      * @param $url
      */
     public function scrapBbc($url) {
+        $check_bbc_link = $this->checkBbcLink($url);
+
         // prepare the news filter
-        $bbcfilter = array(
-            'url'       => $url,
-            'title'     => '.story-body__h1',
-            'subtitle'  => '',
-            'publish'   => '',
-            'editor'    => '',
-            'body'      => '.story-body__inner p',
-            'media'     => '.image-and-copyright-container img',
-            'img-link'  => 'src',
-        );
+        switch ($check_bbc_link) {
+            case 'news':
+                $bbcfilter = array(
+                    'url'       => $url,
+                    'title'     => '.story-body__h1',
+                    'subtitle'  => '',
+                    'publish'   => '.mini-info-list__item .date',
+                    'editor'    => '',
+                    'body'      => '.story-body__inner p',
+                    'media'     => '.image-and-copyright-container img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'news':
+                break;
+        }
+        
+        
 
         $bbc = $this->getNewsData($bbcfilter);
 
@@ -650,6 +660,11 @@ class ScrapController extends Controller
         }else{
             return false;
         }
+    }
+
+    protected function checkBbcLink($url) {
+        $bbc_url = explode("/", $url);
+        return $bbc_url[3];
     }
 
     protected function getYTid($yt_url) {
