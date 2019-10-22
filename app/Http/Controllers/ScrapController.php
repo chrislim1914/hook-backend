@@ -568,6 +568,11 @@ class ScrapController extends Controller
                     'img-link'  => 'src',
                 );
                 break;
+            default:
+                return array(
+                    'body'      => "Something went wrong on our side!",
+                    'result'    => false
+                );
         }
         
         
@@ -603,17 +608,60 @@ class ScrapController extends Controller
      * @param $url
      */
     public function scrapAljazeera($url) {
-       // prepare the news filter
-        $aljazeerafilter = array(
-            'url'       => $url,
-            'title'     => '.post-title',
-            'subtitle'  => '.article-heading-des',
-            'publish'   => '',
-            'editor'    => '.article-heading-author-name',
-            'body'      => '.article-p-wrapper',
-            // 'media'     => '.margin-bottom-15 .img-container img',
-            // 'img-link'  => 'src',
-        );
+
+        $link = $this->checkaljezeeraLink($url);
+
+        // prepare the news filter
+        switch ($link) {
+            case 'news':
+                $aljazeerafilter = array(
+                    'url'       => $url,
+                    'title'     => '.post-title',
+                    'subtitle'  => '.article-heading-des',
+                    'publish'   => '.article-duration',
+                    'editor'    => '.article-body-artSource span',
+                    'body'      => '.article-p-wrapper',
+                    'media'     => '.margin-bottom-15 .img-container img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'programmes':
+                $aljazeerafilter = array(
+                    'url'       => $url,
+                    'title'     => '.heading-story',
+                    'subtitle'  => '.standfirst',
+                    'publish'   => '.meta time',
+                    'editor'    => '',
+                    'body'      => '.article-body',
+                    'media'     => '.#vjs_video_3 video',
+                    'img-link'  => 'poster',
+                );
+                break;
+            case 'indepth':
+                $aljazeerafilter = array(
+                    'url'       => $url,
+                    'title'     => '.post-title',
+                    'subtitle'  => '.article-heading-des',
+                    'publish'   => '.article-duration',
+                    'editor'    => '',
+                    'body'      => '.main-article-body',
+                    'media'     => '.main-article-media img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'ajimpact':
+                $aljazeerafilter = array(
+                    'url'       => $url,
+                    'title'     => '.post-title',
+                    'subtitle'  => '.article-heading-des',
+                    'publish'   => '.article-duration',
+                    'editor'    => '.article-heading-author-name',
+                    'body'      => '.article-p-wrapper',
+                    'media'     => '.main-article-media img',
+                    'img-link'  => 'src',
+                );
+                break;
+        }
 
         $aljazeera = $this->getNewsData($aljazeerafilter);
 
@@ -623,20 +671,21 @@ class ScrapController extends Controller
                 'result'    => false
             );
         }
-
+        
         $aljazeera_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->subtitle()),
             'publish'   => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->editor()),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",$link === 'indepth' || $link === 'ajimpact'? 'https://www.aljazeera.com'.$aljazeera->media()  : $aljazeera->media()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->body()),
             'media'     => '/img/news-img/aljazeera.jpg',
         );
 
-        return response()->json([
+        return array(
             'body'      => $aljazeera_data,
-            'result'    => true
-        ]);
+            'result'    => false
+        );
     }
 
     protected function getThatAnnoyingChar() {
@@ -739,6 +788,11 @@ class ScrapController extends Controller
     }
 
     protected function checkBbcLink($url) {
+        $bbc_url = explode("/", $url);
+        return $bbc_url[3];
+    }
+
+    protected function checkaljezeeraLink($url) {
         $bbc_url = explode("/", $url);
         return $bbc_url[3];
     }

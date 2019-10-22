@@ -84,6 +84,11 @@ class NewsController extends Controller
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']
                 ]);
+            default:
+                return array(
+                    'body'      => "Something went wrong on our side!",
+                    'result'    => false
+                );
         }
     }
 
