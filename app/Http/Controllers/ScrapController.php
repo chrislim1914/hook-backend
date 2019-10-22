@@ -661,6 +661,11 @@ class ScrapController extends Controller
                     'img-link'  => 'src',
                 );
                 break;
+            default:
+                return array(
+                    'body'      => "Something went wrong on our side!",
+                    'result'    => false
+                );
         }
 
         $aljazeera = $this->getNewsData($aljazeerafilter);
@@ -671,7 +676,7 @@ class ScrapController extends Controller
                 'result'    => false
             );
         }
-        
+
         $aljazeera_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->subtitle()),
