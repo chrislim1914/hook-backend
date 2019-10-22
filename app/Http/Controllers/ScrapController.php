@@ -359,7 +359,7 @@ class ScrapController extends Controller
         $bw_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$bw->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$bw->subtitle()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$bw->publish()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$bw->subtitle()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$bw->editor()),
             'image'     => str_replace($this->getThatAnnoyingChar(),"",$bw->media()),
             'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $bw->body())),
@@ -474,6 +474,7 @@ class ScrapController extends Controller
      * @param $url
      */
     public function scrapBbc($url) {
+        
         $check_bbc_link = $this->checkBbcLink($url);
 
         // prepare the news filter
@@ -490,7 +491,82 @@ class ScrapController extends Controller
                     'img-link'  => 'src',
                 );
                 break;
-            case 'news':
+            case 'sport':
+                $bbcfilter = array(
+                    'url'       => $url,
+                    'title'     => '.story-headline',
+                    'subtitle'  => '',
+                    'publish'   => '',
+                    'editor'    => '.gel-flag__body .gel-long-primer',
+                    'body'      => '.story-body',
+                    'media'     => '.sp-media-asset__image img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'reel':
+                // TODO
+                // $bbcfilter = array(
+                //     'url'       => $url,
+                //     'title'     => '.evzinhz4',
+                //     'subtitle'  => '',
+                //     'publish'   => '.evzinhz2',
+                //     'editor'    => '',
+                //     'body'      => '',
+                //     'media'     => '.smphtml5iframebbcMediaPlayer0wrp #smphtml5iframebbcMediaPlayer0 iframe .mediaContainer img',
+                //     'img-link'  => 'src',
+                // );
+                return array(
+                    'body'      => "Something went wrong on our side!",
+                    'result'    => false
+                );
+                break;
+            case 'worklife':
+                $bbcfilter = array(
+                    'url'       => $url,
+                    'title'     => '.hero-header__header',
+                    'subtitle'  => '.simple-header',
+                    'publish'   => '.author-unit__date',
+                    'editor'    => '.author-name',
+                    'body'      => '.body-text-card__text',
+                    'media'     => '.article-title-card__image img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'future':
+                    $bbcfilter = array(
+                        'url'       => $url,
+                        'title'     => '.hero-header__header',
+                        'subtitle'  => '.simple-header',
+                        'publish'   => '.author-unit__date',
+                        'editor'    => '.author-name',
+                        'body'      => '.body-text-card__text',
+                        'media'     => '.article-title-card__image img',
+                        'img-link'  => 'src',
+                    );
+                    break;
+            case 'travel':
+                $bbcfilter = array(
+                    'url'       => $url,
+                    'title'     => '.hero-unit .hero-unit-lining h1',
+                    'subtitle'  => '.introduction-wrapper .introduction',
+                    'publish'   => '.source-attribution-detail .publication-date',
+                    'editor'    => '.source-attribution-detail .seperated-list-item span',
+                    'body'      => '.body-content',
+                    'media'     => '.responsive-image-wrapper img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'culture':
+                $bbcfilter = array(
+                    'url'       => $url,
+                    'title'     => '.hero-unit .hero-unit-lining h1',
+                    'subtitle'  => '.introduction-wrapper .introduction',
+                    'publish'   => '.source-attribution-detail .publication-date',
+                    'editor'    => '.source-attribution-detail .seperated-list-item span',
+                    'body'      => '.body-content',
+                    'media'     => '.responsive-image-wrapper img',
+                    'img-link'  => 'src',
+                );
                 break;
         }
         
@@ -508,10 +584,10 @@ class ScrapController extends Controller
         $bbc_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$bbc->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$bbc->subtitle()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$bbc->publish()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$check_bbc_link === 'reel' ? $this->explodebbcReelPublishDate($bbc->publish()) : $bbc->publish()),
             'editor'    => str_replace($this->getThatAnnoyingChar(),"",$bbc->editor()),
             'image'     => str_replace($this->getThatAnnoyingChar(),"",$bbc->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",$bbc->body()),
+            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $bbc->body())),
             'media'     => '/img/news-img/bbc-news.jpg',
         );
 
@@ -665,6 +741,11 @@ class ScrapController extends Controller
     protected function checkBbcLink($url) {
         $bbc_url = explode("/", $url);
         return $bbc_url[3];
+    }
+
+    protected function explodebbcReelPublishDate($publish) {
+        $pub = explode(".", $publish);
+        return $pub[0];
     }
 
     protected function getYTid($yt_url) {
