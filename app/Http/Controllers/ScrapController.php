@@ -122,33 +122,99 @@ class ScrapController extends Controller
      */
     public function scrapAbsCbnNews($url) {
         $is_sports = $this->isAbscbnSports($url);
-
         // prepare the news filter
-        if($is_sports == true) {
-            $abscbnfilter = array(
-                'url'       => $url,
-                'title'     => '.mbr-container h2',
-                'subtitle'  => '',
-                'publish'   => '.timestamp-entry',
-                'editor'    => '.mbr-title span',
-                'body'      => '#content2-4 .container .mbr-text',
-                'media'     => '.image-block amp-img',
-                'img-link'  => 'src',
-                'sport'     => 'yes'
-            );
-        }else {
-            $abscbnfilter = array(
-                'url'       => $url,
-                'title'     => '.news-title',
-                'subtitle'  => '',
-                'publish'   => '.timestamp-entry',
-                'editor'    => '.author-details .editor',
-                'body'      => '.article-content',
-                'media'     => '.article-content .embed-wrap img',
-                'img-link'  => 'src',
-            );
+        switch ($is_sports) {
+            case 'news':
+                $abscbnfilter = array(
+                    'url'       => $url,
+                    'title'     => '.news-title',
+                    'subtitle'  => '',
+                    'publish'   => '.timestamp-entry',
+                    'editor'    => '.author-block .author-details .editor',
+                    'body'      => '.article-content',
+                    'media'     => '.article-content .embed-wrap img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'business':
+                $abscbnfilter = array(
+                    'url'       => $url,
+                    'title'     => '.news-title',
+                    'subtitle'  => '',
+                    'publish'   => '.timestamp-entry',
+                    'editor'    => '.author-block .author-details .editor',
+                    'body'      => '.article-content',
+                    'media'     => '.article-content .embed-wrap img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'entertainment':
+                $abscbnfilter = array(
+                    'url'       => $url,
+                    'title'     => '.news-title',
+                    'subtitle'  => '',
+                    'publish'   => '.timestamp-entry',
+                    'editor'    => '.author-block .author-details .editor',
+                    'body'      => '.article-content',
+                    'media'     => '.article-content .embed-wrap img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'life':
+                $abscbnfilter = array(
+                    'url'       => $url,
+                    'title'     => '.news-title',
+                    'subtitle'  => '',
+                    'publish'   => '.timestamp-entry',
+                    'editor'    => '.author-block .author-details .editor',
+                    'body'      => '.article-content',
+                    'media'     => '.article-content .embed-wrap img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'sports':
+                $abscbnfilter = array(
+                    'url'       => $url,
+                    'title'     => '.news-title',
+                    'subtitle'  => '',
+                    'publish'   => '.timestamp-entry',
+                    'editor'    => '.author-block .author-details .editor',
+                    'body'      => '.article-content',
+                    'media'     => '.article-content .embed-wrap img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'overseas':
+                $abscbnfilter = array(
+                    'url'       => $url,
+                    'title'     => '.news-title',
+                    'subtitle'  => '',
+                    'publish'   => '.timestamp-entry',
+                    'editor'    => '.author-block .author-details .editor',
+                    'body'      => '.article-content',
+                    'media'     => '.article-content .embed-wrap img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'spotlight':
+                $abscbnfilter = array(
+                    'url'       => $url,
+                    'title'     => '.news-title',
+                    'subtitle'  => '',
+                    'publish'   => '.timestamp-entry',
+                    'editor'    => '.author-block .author-details .editor',
+                    'body'      => '.article-content',
+                    'media'     => '.article-content .embed-wrap img',
+                    'img-link'  => 'src',
+                );
+                break;
+            default:
+                return array(
+                    'body'      => "Something went wrong on our side!",
+                    'result'    => false
+                );
         }
-        
+
         $abscbn = $this->getNewsData($abscbnfilter);
 
         if($abscbn == false) {
@@ -158,15 +224,17 @@ class ScrapController extends Controller
             );
         }
 
-        $pub = explode('on', str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()));
+        // $pub = explode('on', str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()));
 
         $abscbn_data = array(
             'title'     => str_replace($this->getThatAnnoyingChar(),"",$abscbn->title()),
             'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$abscbn->subtitle()),
-            'publish'   => $is_sports == true ? $pub[1] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->publish()),
-            'editor'    => $is_sports == true ? $pub[0] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $abscbn->body())),
+            // 'publish'   => $is_sports == true ? $pub[1] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->publish()),
+            // 'editor'    => $is_sports == true ? $pub[0] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$abscbn->publish()),
+            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()),
             'image'     => str_replace($this->getThatAnnoyingChar(),"",$abscbn->media()),
+            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $abscbn->body())),
             'media'     => '/img/news-img/abscbn.png',
         );
 
@@ -244,17 +312,94 @@ class ScrapController extends Controller
      * @param $url
      */
     public function scrapMBNews($url) {
+        $mblink = $this->checkMBnewsLink($url);
         // prepare the news filter
-        $mbfilter = array(
-            'url'       => $url,
-            'title'     => '#tm-content .uk-article-title',
-            'subtitle'  => '',
-            'publish'   => '.uk-article .published_date',
-            'editor'    => '.uk-article em',
-            'body'      => '.uk-article',
-            'media'     => '.uk-article img',
-            'img-link'  => 'src',
-        );
+        switch ($mblink) {
+            case 'news':
+                $mbfilter = array(
+                    'url'       => $url,
+                    'title'     => '#tm-content .uk-article-title',
+                    'subtitle'  => '',
+                    'publish'   => '.uk-article .published_date',
+                    'updated'   => '.uk-article .updated_date',
+                    'editor'    => '.uk-article em',
+                    'body'      => '.uk-article',
+                    'media'     => '.uk-article img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'business':
+                $mbfilter = array(
+                    'url'       => $url,
+                    'title'     => '#tm-content .uk-article-title',
+                    'subtitle'  => '',
+                    'publish'   => '.uk-article .published_date',
+                    'updated'   => '.uk-article .updated_date',
+                    'editor'    => '.uk-article em',
+                    'body'      => '.uk-article',
+                    'media'     => '.uk-article img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'entertainment':
+                $mbfilter = array(
+                    'url'       => $url,
+                    'title'     => '#tm-content .uk-article-title',
+                    'subtitle'  => '',
+                    'publish'   => '.uk-article .published_date',
+                    'updated'   => '.uk-article .updated_date',
+                    'editor'    => '.uk-h5 a',
+                    'body'      => '.uk-article',
+                    'media'     => '.uk-article img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'sports':
+                $mbfilter = array(
+                    'url'       => $url,
+                    'title'     => '#tm-content .uk-article-title',
+                    'subtitle'  => '',
+                    'publish'   => '.uk-article .published_date',
+                    'updated'   => '.uk-article .updated_date',
+                    'editor'    => '.uk-article p em',
+                    'body'      => '.uk-article',
+                    'media'     => '.uk-article img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'lifestyle':
+                $mbfilter = array(
+                    'url'       => $url,
+                    'title'     => '#tm-content .uk-article-title',
+                    'subtitle'  => '',
+                    'publish'   => '.uk-article .published_date',
+                    'updated'   => '.uk-article .updated_date',
+                    'editor'    => '.uk-article p em',
+                    'body'      => '.uk-article',
+                    'media'     => '.uk-article img',
+                    'img-link'  => 'src',
+                );
+                break;
+            case 'technology':
+                    $mbfilter = array(
+                        'url'       => $url,
+                        'title'     => '#tm-content .uk-article-title',
+                        'subtitle'  => '',
+                        'publish'   => '.uk-article .published_date',
+                        'updated'   => '.uk-article .updated_date',
+                        'editor'    => '',
+                        'body'      => '.uk-article',
+                        'media'     => '.uk-article img',
+                        'img-link'  => 'src',
+                    );
+                    break;
+            default:
+                return array(
+                    'body'      => "Something went wrong on our side!",
+                    'result'    => false
+                );
+        }
+        
 
         $mb = $this->getNewsData($mbfilter);
 
@@ -721,11 +866,28 @@ class ScrapController extends Controller
         : $subtitle = null ;        
 
         // get news author
-        $newsdata['editor'] !== '' ? 
-            ($editor = $scrapnews->filter($newsdata['editor'])->each(function ($node) {
-                return $node->text();
-            }))
-        : $editor = null ;  
+        if($newsdata['editor'] !== '') {
+            $count = $scrapnews->filter($newsdata['editor'])->count();
+            if($count >= 1){
+                $editor = $scrapnews->filter($newsdata['editor'])->each(function ($node) {
+                    return $node->text();
+                });
+            } else {
+                $editor = null;
+            }
+        } else {
+            $editor = null;
+        }
+
+        // $newsdata['editor'] !== '' ? 
+        //     ($editor = $scrapnews->filter($newsdata['editor'])->each(function ($node) {
+        //         if ($node->children()->last()->attr('class') == 'updated_date') {
+        //             return $node->text();
+        //         }else{
+        //             return '';
+        //         }
+        //     }))
+        // : $editor = null ;  
 
         // get news body
         $body = $scrapnews->filter($newsdata['body'])->each(function ($node) {
@@ -733,11 +895,23 @@ class ScrapController extends Controller
         });
 
         // get news publish date
-        $newsdata['publish'] !== '' ? 
-            ($publish = $scrapnews->filter($newsdata['publish'])->each(function ($node) {
-                return $node->text();
-            }))
-        : $publish = null ;  
+        if($newsdata['publish'] !== '') {
+            // check if publish is empty: this is for MB news
+            $count = $scrapnews->filter($newsdata['publish'])->count();
+
+            if($count >= 1){
+                $publish = $scrapnews->filter($newsdata['publish'])->each(function ($node) {
+                    return $node->text();
+                });
+            } else {
+                $publish = $scrapnews->filter($newsdata['updated'])->each(function ($node) {
+                    return $node->text();
+                });
+            }
+            
+        } else {
+            $publish = null;
+        }
 
         // get news media
         if($newsdata['media'] == '') {
@@ -764,7 +938,7 @@ class ScrapController extends Controller
             array_key_exists('sport', $newsdata) ? $title[1] : $title[0], 
             $subtitle[0], 
             $editor[0], 
-            implode("','",$body), 
+            implode("','",$body),
             $media, 
             array_key_exists('sport', $newsdata) ? $publish : $publish[0]
         );
@@ -812,12 +986,14 @@ class ScrapController extends Controller
     }
 
     protected function isAbscbnSports($url) {
-        $parts = explode('/', $url);
-        $small = explode('.', $parts[2]);
-        if(in_array("sports", $small)) {
-            return true;
-        }else{
-            return false;
-        }   
+        $partsabscbn = explode('/', $url);
+        $smallabscbn = explode('.', $partsabscbn[2]);
+        return $smallabscbn[0] ;
+    }
+
+    protected function checkMBnewsLink($url) {
+        $partsMBnewsLink = explode('/', $url);
+        $smallMBnewsLink = explode('.', $partsMBnewsLink[2]);
+        return $smallMBnewsLink[0] ;
     }
 }
