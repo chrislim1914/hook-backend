@@ -85,6 +85,113 @@ class BuyAndSellController extends Controller
         }
     }
 
+    public function feedCarousell(Request $request) {
+        // build URL
+        $url = $this->carousell_search_url;
+
+        // build page
+        $page = $this->paginationTrick($request->page);
+
+        // build body
+        $data = json_encode(array(
+            "count"         => $page,
+            "countryId"     => "1694008",
+            "session"       => $this->getSession()
+        ));
+        
+
+        // build header
+        $header = array(
+            "content-type: application/json",
+            "Content-Length: ".strlen($data)
+        );
+        
+        $ch = curl_init();
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);    
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);        
+        $result=curl_exec ($ch);
+        curl_close ($ch);
+
+        $resultdata = json_decode($result, true);
+
+        // check if there is result in the body
+        if(array_key_exists('results',$resultdata['data'])) {
+
+             // let's get the total result of search query
+             $totalquery = $resultdata['data']['total']['value']['low'];
+
+             // lets create virtual pagination
+             $endat = $page > $totalquery ? $totalquery : $page;
+             $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
+             
+            // let see if there are still data to output
+            if(count($resultdata['data']['results']) <= 0 ) {
+                return response()->json([
+                    'data'      => [],
+                    'total'     => $totalquery,
+                    'result'    => true
+                    ]);
+            }
+
+            // json body to output
+            $searchfeed = [];
+            
+            for($i = $startfrom; $i < count($resultdata['data']['results']); $i++){
+                foreach($resultdata['data']['results'][$i] as $sfeed) {
+                    // for image "photos": []
+                    foreach($sfeed['photos'] as $imageurl) {
+                        $image          = $imageurl['thumbnailUrl'];
+                        $thumbnailimage = array_key_exists('thumbnailProgressiveUrl', $imageurl) == false ? $image : $imageurl['thumbnailProgressiveUrl'];
+                    }
+                    
+                    // for title
+                    $count=0;
+                    foreach($sfeed['belowFold'] as $titledesc) {
+                        if($count == 0) {
+                            $title          = $titledesc['stringContent'];
+                            $titlenotrans   = $titledesc['stringContent'];
+                            break;
+                        }                    
+                        $count++;
+                    }
+                    
+                    // for description
+                    $still=0;
+                    $snippet = [];
+                    foreach($sfeed['belowFold'] as $snippetdesc) {
+                       
+                        $snippet[]          = $snippetdesc['stringContent'];                                          
+                        $still++;
+                    }
+
+                    $searchfeed[] = [
+                        'id'                =>  $sfeed['id'],
+                        'title'             =>  $title,
+                        'snippet'           =>  $snippet,
+                        'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
+                        'image'             =>  $image,
+                        'thumbnailimage'    =>  $thumbnailimage,
+                    ];
+                }
+            }
+            return response()->json([
+                'data'      => $searchfeed,
+                'total'     => $totalquery,
+                'result'    => true
+            ]); 
+
+        } else {
+            return response()->json([
+            'message'   => 'Error getting data!',
+            'result'    => false
+            ]);
+        }
+    }
+
     public function doCarousellSearch(Request $request) {        
         
         // get country code language localization
@@ -237,5 +344,10 @@ class BuyAndSellController extends Controller
             $new_carousell_url = $this->carousell_url . $countryid;
             return $new_carousell_url;
         }
+    }
+
+    protected function getSession() {
+        $carousell = $this->function->guzzleHttpCall($this->carousell_url);
+        return $carousell['data']['session'];
     }
 }
