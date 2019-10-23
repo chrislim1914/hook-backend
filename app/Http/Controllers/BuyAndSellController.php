@@ -92,18 +92,21 @@ class BuyAndSellController extends Controller
         // build page
         $page = $this->paginationTrick($request->page);
 
+        // session
+        $session = $this->getSession();
+
         // build body
         $data = json_encode(array(
             "count"         => $page,
             "countryId"     => "1694008",
-            "session"       => $this->getSession()
-        ));
-        
+            "session"       => $session
+        ));       
 
         // build header
         $header = array(
             "content-type: application/json",
-            "Content-Length: ".strlen($data)
+            "Content-Length: ".strlen($data),
+            "Host: www.carousell.ph"
         );
         
         $ch = curl_init();
@@ -158,7 +161,7 @@ class BuyAndSellController extends Controller
                         }                    
                         $count++;
                     }
-                    
+
                     // for description
                     $still=0;
                     $snippet = [];
@@ -175,6 +178,7 @@ class BuyAndSellController extends Controller
                         'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
                         'image'             =>  $image,
                         'thumbnailimage'    =>  $thumbnailimage,
+                        'source'        =>  'Carousell'
                     ];
                 }
             }
