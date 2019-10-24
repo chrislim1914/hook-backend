@@ -80,7 +80,7 @@ class UserController extends Controller
 
         if($issave == false) {
             return response()->json([
-                'message'   => 'Failed to create new employee!',
+                'message'   => 'Failed to create new user!',
                 'result'    => false
             ]);
         }
@@ -177,7 +177,7 @@ class UserController extends Controller
 
         if($saveuser == false) {
             return response()->json([
-                'message'   => 'Failed to create new employee!',
+                'message'   => 'Failed to create new user!',
                 'result'    => false
             ]);
         }
@@ -416,8 +416,8 @@ class UserController extends Controller
             ]);
         } else {
             return response()->json([
-                'data'      => $thisuser,
-                'result'    => true
+                'data'      => 'failed to get user info',
+                'result'    => false
             ]);
         }
     }

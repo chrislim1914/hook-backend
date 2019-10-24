@@ -78,6 +78,7 @@ $app->routeMiddleware([
 */
 $app->configure('engine');
 $app->configure('language');
+$app->configure('corousell_category');
 
 /*
 |--------------------------------------------------------------------------

@@ -98,9 +98,7 @@ class NewsController extends Controller
      * @param Request $request
      * @return JSON
      */
-    public function feedNews(Request $request) {
-        // get country code, news apikey
-        $langcode =  $this->function->getLanguageCode($request->languagecode);
+    public function feedNews() {
 
         // lets create the newsapi url
         $newsapi_url = $this->url.'&apiKey='.$this->apikey;
@@ -115,7 +113,7 @@ class NewsController extends Controller
             ]);
         }
         
-        $headlines = $this->createNewsJsonBody($httpcall, $langcode);
+        $headlines = $this->createNewsJsonBody($httpcall);
 
         return response()->json([
             'data'      => $headlines,
@@ -130,9 +128,6 @@ class NewsController extends Controller
      * @return JSON
      */
     public function feedNewsByCategory(Request $request) {
-        // get country code, news apikey
-        $langcode =  $this->function->getLanguageCode($request->languagecode);
-
         // check input category and page
         $cat = $this->newsapi_category($request->category);
         $page = $this->newsapi_page($request->page);
@@ -164,7 +159,7 @@ class NewsController extends Controller
             ]);
         }
 
-        $newsjson = $this->createNewsJsonBody($httpcall, $langcode);
+        $newsjson = $this->createNewsJsonBody($httpcall);
 
         return response()->json([
             'data'          => $newsjson,
@@ -176,10 +171,10 @@ class NewsController extends Controller
     /**
      * method to create json body for newsapi.org feed data
      * 
-     * @param $newsbody, $langcode
+     * @param $newsbody
      * @return $newsfeed
      */
-    protected function createNewsJsonBody($newsbody, $langcode) {
+    protected function createNewsJsonBody($newsbody) {
         
         // lets build the json data and even translate if neccesary
         $newsfeed = [];
@@ -192,8 +187,8 @@ class NewsController extends Controller
             }elseif($this->supportedNewsAgency($source['source']['name']) == true ) {
                 $newsource      = $source['source']['name'];
                 $author         = $source['author'];
-                $title          = $langcode == 'en' ? $source['title'] : $this->function->translator($source['title'], $langcode);
-                $description    = $langcode == 'en' ? $source['description'] : $this->function->translator($source['description'], $langcode);
+                $title          = $source['title'];
+                $description    = $source['description'];
                 $url            = $source['url'];
                 $image          = $source['urlToImage'];
                 $publishedAt    = $source['publishedAt'];

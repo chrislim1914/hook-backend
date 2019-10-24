@@ -50,6 +50,8 @@ $router->group(['prefix' => 'api'], function($router)
     $router->get('buyandsell', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@getCarousell']);
     $router->get('buyandsellview', ['middleware' => 'cors', 'uses' => 'ScrapController@scrapCarousell']);
     $router->get('buyandsellfeed', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@feedCarousell']);
+    $router->get('buyandsellfilter', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@filterCarousell']);
+    $router->get('carousellcategory', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@loadCarousellCategory']);
 });
 
 /**

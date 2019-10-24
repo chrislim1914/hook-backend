@@ -7,6 +7,7 @@ use GuzzleHttp\Exception\RequestException;
 use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Client;
 use App\Http\Controllers\Functions;
+use Illuminate\Support\Facades\Config;
 
 class BuyAndSellController extends Controller
 {
@@ -29,9 +30,6 @@ class BuyAndSellController extends Controller
 
     public function getCarousell(Request $request) {
         
-        // get country code, news apikey
-        $langcode =  $this->function->getLanguageCode($request->languagecode);
-
         $carouselldata = $this->function->guzzleHttpCall($this->carousell_url);
 
         if($carouselldata == false) {
@@ -56,8 +54,7 @@ class BuyAndSellController extends Controller
                     $deatail = [];
                     foreach($innercfeed['belowFold'] as $belowFold) {
                         $deatail[] = [
-                            // 'stringContent' => $belowFold['stringContent']
-                            'stringContent' => $langcode === 'en' ? $belowFold['stringContent'] : $this->function->translator($belowFold['stringContent'], $langcode),
+                            'stringContent' => $belowFold['stringContent']
                         ];
                     }
                     
@@ -79,8 +76,8 @@ class BuyAndSellController extends Controller
             ]);
         } else {
             return response()->json([
-            'message'   => 'Error getting data!',
-            'result'    => false
+                'message'   => "Something went wrong on our side!",
+                'result'    => false
             ]);
         }
     }
@@ -196,10 +193,7 @@ class BuyAndSellController extends Controller
         }
     }
 
-    public function doCarousellSearch(Request $request) {        
-        
-        // get country code language localization
-        $langcode =  $this->function->getLanguageCode($request->languagecode);
+    public function doCarousellSearch(Request $request) {
 
         // build URL
         $url = $this->carousell_search_url;
@@ -269,8 +263,7 @@ class BuyAndSellController extends Controller
                     $count=0;
                     foreach($sfeed['belowFold'] as $titledesc) {
                         if($count == 0) {
-                            // $title          = $titledesc['stringContent'];
-                            $title          = $langcode === 'en' ? $titledesc['stringContent'] : $this->function->translator($titledesc['stringContent'], $langcode);
+                            $title          = $titledesc['stringContent'];
                             $titlenotrans   = $titledesc['stringContent'];
                             break;
                         }                    
@@ -282,7 +275,6 @@ class BuyAndSellController extends Controller
                     foreach($sfeed['belowFold'] as $snippetdesc) {
                        
                         $snippet[]          = $snippetdesc['stringContent'];
-                        // $snippet[]          = $langcode === 'en' ? $snippetdesc['stringContent'] : $this->function->translator($snippetdesc['stringContent'], $langcode);
                                           
                         $still++;
                     }
@@ -303,10 +295,170 @@ class BuyAndSellController extends Controller
             ]); 
         } else {
             return response()->json([
+            'message'   => 'Something went wrong on our side!',
+            'result'    => false
+            ]);
+        }
+    }
+
+    public function filterCarousell(Request $request) {
+        // build URL
+        $url = $this->carousell_search_url;
+
+        // build page
+        $page = $this->paginationTrick($request->page);
+
+        // session
+        $session = $this->getSession();
+
+        // filter the category
+        $filter = $request->filter;
+
+        // check if null
+        if(count($filter) <= 0) {
+            return response()->json([
+                'data'      => [],
+                'result'    => true
+            ]);
+        }
+
+        // build body
+        $data = json_encode(array(
+            "count"         => $page,
+            "countryId"     => "1694008",
+            "session"       => $session,
+            "filters"       => [ array(
+                    "fieldName"     => "collections", 
+                        "idsOrKeywords" => array(
+                            "value"     => $filter
+                        )
+                )                    
+            ]            
+        ));       
+        
+        // build header
+        $header = array(
+            "content-type: application/json",
+            "Content-Length: ".strlen($data),
+            "Host: www.carousell.ph"
+        );
+
+        // do cURL
+        $resultdata = $this->buyandsellCurlCall($url, $header, $data);
+
+        // check if there is result in the body
+        if($resultdata !== false) {
+
+             // let's get the total result of search query
+             $totalquery = $resultdata['data']['total']['value']['low'];
+
+             // lets create virtual pagination
+             $endat = $page > $totalquery ? $totalquery : $page;
+             $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
+             
+            // let see if there are still data to output
+            if(count($resultdata['data']['results']) <= 0 ) {
+                return response()->json([
+                    'data'      => [],
+                    'total'     => $totalquery,
+                    'result'    => true
+                    ]);
+            }
+
+            // json body to output
+            $searchfeed = [];
+            
+            for($i = $startfrom; $i < count($resultdata['data']['results']); $i++){
+                foreach($resultdata['data']['results'][$i] as $sfeed) {
+                    // for image "photos": []
+                    foreach($sfeed['photos'] as $imageurl) {
+                        $image          = $imageurl['thumbnailUrl'];
+                        $thumbnailimage = array_key_exists('thumbnailProgressiveUrl', $imageurl) == false ? $image : $imageurl['thumbnailProgressiveUrl'];
+                    }
+                    
+                    // for title
+                    $count=0;
+                    foreach($sfeed['belowFold'] as $titledesc) {
+                        if($count == 0) {
+                            $title          = $titledesc['stringContent'];
+                            $titlenotrans   = $titledesc['stringContent'];
+                            break;
+                        }                    
+                        $count++;
+                    }
+
+                    // for description
+                    $still=0;
+                    $snippet = [];
+                    foreach($sfeed['belowFold'] as $snippetdesc) {
+                       
+                        $snippet[]          = $snippetdesc['stringContent'];                                          
+                        $still++;
+                    }
+
+                    $searchfeed[] = [
+                        'id'                =>  $sfeed['id'],
+                        'title'             =>  $title,
+                        'snippet'           =>  $snippet,
+                        'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
+                        'image'             =>  $image,
+                        'thumbnailimage'    =>  $thumbnailimage,
+                        'source'        =>  'Carousell'
+                    ];
+                }
+            }
+            return response()->json([
+                'data'      => $searchfeed,
+                'total'     => $totalquery,
+                'result'    => true
+            ]); 
+
+        } else {
+            return response()->json([
             'message'   => 'Error getting data!',
             'result'    => false
             ]);
         }
+    }
+
+    public function loadCarousellCategory() {
+        $dog = config('corousell_category');
+
+        $category = [];
+        foreach ($dog as $cat => $mouse) {
+            $category[] = [
+                'name'  => $cat,
+                'id'    => $mouse
+            ];
+        }
+        return response()->json([
+            'data'      => $category,
+            'result'    => true
+        ]); 
+    }
+
+    protected function buyandsellCurlCall($url, $header, $data) {
+
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);    
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);   
+
+        $result = curl_exec ($ch);
+
+        curl_close ($ch);
+
+        $jsonlist = json_decode($result, true);
+
+        if(array_key_exists('results', $jsonlist)) {
+            return false;
+        }
+
+        return $jsonlist;
     }
 
     protected function treatTitle($title) {

@@ -22,24 +22,28 @@ class ScrapController extends Controller
         $description = [];
         $newcarousell_item = [];
 
-        $scrapnews = $client->request('GET', $carousell_url);
-        $media = $scrapnews->filter('.styles__container___2zBd_ img')->eq(0)->attr('src');
-        $price = $scrapnews->filter('.styles__price___K6Kjb')->each(function ($node) {
+        $scrapcarousells = $client->request('GET', $carousell_url);
+        
+        $media = $scrapcarousells->filter('.styles__carouselVerticalTrack___Z4Gdv .styles__slide___1-pzx img')->each(function ($node) {
+            return $node->eq(0)->attr('src');
+        });
+
+        $price = $scrapcarousells->filter('.styles__price___K6Kjb')->each(function ($node) {
             return $node->text();
         });
-        $itemname = $scrapnews->filter('.styles__titleWrapper___3jSxG h1')->each(function ($node) {
+        $itemname = $scrapcarousells->filter('.styles__titleWrapper___3jSxG h1')->each(function ($node) {
             return $node->text();
         });
 
-        $details = $scrapnews->filter('.styles__body___VSdV5 p')->each(function ($node) {
+        $details = $scrapcarousells->filter('.styles__body___VSdV5 p')->each(function ($node) {
             return $node->text();
         });
 
-        $desc = $scrapnews->filter('.styles__textTruncate___2Mx1R .styles__overflowBreakWord___2rtT6')->each(function ($node) {
+        $desc = $scrapcarousells->filter('.styles__textTruncate___2Mx1R .styles__overflowBreakWord___2rtT6')->each(function ($node) {
             return $node->text();
         });
 
-        $shipping = $scrapnews->filter('.styles__textWithLeftLabel___20RQO .styles__text___1gJzw')->each(function ($node) {
+        $shipping = $scrapcarousells->filter('.styles__textWithLeftLabel___20RQO .styles__text___1gJzw')->each(function ($node) {
             return $node->text();
         });
 

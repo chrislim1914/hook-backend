@@ -30,10 +30,7 @@ class SearchEngineController extends Controller
                 'result'    => false
             ]);
         }
-        
-        // get country code language localization
-        $langcode =  $this->function->getLanguageCode($request->languagecode);
-        
+                
         $keys = config('engine');
         $count = 0;
 
@@ -84,9 +81,9 @@ class SearchEngineController extends Controller
                     }
                                         
                     $searchdata[] = [
-                        'title'             => $langcode === 'en' ? $newitem['title'] : $this->function->translator($newitem['title'], $langcode),
+                        'title'             => $newitem['title'],
                         'link'              => array_key_exists('og:url', $newitem['pagemap']['metatags'][0]) ? $newitem['pagemap']['metatags'][0]['og:url'] : $newitem['link'],
-                        'snippet'           => $langcode === 'en' ? $newitem['snippet'] : $this->function->translator($newitem['snippet'], $langcode),
+                        'snippet'           => $newitem['snippet'],
                         'image'             => $image,
                         'thumbnailimage'    => $thumbnailimage,
                     ];
