@@ -166,6 +166,16 @@ class BuyAndSellController extends Controller
         $request->has('search') == true ? $search = $request->search : $search = '';
         $request->has('filter') == true ? $filter = $request->filter : $filter = '';
         
+        // lets check the id first before we mess around
+        $checkid = $this->checkCategoryID($filter[0]);
+        if(!$checkid) {
+            return response()->json([
+                'message'   => 'Category not found!',
+                'result'    => false
+            ]);
+        }
+
+        // ok then lets mess around
         $param = $this->createCarousellHeadandBody($page, $search, $filter);  
 
         // do cURL
@@ -435,5 +445,20 @@ class BuyAndSellController extends Controller
     protected function getSession() {
         $session = $this->function->guzzleHttpCall($this->carousell_url);
         return $session['data']['session'];
+    }
+
+    /**
+     * method to check if the filter(categoryid) is on the list
+     * 
+     * @param $id
+     * @return Boolean
+     */
+    protected function checkCategoryID($id) {
+        $catlist = in_array($id, config('corousell_category'), true);
+
+        if($catlist) {
+            return true;
+        }
+        return false;
     }
 }
