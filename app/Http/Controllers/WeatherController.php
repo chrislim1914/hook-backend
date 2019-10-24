@@ -44,12 +44,6 @@ class WeatherController extends Controller
         $cityname = $ipdata['city'];
         $countrycode = strtolower($ipdata['countryCode']);
 
-        // get language syupport
-        // $gotlang = $this->function->getLanguageCode($request->languagecode);
-
-        // $cc_url = $this->currentcondition_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$this->apikey;
-        // $fc_url = $this->forecast_url.'?q='.$cityname.','.$countrycode.'&units=metric&lang='.$gotlang.'&APPID='.$this->apikey;
-
         $cc_url = $this->currentcondition_url.'?q='.$cityname.','.$countrycode.'&units=metric&APPID='.$this->apikey;
         $fc_url = $this->forecast_url.'?q='.$cityname.','.$countrycode.'&units=metric&APPID='.$this->apikey;
 

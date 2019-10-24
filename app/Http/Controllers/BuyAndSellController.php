@@ -29,7 +29,12 @@ class BuyAndSellController extends Controller
         $this->function = $function;
     }
 
-    public function getCarousell(Request $request) {
+    /**
+     * method to display 5 post from Carousell.ph
+     * 
+     * @return JSON
+     */
+    public function getCarousell() {
         
         $carouselldata = $this->function->guzzleHttpCall($this->carousell_url.'&count=5');
 
@@ -78,6 +83,13 @@ class BuyAndSellController extends Controller
         }
     }
 
+    /**
+     * method to display 10 post per pagination
+     * from carousell.ph
+     * 
+     * @param Request $request->page
+     * @return JSON
+     */
     public function feedCarousell(Request $request) {
 
         $page = $request->page;
@@ -105,6 +117,14 @@ class BuyAndSellController extends Controller
         }
     }
 
+    /**
+     * method to do search from carousell.ph
+     * display 10 post per pagination
+     * 
+     * @param Request $request->page
+     * @param Request $request->search
+     * @return JSON
+     */
     public function doCarousellSearch(Request $request) {
 
         $page = $request->page;
@@ -132,6 +152,14 @@ class BuyAndSellController extends Controller
         }
     }
 
+    /**
+     * method to do search from carousell.ph
+     * display 10 post per pagination
+     * 
+     * @param Request $request->page
+     * @param Request $request->filter
+     * @return JSON
+     */
     public function filterCarousell(Request $request) {
         
         $page = $request->page;
@@ -160,6 +188,11 @@ class BuyAndSellController extends Controller
         }
     }
 
+    /**
+     * method to display all main carousell category only
+     * 
+     * @return JSON
+     */
     public function loadCarousellCategory() {
         $dog = config('corousell_category');
 
@@ -176,6 +209,16 @@ class BuyAndSellController extends Controller
         ]); 
     }
 
+    /**
+     * method to request POST method from carousell.ph using cURL
+     * 
+     * @param Array $param
+     * $param['url']
+     * $param['header']
+     * $param['data']
+     * 
+     * @return Mix Bool/$jsonlist
+     */
     protected function carousellcURLCall(array $param) {
 
         $ch = curl_init();
@@ -200,6 +243,12 @@ class BuyAndSellController extends Controller
         return $jsonlist;
     }
 
+    /**
+     * method to create header and body param
+     * 
+     * @param $page, $search, $filter
+     * @return Array
+     */
     protected function createCarousellHeadandBody($page, $search, $filter) {
         // build URL
         $url = $this->carousell_search_url;
@@ -249,6 +298,12 @@ class BuyAndSellController extends Controller
 
     }
 
+    /**
+     * method to create JSON data
+     * 
+     * @param $resultdata, $page
+     * @return Array
+     */
     protected function createCarousellData($resultdata, $page) {
 
         $page = $this->paginationTrick($page);
@@ -317,6 +372,12 @@ class BuyAndSellController extends Controller
         );
     }
 
+    /**
+     * method to create title name to be use as link
+     * 
+     * @param $title
+     * @return $treatTitle
+     */
     protected function treatTitle($title) {
         if($title == null) {
             return $title;
@@ -327,6 +388,14 @@ class BuyAndSellController extends Controller
         return strtolower($treatTitle);
     }
 
+    /**
+     * method to create pagination
+     * actually there is no pagination
+     * we just trick the count body param as our pagination
+     * 
+     * @param $page
+     * @return $page
+     */
     protected function paginationTrick($page) {
         if($page == null || $page == 0 || $page == 1 ) {
             return $page = 10;
@@ -358,8 +427,13 @@ class BuyAndSellController extends Controller
         }
     }
 
+    /**
+     * method to get JWT from carousell.ph
+     * 
+     * @return $session
+     */
     protected function getSession() {
-        $carousell = $this->function->guzzleHttpCall($this->carousell_url);
-        return $carousell['data']['session'];
+        $session = $this->function->guzzleHttpCall($this->carousell_url);
+        return $session['data']['session'];
     }
 }
