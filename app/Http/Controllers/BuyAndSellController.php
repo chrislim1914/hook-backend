@@ -13,7 +13,8 @@ class BuyAndSellController extends Controller
 {
     private $client;
     private $function;
-    private $carousell_url = 'https://www.carousell.ph/api-service/home/?count=20&countryID=1694008';
+    private $countryID = '1694008';
+    private $carousell_url = 'https://www.carousell.ph/api-service/home/?countryID=1694008';
     private $carousell_search_url = 'https://www.carousell.ph/api-service/filter/search/3.3/products/';
 
     /**
@@ -30,7 +31,7 @@ class BuyAndSellController extends Controller
 
     public function getCarousell(Request $request) {
         
-        $carouselldata = $this->function->guzzleHttpCall($this->carousell_url);
+        $carouselldata = $this->function->guzzleHttpCall($this->carousell_url.'&count=5');
 
         if($carouselldata == false) {
             return response()->json([
@@ -44,11 +45,7 @@ class BuyAndSellController extends Controller
             $carousellfeed = [];
             $deatail = [];
             $location = [];
-            $count = 0;
             foreach($carouselldata['data']['results'] as $cfeed) {
-                if($count >= 5){
-                    break;
-                } 
                 foreach($cfeed as $innercfeed) {
                     
                     $deatail = [];
@@ -68,7 +65,6 @@ class BuyAndSellController extends Controller
                         'source'        =>  'Carousell'
                     ];
                 }
-                $count++;
             }
             return response()->json([
                 'data'      => $carousellfeed,
@@ -83,340 +79,83 @@ class BuyAndSellController extends Controller
     }
 
     public function feedCarousell(Request $request) {
-        // build URL
-        $url = $this->carousell_search_url;
 
-        // build page
-        $page = $this->paginationTrick($request->page);
-
-        // session
-        $session = $this->getSession();
-
-        // build body
-        $data = json_encode(array(
-            "count"         => $page,
-            "countryId"     => "1694008",
-            "session"       => $session
-        ));       
-
-        // build header
-        $header = array(
-            "content-type: application/json",
-            "Content-Length: ".strlen($data),
-            "Host: www.carousell.ph"
-        );
+        $page = $request->page;
+        $request->has('search') == true ? $search = $request->search : $search = '';
+        $request->has('filter') == true ? $filter = $request->filter : $filter = '';
         
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL,$url);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);    
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);        
-        $result=curl_exec ($ch);
-        curl_close ($ch);
+        $param = $this->createCarousellHeadandBody($page, $search, $filter);  
 
-        $resultdata = json_decode($result, true);
+        // do cURL
+        $resultdata = $this->carousellcURLCall($param);
 
-        // check if there is result in the body
-        if(array_key_exists('results',$resultdata['data'])) {
-
-             // let's get the total result of search query
-             $totalquery = $resultdata['data']['total']['value']['low'];
-
-             // lets create virtual pagination
-             $endat = $page > $totalquery ? $totalquery : $page;
-             $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
-             
-            // let see if there are still data to output
-            if(count($resultdata['data']['results']) <= 0 ) {
-                return response()->json([
-                    'data'      => [],
-                    'total'     => $totalquery,
-                    'result'    => true
-                    ]);
-            }
-
-            // json body to output
-            $searchfeed = [];
-            
-            for($i = $startfrom; $i < count($resultdata['data']['results']); $i++){
-                foreach($resultdata['data']['results'][$i] as $sfeed) {
-                    // for image "photos": []
-                    foreach($sfeed['photos'] as $imageurl) {
-                        $image          = $imageurl['thumbnailUrl'];
-                        $thumbnailimage = array_key_exists('thumbnailProgressiveUrl', $imageurl) == false ? $image : $imageurl['thumbnailProgressiveUrl'];
-                    }
-                    
-                    // for title
-                    $count=0;
-                    foreach($sfeed['belowFold'] as $titledesc) {
-                        if($count == 0) {
-                            $title          = $titledesc['stringContent'];
-                            $titlenotrans   = $titledesc['stringContent'];
-                            break;
-                        }                    
-                        $count++;
-                    }
-
-                    // for description
-                    $still=0;
-                    $snippet = [];
-                    foreach($sfeed['belowFold'] as $snippetdesc) {
-                       
-                        $snippet[]          = $snippetdesc['stringContent'];                                          
-                        $still++;
-                    }
-
-                    $searchfeed[] = [
-                        'id'                =>  $sfeed['id'],
-                        'title'             =>  $title,
-                        'snippet'           =>  $snippet,
-                        'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
-                        'image'             =>  $image,
-                        'thumbnailimage'    =>  $thumbnailimage,
-                        'source'        =>  'Carousell'
-                    ];
-                }
-            }
+        // check if there is result in the body and create output
+        if($resultdata !== false) {
+            $gotdata = $this->createCarousellData($resultdata, $page);
             return response()->json([
-                'data'      => $searchfeed,
-                'total'     => $totalquery,
-                'result'    => true
-            ]); 
-
+                'data'      => $gotdata['data'],
+                'total'     => $gotdata['total'],
+                'result'    => $gotdata['result'],
+            ]);
         } else {
             return response()->json([
-            'message'   => 'Error getting data!',
-            'result'    => false
+                'message'   => 'Something went wrong on our side!',
+                'result'    => false
             ]);
         }
     }
 
     public function doCarousellSearch(Request $request) {
 
-        // build URL
-        $url = $this->carousell_search_url;
-
-        // build page
-        $page = $this->paginationTrick($request->page);
-
-        // build body
-        $data = json_encode(array(
-            "count"         => $page,
-            "countryId"     => "1694008",
-            "filters"       => [],
-            "locale"        => "en",
-            "query"         => $request->search
-        ));
+        $page = $request->page;
+        $request->has('search') == true ? $search = $request->search : $search = '';
+        $request->has('filter') == true ? $filter = $request->filter : $filter = '';
         
+        $param = $this->createCarousellHeadandBody($page, $search, $filter);  
 
-        // build header
-        $header = array(
-            "content-type: application/json",
-            "Content-Length: ".strlen($data)
-        );
-        
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL,$url);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);    
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);        
-        $result=curl_exec ($ch);
-        curl_close ($ch);
+        // do cURL
+        $resultdata = $this->carousellcURLCall($param);
 
-        $resultdata = json_decode($result, true);
-
-        // check if there is result in the body
-        if(array_key_exists('results',$resultdata['data'])) {
-
-            // let's get the total result of search query
-            $totalquery = $resultdata['data']['total']['value']['low'];
-
-            // lets create virtual pagination
-            $endat = $page > $totalquery ? $totalquery : $page;
-            $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
-
-            // let see if there are still data to output
-            if(count($resultdata['data']['results']) <= 0 ) {
-                return response()->json([
-                    'data'      => [],
-                    'total'     => $totalquery,
-                    'result'    => true
-                    ]);
-            }
-
-            // json body to output
-            $searchfeed = [];
-            
-            for($i = $startfrom; $i < count($resultdata['data']['results']); $i++){
-                foreach($resultdata['data']['results'][$i] as $sfeed) {
-                    // for image "photos": []
-                    foreach($sfeed['photos'] as $imageurl) {
-                        $image          = $imageurl['thumbnailUrl'];
-                        $thumbnailimage = array_key_exists('thumbnailProgressiveUrl', $imageurl) == false ? $image : $imageurl['thumbnailProgressiveUrl'];
-                    }
-                    
-                    // for title
-                    $count=0;
-                    foreach($sfeed['belowFold'] as $titledesc) {
-                        if($count == 0) {
-                            $title          = $titledesc['stringContent'];
-                            $titlenotrans   = $titledesc['stringContent'];
-                            break;
-                        }                    
-                        $count++;
-                    }
-                    // for description
-                    $still=0;
-                    $snippet = [];
-                    foreach($sfeed['belowFold'] as $snippetdesc) {
-                       
-                        $snippet[]          = $snippetdesc['stringContent'];
-                                          
-                        $still++;
-                    }
-                    $searchfeed[] = [
-                        'id'                =>  $sfeed['id'],
-                        'title'             =>  $title,
-                        'snippet'           =>  $snippet,
-                        'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
-                        'image'             =>  $image,
-                        'thumbnailimage'    =>  $thumbnailimage,
-                    ];
-                }
-            }
+        // check if there is result in the body and create output
+        if($resultdata !== false) {
+            $gotdata = $this->createCarousellData($resultdata, $page);
             return response()->json([
-                'data'      => $searchfeed,
-                'total'     => $totalquery,
-                'result'    => true
-            ]); 
+                'data'      => $gotdata['data'],
+                'total'     => $gotdata['total'],
+                'result'    => $gotdata['result'],
+            ]);
         } else {
             return response()->json([
-            'message'   => 'Something went wrong on our side!',
-            'result'    => false
+                'message'   => 'Something went wrong on our side!',
+                'result'    => false
             ]);
         }
     }
 
     public function filterCarousell(Request $request) {
-        // build URL
-        $url = $this->carousell_search_url;
-
-        // build page
-        $page = $this->paginationTrick($request->page);
-
-        // session
-        $session = $this->getSession();
-
-        // filter the category
-        $filter = $request->filter;
-
-        // check if null
-        if(count($filter) <= 0) {
-            return response()->json([
-                'data'      => [],
-                'result'    => true
-            ]);
-        }
-
-        // build body
-        $data = json_encode(array(
-            "count"         => $page,
-            "countryId"     => "1694008",
-            "session"       => $session,
-            "filters"       => [ array(
-                    "fieldName"     => "collections", 
-                        "idsOrKeywords" => array(
-                            "value"     => $filter
-                        )
-                )                    
-            ]            
-        ));       
         
-        // build header
-        $header = array(
-            "content-type: application/json",
-            "Content-Length: ".strlen($data),
-            "Host: www.carousell.ph"
-        );
+        $page = $request->page;
+        $request->has('search') == true ? $search = $request->search : $search = '';
+        $request->has('filter') == true ? $filter = $request->filter : $filter = '';
+        
+        $param = $this->createCarousellHeadandBody($page, $search, $filter);  
 
         // do cURL
-        $resultdata = $this->buyandsellCurlCall($url, $header, $data);
+        $resultdata = $this->carousellcURLCall($param);
 
-        // check if there is result in the body
+
+        // check if there is result in the body and create output
         if($resultdata !== false) {
-
-             // let's get the total result of search query
-             $totalquery = $resultdata['data']['total']['value']['low'];
-
-             // lets create virtual pagination
-             $endat = $page > $totalquery ? $totalquery : $page;
-             $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
-             
-            // let see if there are still data to output
-            if(count($resultdata['data']['results']) <= 0 ) {
-                return response()->json([
-                    'data'      => [],
-                    'total'     => $totalquery,
-                    'result'    => true
-                    ]);
-            }
-
-            // json body to output
-            $searchfeed = [];
-            
-            for($i = $startfrom; $i < count($resultdata['data']['results']); $i++){
-                foreach($resultdata['data']['results'][$i] as $sfeed) {
-                    // for image "photos": []
-                    foreach($sfeed['photos'] as $imageurl) {
-                        $image          = $imageurl['thumbnailUrl'];
-                        $thumbnailimage = array_key_exists('thumbnailProgressiveUrl', $imageurl) == false ? $image : $imageurl['thumbnailProgressiveUrl'];
-                    }
-                    
-                    // for title
-                    $count=0;
-                    foreach($sfeed['belowFold'] as $titledesc) {
-                        if($count == 0) {
-                            $title          = $titledesc['stringContent'];
-                            $titlenotrans   = $titledesc['stringContent'];
-                            break;
-                        }                    
-                        $count++;
-                    }
-
-                    // for description
-                    $still=0;
-                    $snippet = [];
-                    foreach($sfeed['belowFold'] as $snippetdesc) {
-                       
-                        $snippet[]          = $snippetdesc['stringContent'];                                          
-                        $still++;
-                    }
-
-                    $searchfeed[] = [
-                        'id'                =>  $sfeed['id'],
-                        'title'             =>  $title,
-                        'snippet'           =>  $snippet,
-                        'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
-                        'image'             =>  $image,
-                        'thumbnailimage'    =>  $thumbnailimage,
-                        'source'        =>  'Carousell'
-                    ];
-                }
-            }
+            $gotdata = $this->createCarousellData($resultdata, $page);
             return response()->json([
-                'data'      => $searchfeed,
-                'total'     => $totalquery,
-                'result'    => true
-            ]); 
-
+                'data'      => $gotdata['data'],
+                'total'     => $gotdata['total'],
+                'result'    => $gotdata['result'],
+            ]);
         } else {
             return response()->json([
-            'message'   => 'Error getting data!',
-            'result'    => false
+                'message'   => 'Something went wrong on our side!',
+                'result'    => false
             ]);
         }
     }
@@ -437,16 +176,16 @@ class BuyAndSellController extends Controller
         ]); 
     }
 
-    protected function buyandsellCurlCall($url, $header, $data) {
+    protected function carousellcURLCall(array $param) {
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL,$url);
+        curl_setopt($ch, CURLOPT_URL,$param['url']);
         curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
         curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
         curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $header);    
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);   
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $param['header']);    
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $param['data']);   
 
         $result = curl_exec ($ch);
 
@@ -459,6 +198,123 @@ class BuyAndSellController extends Controller
         }
 
         return $jsonlist;
+    }
+
+    protected function createCarousellHeadandBody($page, $search, $filter) {
+        // build URL
+        $url = $this->carousell_search_url;
+
+        // build page
+        $page = $this->paginationTrick($page);
+
+        // session
+        $session = $this->getSession();
+
+        // build body
+        if($filter != '') {
+            $data = json_encode(array(
+                "count"         => $page,
+                "countryId"     => $this->countryID,
+                "session"       => $session,
+                "query"         => $search,
+                "filters"       => [ array(
+                    "fieldName"     => "collections", 
+                        "idsOrKeywords" => array(
+                            "value"     => $filter
+                        )
+                    )                    
+                ]
+            ));
+        } else {
+            $data = json_encode(array(
+                "count"         => $page,
+                "countryId"     => $this->countryID,
+                "session"       => $session,
+                "query"         => $search
+            ));
+        }
+        
+        // build header
+        $header = array(
+            "content-type: application/json",
+            "Content-Length: ".strlen($data),
+            "Host: www.carousell.ph"
+        );
+
+        return array(
+            'url'       => $url,
+            'data'      => $data,
+            'header'    => $header
+        );
+
+    }
+
+    protected function createCarousellData($resultdata, $page) {
+
+        $page = $this->paginationTrick($page);
+
+        // let's get the total result of search query
+        $totalquery = $resultdata['data']['total']['value']['low'];
+        // lets create virtual pagination
+        $endat = $page > $totalquery ? $totalquery : $page;
+        $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
+        
+       // let see if there are still data to output
+       if(count($resultdata['data']['results']) <= 0 ) {
+           return array(
+                'data'      => [],
+                'total'     => $totalquery,
+                'result'    => true
+           );
+       }
+
+       // json body to output
+       $carouselljsonfeed = [];
+       
+       for($i = $startfrom; $i < count($resultdata['data']['results']); $i++){
+           foreach($resultdata['data']['results'][$i] as $sfeed) {
+               // for image "photos": []
+               foreach($sfeed['photos'] as $imageurl) {
+                   $image          = $imageurl['thumbnailUrl'];
+                   $thumbnailimage = array_key_exists('thumbnailProgressiveUrl', $imageurl) == false ? $image : $imageurl['thumbnailProgressiveUrl'];
+               }
+               
+               // for title
+               $count=0;
+               foreach($sfeed['belowFold'] as $titledesc) {
+                   if($count == 0) {
+                       $title          = $titledesc['stringContent'];
+                       $titlenotrans   = $titledesc['stringContent'];
+                       break;
+                   }                    
+                   $count++;
+               }
+
+               // for description
+               $still=0;
+               $snippet = [];
+               foreach($sfeed['belowFold'] as $snippetdesc) {
+                  
+                   $snippet[]          = $snippetdesc['stringContent'];                                          
+                   $still++;
+               }
+
+               $carouselljsonfeed[] = [
+                   'id'                =>  $sfeed['id'],
+                   'title'             =>  $title,
+                   'snippet'           =>  $snippet,
+                   'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
+                   'image'             =>  $image,
+                   'thumbnailimage'    =>  $thumbnailimage,
+                   'source'        =>  'Carousell'
+               ];
+           }
+       }
+       return array(
+            'data'      => $carouselljsonfeed,
+            'total'     => $totalquery,
+            'result'    => true
+        );
     }
 
     protected function treatTitle($title) {
