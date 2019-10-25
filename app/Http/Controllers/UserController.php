@@ -238,7 +238,7 @@ class UserController extends Controller
         $img->setValue($username);
         $img->setSize(150);
         
-        $folderdir = 'img/profile/'.$username.'_'.$name.'/';
+        $folderdir = 'img/user/'.$username.'_'.$name.'/profile/';
         File::makeDirectory($folderdir, 0777, true);
 
         /**
@@ -264,7 +264,7 @@ class UserController extends Controller
 
     /**
      * method to upload user profile photo
-     * 
+     * TODO i change the path folder
      * @param Request $request
      * @return response JSON
      */

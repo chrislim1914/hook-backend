@@ -74,9 +74,17 @@ $router->group(['prefix' => 'api'], function($router)
 });
 
 /**
+ * product
+ */
+$router->group(['prefix' => 'api'], function($router)
+{
+    $router->post('product/add', ['middleware' => 'cors', 'uses' => 'ProductController@postProduct']);
+});
+
+/**
  * to test something
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->post('test', ['middleware' => 'cors', 'uses' => 'ScrapController@scrapCarousell']);
+    $router->get('test', ['middleware' => 'cors', 'uses' => 'ProductController@loadOurProduct']);
 });

@@ -9,13 +9,12 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\Access\Authorizable as AuthorizableContract;
+use Illuminate\Support\Facades\File;
 
 class User extends Model implements AuthenticatableContract, AuthorizableContract, JWTSubject
 {
     use Authenticatable, Authorizable;
     use Notifiable;
-
-    public $timestamps = false;
 
     protected $primaryKey = 'iduser';
     protected $table = 'users';
@@ -56,6 +55,21 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function getJWTCustomClaims()
     {
         return [];
+    }
+
+    /**
+     * method to get user ID
+     * 
+     * @param $iduser
+     * @return $user
+     */
+    public function isIDExist($iduser) {
+        $iduser = User::where('iduser', $iduser)->first();
+        if($iduser != null){
+            return true;
+        }else{
+            return false;
+        }
     }
 
     /**
@@ -106,6 +120,69 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             return true;
         }else{
             return false;
+        }
+    }
+
+    /**
+     * method to create user folder
+     * 
+     * @param $username
+     * @return $folderdir
+     * @return false
+     */
+    public function createUserFolder($username) {
+        // lets create time for name purpose
+        $name = time();
+
+        $folderdir = 'img/user/'.$username.'_'.$name.'/';
+
+        if (file_exists($folderdir)) {
+            return false;
+        } else {
+            File::makeDirectory($folderdir, 0777, true);
+            return $folderdir;
+        }        
+    }
+
+    /**
+     * method to create user folder for product
+     * 
+     * @param $username
+     * @return $folderdir
+     * @return false
+     */
+    public function createUserFolderProduct($path, $id) {
+        // lets create time for name purpose
+        $name = time();
+
+        $folderdir = $path.'product_'.$id.'/';
+
+        if (file_exists($folderdir)) {
+            return false;
+        } else {
+            File::makeDirectory($folderdir, 0777, true);
+            return $folderdir;
+        }        
+    }
+
+    /**
+     * method to get user image folder
+     * 
+     * @param $iduser
+     * 
+     * @return $old_path
+     * @return false
+     */
+    public function getUserFolder($iduser) {
+        // first we get the user info
+        $gotuser = $this->getUserData($iduser);
+
+        // lets check if the profile_photo is path and not url
+        $path = explode("/", $gotuser->profile_photo);
+        if($path[0] === 'img') {
+            return $old_path = $path[0].'/'.$path[1].'/'.$path[2].'/';
+        } else {
+           return false;
         }
     }
 }

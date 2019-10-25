@@ -15,6 +15,7 @@ use GuzzleHttp\Exception\ConnectException;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Config;
 use App\Http\Controllers\IbmController;
+use Illuminate\Support\Facades\File;
 
 class Functions extends Controller
 {    
