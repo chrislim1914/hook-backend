@@ -27,20 +27,32 @@ class BuyAndSellController extends Controller
 
             foreach($front_hook as $hook) {
                 if($i == $hook['no']) {
-                    array_push($buyandsell, $hook);
+                    array_push($buyandsell, [
+                        'id'            =>  $hook['id'],
+                        'seller'        =>  $hook['seller'],
+                        'photoUrls'     =>  $hook['photoUrls'],
+                        'info'          =>  $hook['info'],
+                        'source'        =>  'hook'
+                    ]);
                 }
             }
 
             foreach($front_carousell as $carousell) {
                 if($i == $carousell['no']) {
-                    array_push($buyandsell, $carousell);
+                    array_push($buyandsell, [
+                        'id'            =>  $carousell['id'],
+                        'seller'        =>  $carousell['seller'],
+                        'photoUrls'     =>  $carousell['photoUrls'],
+                        'info'          =>  $carousell['info'],
+                        'source'        =>  'Carousell'
+                    ]);
                 }              
             }
         }
 
         return response()->json([
-            'data'   => $buyandsell,
-            'result'    => false
+            'data'      => $buyandsell,
+            'result'    => true
         ]);
     }
 
