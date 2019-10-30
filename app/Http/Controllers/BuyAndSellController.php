@@ -17,6 +17,11 @@ class BuyAndSellController extends Controller
         $this->hook         = $hook;
     }
 
+    /**
+     * method to display cvarousell and our product in the front page
+     * 
+     * @return $buyandsell
+     */
     public function mergeFrontDisplay() {
 
         $front_carousell    = $this->carousell->getCarousell();
@@ -25,28 +30,79 @@ class BuyAndSellController extends Controller
 
         for($i=0;$i<3;$i++) {           
 
-            foreach($front_hook as $hook) {
-                if($i == $hook['no']) {
-                    array_push($buyandsell, [
-                        'id'            =>  $hook['id'],
-                        'seller'        =>  $hook['seller'],
-                        'photoUrls'     =>  $hook['photoUrls'],
-                        'info'          =>  $hook['info'],
-                        'source'        =>  'hook'
-                    ]);
+            if($front_hook) {
+                foreach($front_hook as $hook) {
+                    if($i == $hook['no']) {
+                        array_push($buyandsell, [
+                            'id'            =>  $hook['id'],
+                            'seller'        =>  $hook['seller'],
+                            'photoUrls'     =>  $hook['photoUrls'],
+                            'info'          =>  $hook['info'],
+                            'source'        =>  'hook'
+                        ]);
+                    }
                 }
             }
+            
+            if($front_carousell) {
+                foreach($front_carousell as $carousell) {
+                    if($i == $carousell['no']) {
+                        array_push($buyandsell, [
+                            'id'            =>  $carousell['id'],
+                            'seller'        =>  $carousell['seller'],
+                            'photoUrls'     =>  $carousell['photoUrls'],
+                            'info'          =>  $carousell['info'],
+                            'source'        =>  'Carousell'
+                        ]);
+                    }              
+                }
+            }
+        }
 
-            foreach($front_carousell as $carousell) {
-                if($i == $carousell['no']) {
-                    array_push($buyandsell, [
-                        'id'            =>  $carousell['id'],
-                        'seller'        =>  $carousell['seller'],
-                        'photoUrls'     =>  $carousell['photoUrls'],
-                        'info'          =>  $carousell['info'],
-                        'source'        =>  'Carousell'
-                    ]);
-                }              
+        return response()->json([
+            'data'      => $buyandsell,
+            'result'    => true
+        ]);
+    }
+
+    public function feedBuyandSell(Request $request) {
+        $feedcarousell  = $this->carousell->feedCarousell($request->page);
+        $feedhook       = $this->hook->feedHook($request->page);
+
+        $buyandsell = [];  
+
+        for($i=0;$i<5;$i++) {           
+
+            if($feedhook) {
+                foreach($feedhook as $hook) {
+                    if($i == $hook['no']) {
+                        array_push($buyandsell, [
+                            'id'                =>  $hook['id'],
+                            'title'             =>  $hook['title'],
+                            'snippet'           =>  $hook['snippet'],
+                            'link'              =>  $hook['link'],
+                            'image'             =>  $hook['image'],
+                            'thumbnailimage'    =>  $hook['thumbnailimage'],
+                            'source'            =>  $hook['source'],
+                        ]);
+                    }
+                }
+            }
+            
+            if($feedcarousell) {
+                foreach($feedcarousell as $carousell) {
+                    if($i == $carousell['no']) {
+                        array_push($buyandsell, [
+                            'id'                =>  $carousell['id'],
+                            'title'             =>  $carousell['title'],
+                            'snippet'           =>  $carousell['snippet'],
+                            'link'              =>  $carousell['link'],
+                            'image'             =>  $carousell['image'],
+                            'thumbnailimage'    =>  $carousell['thumbnailimage'],
+                            'source'            =>  $carousell['source'],
+                        ]);
+                    }              
+                }
             }
         }
 

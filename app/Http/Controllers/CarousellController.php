@@ -71,13 +71,9 @@ class CarousellController extends Controller
      * @param Request $request->page
      * @return JSON
      */
-    public function feedCarousell(Request $request) {
-
-        $page = $request->page;
-        $request->has('search') == true ? $search = $request->search : $search = '';
-        $request->has('filter') == true ? $filter = $request->filter : $filter = '';
+    public function feedCarousell($page) {
         
-        $param = $this->createCarousellHeadandBody($page, $search, $filter);  
+        $param = $this->createCarousellHeadandBody($page, '', '');  
 
         // do cURL
         $resultdata = $this->carousellcURLCall($param);
@@ -85,16 +81,9 @@ class CarousellController extends Controller
         // check if there is result in the body and create output
         if($resultdata !== false) {
             $gotdata = $this->createCarousellData($resultdata, $page);
-            return response()->json([
-                'data'      => $gotdata['data'],
-                'total'     => $gotdata['total'],
-                'result'    => $gotdata['result'],
-            ]);
+            return $gotdata['data'];
         } else {
-            return response()->json([
-                'message'   => 'Something went wrong on our side!',
-                'result'    => false
-            ]);
+            return false;
         }
     }
 
@@ -316,7 +305,7 @@ class CarousellController extends Controller
 
        // json body to output
        $carouselljsonfeed = [];
-       
+       $count=0;
        for($i = $startfrom; $i < count($resultdata['data']['results']); $i++){
            foreach($resultdata['data']['results'][$i] as $sfeed) {
                // for image "photos": []
@@ -346,15 +335,17 @@ class CarousellController extends Controller
                }
 
                $carouselljsonfeed[] = [
-                   'id'                =>  $sfeed['id'],
-                   'title'             =>  $title,
-                   'snippet'           =>  $snippet,
-                   'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
-                   'image'             =>  $image,
-                   'thumbnailimage'    =>  $thumbnailimage,
-                   'source'        =>  'Carousell'
+                    'no'                =>  $count,
+                    'id'                =>  $sfeed['id'],
+                    'title'             =>  $title,
+                    'snippet'           =>  $snippet,
+                    'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
+                    'image'             =>  $image,
+                    'thumbnailimage'    =>  $thumbnailimage,
+                    'source'            =>  'Carousell'
                ];
            }
+           $count++;
        }
        return array(
             'data'      => $carouselljsonfeed,

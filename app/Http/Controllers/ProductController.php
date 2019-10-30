@@ -88,18 +88,12 @@ class ProductController extends Controller
 
         // return noting if null
         if($product == null) {
-            return response()->json([
-                'data'      => [],
-                'result'    => true
-            ]);
+            return false;
         }
 
         $feedhook = $this->createProductJsonData($product);
         
-        return response()->json([
-            'data'      => $feedhook,
-            'result'    => true
-        ]);
+        return $feedhook;
     }
 
     /**
@@ -267,7 +261,7 @@ class ProductController extends Controller
     protected function createProductJsonData($product) {
 
         $hookfeed = [];
-
+        $count=0;
         foreach($product as $each) {
             $info = [];
             $seller = [];
@@ -291,6 +285,7 @@ class ProductController extends Controller
 
             // same as search
             $hookfeed[] = [
+                'no'                =>  $count,
                 'id'                =>  $each['idproduct'],
                 'title'             =>  $each['title'],
                 'snippet'           =>  $info,
@@ -299,6 +294,7 @@ class ProductController extends Controller
                 'thumbnailimage'    =>  'http://api.geeknation.info/'.$image['image'],
                 'source'            =>  'Hook'
             ];
+            $count++;
         }
 
         return $hookfeed;
