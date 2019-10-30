@@ -184,18 +184,18 @@ class ProductController extends Controller
      * @param $request
      * @return JSON 
      */
-    public function searchProduct($search, $page) {
+    public function searchProduct(Request $request) {
         
-        $paginate = $this->paginateHook($page);
+        $paginate = $this->paginateHook($request->page);
 
-        if($search == null || $search == '') {
+        if($request->search == null || $request->search == '') {
             return response()->json([
                 'message'   => "Search string is empty!",
                 'result'    => false
             ]);
         }
 
-        $search_product = Product::where('title', 'LIKE', "%{$search}%")->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
+        $search_product = Product::where('title', 'LIKE', "%{$request->search}%")->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
 
         // return noting if null
         if($search_product == null) {

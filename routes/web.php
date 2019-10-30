@@ -78,6 +78,7 @@ $router->group(['prefix' => 'api'], function($router)
 {
     $router->get('searchGoogle', ['middleware' => 'cors', 'uses' => 'SearchEngineController@doGoogleSearch']);
     $router->get('searchCarousell', ['middleware' => 'cors', 'uses' => 'CarousellController@doCarousellSearch']);
+    $router->get('searchHook', ['middleware' => 'cors', 'uses' => 'ProductController@searchProduct']);
 });
 
 /**
