@@ -441,7 +441,8 @@ class UserController extends Controller
             ]);
         }
 
-        $product = Product::where('iduser', $request->iduser)->get();
+        $paginate = $this->paginateHook($request->page);
+        $product = Product::where('iduser', $request->iduser)->skip($paginate['skip'])->take($paginate['page'])->get();
 
         if($product == null) {
             return response()->json([
@@ -453,15 +454,8 @@ class UserController extends Controller
         $hookfeed = [];
         foreach($product as $each) {
             $info = [];
-            $seller = [];
 
             $user = User::where('iduser', $each['iduser'])->first();
-
-            $seller = [
-                'id'                => $user['iduser'],
-                'profilePicture'    => '/'.$user['profile_photo'],
-                'username'          => $user['username'],
-            ];
 
             $image = ProductPhoto::where('idproduct', $each['idproduct'])->first();
 
@@ -478,8 +472,8 @@ class UserController extends Controller
                 'title'             =>  $each['title'],
                 'snippet'           =>  $info,
                 'link'              =>  'https://hook.com/p/'.$each['idproduct'],
-                'image'             =>  '/'.$image['image'],
-                'thumbnailimage'    =>  '/'.$image['image'],
+                'image'             =>  'http://api.geeknation.info/'.$image['image'],
+                'thumbnailimage'    =>  'http://api.geeknation.info/'.$image['image'],
                 'source'            =>  'Hook'
             ];
         }
@@ -502,5 +496,28 @@ class UserController extends Controller
         $hash_password = new Functions();
 
         return $hash_password->hash($password);
+    }
+
+    /**
+     * pagination trick for eloquent
+     * using skip and take method
+     * 
+     * @param $page
+     * @return array($skip, $page)
+     */
+    protected function paginateHook($page) {
+        if($page == null || $page == 0 || $page == 1 ) {
+            return array(
+                'skip'  => 0,
+                'page'  => 10
+            );
+        }
+
+        $page = $page * 10;
+        $skip = $page - 10;
+        return array(
+            'skip'  => $skip,
+            'page'  => $page
+        );
     }
 }
