@@ -10,6 +10,8 @@ use Tymon\JWTAuth\JWTAuth;
 use Illuminate\Support\Facades\File;
 use Jdenticon\Identicon;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Product;
+use App\ProductPhoto;
 
 class UserController extends Controller
 {
@@ -389,6 +391,12 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * method to get user data
+     * 
+     * @param $request
+     * @return JSON $thisuser
+     */
     public function getUserData(Request $request) {
         $header = $request->header('Authorization');
 
@@ -420,6 +428,67 @@ class UserController extends Controller
                 'result'    => false
             ]);
         }
+    }
+
+    public function userPostProduct(Request $request) {
+        // check iduser first
+        $checkid = $this->user->isIDExist($request->iduser);
+
+        if(!$checkid) {
+            return response()->json([
+                'message'      => 'User not found!',
+                'result'    => false
+            ]);
+        }
+
+        $product = Product::where('iduser', $request->iduser)->get();
+
+        if($product == null) {
+            return response()->json([
+                'data'      => [],
+                'result'    => false
+            ]);
+        }
+
+        $hookfeed = [];
+        foreach($product as $each) {
+            $info = [];
+            $seller = [];
+
+            $user = User::where('iduser', $each['iduser'])->first();
+
+            $seller = [
+                'id'                => $user['iduser'],
+                'profilePicture'    => '/'.$user['profile_photo'],
+                'username'          => $user['username'],
+            ];
+
+            $image = ProductPhoto::where('idproduct', $each['idproduct'])->first();
+
+            $info = [
+                $each['title'],
+                $each['price'],
+                $each['description'],
+                $each['condition'],
+            ];
+
+            // same as search
+            $hookfeed[] = [
+                'id'                =>  $each['idproduct'],
+                'title'             =>  $each['title'],
+                'snippet'           =>  $info,
+                'link'              =>  'https://hook.com/p/'.$each['idproduct'],
+                'image'             =>  '/'.$image['image'],
+                'thumbnailimage'    =>  '/'.$image['image'],
+                'source'            =>  'Hook'
+            ];
+        }
+
+        return response()->json([
+            'data'      => $hookfeed,            
+            'total'     => count($product),
+            'result'    => true
+        ]);
     }
 
     /**

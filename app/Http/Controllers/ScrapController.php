@@ -73,7 +73,8 @@ class ScrapController extends Controller
             'price'             => $price[0],
             'itemname'          => $itemname[0],
             'description'       => $description,
-            'Mailing&Delivery'  => $shipping 
+            'Mailing&Delivery'  => $shipping,
+            'source'            => 'carousell'
         ];
 
         return response()->json([

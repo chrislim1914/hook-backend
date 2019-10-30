@@ -32,6 +32,9 @@ $router->group(['prefix' => 'api/user'], function($router)
     $router->post('logout', ['middleware' => 'cors', 'uses' => 'UserController@logoutUser']);
     $router->post('refresh', ['middleware' => 'cors', 'uses' => 'UserController@refresh']);
     $router->get('getUserData', ['middleware' => 'cors', 'uses' => 'UserController@getUserData']);
+
+    // user product post
+    $router->get('getPost', ['middleware' => 'cors', 'uses' => 'UserController@userPostProduct']);
 });
 
 /**
@@ -47,11 +50,15 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('buyandsell', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@getCarousell']);
+    // carousell
+    $router->get('buyandsell', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@mergeFrontDisplay']);
     $router->get('buyandsellview', ['middleware' => 'cors', 'uses' => 'ScrapController@scrapCarousell']);
-    $router->get('buyandsellfeed', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@feedCarousell']);
-    $router->get('buyandsellfilter', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@filterCarousell']);
-    $router->get('carousellcategory', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@loadCarousellCategory']);
+    $router->get('buyandsellfeed', ['middleware' => 'cors', 'uses' => 'CarousellController@feedCarousell']);
+    $router->get('buyandsellfilter', ['middleware' => 'cors', 'uses' => 'CarousellController@filterCarousell']);
+    $router->get('carousellcategory', ['middleware' => 'cors', 'uses' => 'CarousellController@loadCarousellCategory']);
+
+    // our own
+    $router->post('product/add', ['middleware' => 'cors', 'uses' => 'ProductController@postProduct']);
 });
 
 /**
@@ -70,15 +77,7 @@ $router->group(['prefix' => 'api'], function($router)
 $router->group(['prefix' => 'api'], function($router)
 {
     $router->get('searchGoogle', ['middleware' => 'cors', 'uses' => 'SearchEngineController@doGoogleSearch']);
-    $router->get('searchCarousell', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@doCarousellSearch']);
-});
-
-/**
- * product
- */
-$router->group(['prefix' => 'api'], function($router)
-{
-    $router->post('product/add', ['middleware' => 'cors', 'uses' => 'ProductController@postProduct']);
+    $router->get('searchCarousell', ['middleware' => 'cors', 'uses' => 'CarousellController@doCarousellSearch']);
 });
 
 /**
@@ -86,5 +85,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('test', ['middleware' => 'cors', 'uses' => 'ProductController@loadOurProduct']);
+    $router->get('test', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@mergeFrontDisplay']);
 });

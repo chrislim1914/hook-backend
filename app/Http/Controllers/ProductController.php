@@ -11,14 +11,19 @@ use App\Http\Controllers\ProductPhotoController;
 use Illuminate\Support\Facades\Config;
 
 class ProductController extends Controller
-{
-
-    // this is for front page only
+{   
+    /**
+     * method to load post product in the front page
+     * 
+     * @return $hookfeed
+     */
     public function loadOurProduct() {
 
         $product    = Product::Orderby('idproduct', 'desc')->get();
 
         $hookfeed = [];
+        $count=0;
+        
         foreach($product as $each) {
             $info = [];
             $seller = [];
@@ -57,24 +62,44 @@ class ProductController extends Controller
             ];
 
             $hookfeed[] = [
+                'no'            =>  $count,
                 'id'            =>  $each['idproduct'],
                 'seller'        =>  $seller,
                 'photoUrls'     =>  ['/'.$image['image']],
                 'info'          =>  $info,
-                // 'location'      =>  $innercfeed['marketPlace']['name'],
-                // 'coordinates'   =>  $innercfeed['marketPlace']['location'],
                 'source'        =>  'Hook'
             ];
+            $count++;
         }
+        return $hookfeed;
+    }    
+
+    /**
+     * method to load product for buy and sell page
+     * 
+     * @param $page
+     * @return $feedhook
+     */
+    public function feedHook($page) {
+
+        $paginate = $this->paginateHook($page);
+
+        $product    = Product::Orderby('idproduct', 'desc')->skip($paginate['skip'])->take($paginate['page'])->get();
+
+        // return noting if null
+        if($product == null) {
+            return response()->json([
+                'data'      => [],
+                'result'    => true
+            ]);
+        }
+
+        $feedhook = $this->createProductJsonData($product);
+        
         return response()->json([
-            'data'      => $hookfeed,
+            'data'      => $feedhook,
             'result'    => true
         ]);
-    }
-
-    // feed hook post for buy and sell page
-    public function feedHook() {
-        
     }
 
     /**
@@ -160,6 +185,126 @@ class ProductController extends Controller
     }
 
     /**
+     * method to do search on our own product
+     * 
+     * @param $request
+     * @return JSON 
+     */
+    public function searchProduct($search, $page) {
+        
+        $paginate = $this->paginateHook($page);
+
+        if($search == null || $search == '') {
+            return response()->json([
+                'message'   => "Search string is empty!",
+                'result'    => false
+            ]);
+        }
+
+        $search_product = Product::where('title', 'LIKE', "%{$search}%")->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
+
+        // return noting if null
+        if($search_product == null) {
+            return response()->json([
+                'data'      => [],
+                'total'     => [],
+                'result'    => true
+            ]);
+        }
+        
+        $searchproduct = $this->createProductJsonData($search_product);
+
+        return response()->json([
+            'data'      => $searchproduct,            
+            'total'     => count($search_product),
+            'result'    => true
+        ]);
+    }
+
+    /**
+     * method to filter product by category ID
+     * 
+     * @param $request
+     * @return JSON
+     */
+    public function filterProduct($filter, $page) {
+
+        $paginate = $this->paginateHook($page);
+
+        if($filter == null || $filter == '') {
+            return response()->json([
+                'message'   => "Search string is empty!",
+                'result'    => false
+            ]);
+        }
+
+        $filter_product = Product::where('categoryid', $filter)->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
+
+        // return noting if null
+        if($filter_product == null) {
+            return response()->json([
+                'data'      => [],
+                'total'     => [],
+                'result'    => true
+            ]);
+        }
+
+        $filterproduct = $this->createProductJsonData($product);
+
+        return response()->json([
+            'data'      => $filterproduct,            
+            'total'     => count($filter_product),
+            'result'    => true
+        ]);
+    }
+
+    /**
+     * method to create product JSON data
+     * 
+     * @param Object $product
+     * @return $hookfeed
+     */
+    protected function createProductJsonData($product) {
+
+        $hookfeed = [];
+
+        foreach($product as $each) {
+            $info = [];
+            $seller = [];
+
+            $user = User::where('iduser', $each['iduser'])->first();
+
+            $seller = [
+                'id'                => $user['iduser'],
+                'profilePicture'    => '/'.$user['profile_photo'],
+                'username'          => $user['username'],
+            ];
+
+            $image = ProductPhoto::where('idproduct', $each['idproduct'])->first();
+
+            $info = [
+                $each['title'],
+                $each['price'],
+                $each['description'],
+                $each['condition'],
+            ];
+
+            // same as search
+            $hookfeed[] = [
+                'id'                =>  $each['idproduct'],
+                'title'             =>  $each['title'],
+                'snippet'           =>  $info,
+                'link'              =>  'https://hook.com/p/'.$each['idproduct'],
+                'image'             =>  '/'.$image['image'],
+                'thumbnailimage'    =>  '/'.$image['image'],
+                'source'            =>  'Hook'
+            ];
+        }
+
+        return $hookfeed;
+    }
+
+    /**
      * method to validate post product request
      * 
      * @param Object $validate
@@ -182,7 +327,6 @@ class ProductController extends Controller
         $catlist = in_array($validate['categoryid'], config('corousell_category'), true);
         $user = $user->isIDExist($validate['iduser']);
 
-
         /**
          * me: if something went wrong on our validation then say something.
          * you: something.
@@ -197,5 +341,28 @@ class ProductController extends Controller
             return true;
         }
         
+    }
+
+    /**
+     * pagination trick for eloquent
+     * using skip and take method
+     * 
+     * @param $page
+     * @return array($skip, $page)
+     */
+    protected function paginateHook($page) {
+        if($page == null || $page == 0 || $page == 1 ) {
+            return array(
+                'skip'  => 0,
+                'page'  => 10
+            );
+        }
+
+        $page = $page * 10;
+        $skip = $page - 10;
+        return array(
+            'skip'  => $skip,
+            'page'  => $page
+        );
     }
 }
