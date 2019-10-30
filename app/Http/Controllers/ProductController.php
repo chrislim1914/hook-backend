@@ -23,7 +23,7 @@ class ProductController extends Controller
 
         $hookfeed = [];
         $count=0;
-        
+
         foreach($product as $each) {
             $info = [];
             $seller = [];
@@ -32,7 +32,7 @@ class ProductController extends Controller
 
             $seller = [
                 'id'                => $user['iduser'],
-                'profilePicture'    => '/'.$user['profile_photo'],
+                'profilePicture'    => 'http://api.geeknation.info/'.$user['profile_photo'],
                 'username'          => $user['username'],
             ];
 
@@ -65,7 +65,7 @@ class ProductController extends Controller
                 'no'            =>  $count,
                 'id'            =>  $each['idproduct'],
                 'seller'        =>  $seller,
-                'photoUrls'     =>  ['/'.$image['image']],
+                'photoUrls'     =>  ['http://api.geeknation.info/'.$image['image']],
                 'info'          =>  $info,
                 'source'        =>  'Hook'
             ];
@@ -276,7 +276,7 @@ class ProductController extends Controller
 
             $seller = [
                 'id'                => $user['iduser'],
-                'profilePicture'    => '/'.$user['profile_photo'],
+                'profilePicture'    => 'http://api.geeknation.info/'.$user['profile_photo'],
                 'username'          => $user['username'],
             ];
 
@@ -295,8 +295,8 @@ class ProductController extends Controller
                 'title'             =>  $each['title'],
                 'snippet'           =>  $info,
                 'link'              =>  'https://hook.com/p/'.$each['idproduct'],
-                'image'             =>  '/'.$image['image'],
-                'thumbnailimage'    =>  '/'.$image['image'],
+                'image'             =>  'http://api.geeknation.info/'.$image['image'],
+                'thumbnailimage'    =>  'http://api.geeknation.info/'.$image['image'],
                 'source'            =>  'Hook'
             ];
         }
