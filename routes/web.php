@@ -86,5 +86,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('test', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@feedBuyandSell']);
+    $router->get('test', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@viewSingleContent']);
 });

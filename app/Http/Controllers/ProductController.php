@@ -13,12 +13,55 @@ use Illuminate\Support\Facades\Config;
 class ProductController extends Controller
 {   
     /**
+     * method to view product from hook and carousell
+     * 
+     * @param $id
+     * @return JSON
+     */
+    public function viewProduct($id) {
+        
+        $product    = Product::where('idproduct', $id)->get();
+
+        if(!$product) {
+            return false;
+        }
+
+        $viewitem = [];
+        
+        foreach($product as $new) {
+            $photo = ProductPhoto::where('idproduct', $id)->get();
+            $media = [];
+            $user = User::where('iduser', $new['iduser'])->first();
+
+            foreach($photo as $newphoto) {
+                $media[] = 'http://api.geeknation.info/'.$newphoto['image'];
+            }
+
+            $seller = [
+                'id'            => $user['iduser'],
+                'username'      => $user['username'],
+                'profile_photo' => $user['profile_photo']
+            ];
+
+            $viewitem = [
+                'url'               => '',
+                'seller'            => $seller,
+                'media'             => $media,
+                'price'             => $new['price'],
+                'itemname'          => $new['title'],
+                'source'            => 'hook'
+            ];
+        }
+
+        return $viewitem;
+    }
+    /**
      * method to load post product in the front page
      * 
      * @return $hookfeed
      */
     public function loadOurProduct() {
-
+        $user = new User();
         $product    = Product::Orderby('idproduct', 'desc')->get();
 
         $hookfeed = [];
@@ -28,12 +71,12 @@ class ProductController extends Controller
             $info = [];
             $seller = [];
 
-            $user = User::where('iduser', $each['iduser'])->first();
+            $c_user = $user->where('iduser', $each['iduser'])->first();
 
             $seller = [
-                'id'                => $user['iduser'],
-                'profilePicture'    => 'http://api.geeknation.info/'.$user['profile_photo'],
-                'username'          => $user['username'],
+                'id'                => $c_user['iduser'],
+                'profilePicture'    => $user->profilePath($c_user['profile_photo']),
+                'username'          => $c_user['username'],
             ];
 
             $image = ProductPhoto::where('idproduct', $each['idproduct'])->first();

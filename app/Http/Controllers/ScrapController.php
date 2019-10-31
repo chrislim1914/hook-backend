@@ -19,7 +19,7 @@ class ScrapController extends Controller
      * @param Request $request
      * @return JSON
      */
-    public function scrapCarousell(Request $request) {
+    public function scrapCarousell($id) {
 
         $carousell_url = 'https://www.carousell.ph/p/'.$request->id;
 
@@ -77,10 +77,7 @@ class ScrapController extends Controller
             'source'            => 'carousell'
         ];
 
-        return response()->json([
-            'data'          => $newcarousell_item,
-            'result'        => true
-        ]);
+        return $newcarousell_item;
     }
 
     /**

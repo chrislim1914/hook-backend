@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Http\Controllers\CarousellController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\ScrapController;
 
 class BuyAndSellController extends Controller
 {
@@ -112,4 +113,22 @@ class BuyAndSellController extends Controller
         ]);
     }
 
+    public function viewSingleContent(Request $request) {
+        $scrap = new ScrapController();
+        $product = new ProductController();
+        switch ($request->source) {
+            case 'carousell':
+                $view_carousell = $scrap->scrapCarousell($request->id);
+                return response()->json([
+                    'data'          => $view_carousell,
+                    'result'        => true
+                ]);
+            case 'hook':
+                $view_product = $product->viewProduct($request->id);
+                return response()->json([
+                    'data'          => $view_product,
+                    'result'        => true
+                ]);
+        }
+    }
 }

@@ -185,4 +185,13 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
            return false;
         }
     }
+
+    public function profilePath($pathphoto) {
+        $path = explode("/", $pathphoto);
+        if($path[0] === 'img') {
+            return 'http://api.geeknation.info/'.$pathphoto;
+        } else {
+           return $pathphoto;
+        }
+    }
 }
