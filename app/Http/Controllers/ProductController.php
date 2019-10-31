@@ -66,7 +66,7 @@ class ProductController extends Controller
      */
     public function loadOurProduct() {
         $user = new User();
-        $product    = Product::Orderby('idproduct', 'desc')->get();
+        $product    = Product::where('post', 'yes')->Orderby('idproduct', 'desc')->get();
 
         $hookfeed = [];
         $count=0;
@@ -131,7 +131,7 @@ class ProductController extends Controller
 
         $paginate = $this->paginateHook($page);
 
-        $product    = Product::Orderby('idproduct', 'desc')->skip($paginate['skip'])->take($paginate['page'])->get();
+        $product    = Product::where('post', 'yes')->Orderby('idproduct', 'desc')->skip($paginate['skip'])->take($paginate['page'])->get();
 
         // return noting if null
         if($product == null) {
@@ -195,24 +195,8 @@ class ProductController extends Controller
                 $newpath = $user->createUserFolderProduct($path, $id);
             }
                
-            $save_image = new ProductPhotoController();
-            // now move the image to its folder and save
-            foreach($request->image as $image) {
-                $newphoto = '';
+            $this->savePostImages($request->image, $newpath, $id);
 
-                // create new name for the image
-                $time = time();
-                $name = md5($image->getClientOriginalName());                
-
-                $newphoto = $name.$time.'.'.$image->getClientOriginalExtension();
-                $image_name = $newpath.$newphoto;
-
-                // lets save the image into the table
-                $save_image->insertImage($id, $image_name);
-
-                // next move the image
-                $image->move($newpath,$newphoto);
-            }
             return response()->json([
                 'message'   => '',
                 'result'    => true
@@ -223,6 +207,114 @@ class ProductController extends Controller
                 'result'    => false
             ]);
         }
+    }
+
+    /**
+     * method to soft delete hook post product
+     * 
+     * @param $request
+     * @return JSON
+     */
+    public function deletePost(Request $request) {
+        $idproduct = $request->idproduct;
+        $product = new Product();
+
+        // check if exist
+        $checkid = $product->isProductIDExist($idproduct);
+
+        if(!$product) {
+            return response()->json([
+                'message'   => 'Product not found!',
+                'result'    => false
+            ]);
+        }
+
+        $del_product = $product::where('idproduct', $idproduct);
+
+        if($del_product->update([
+            'post'  => 'no'
+        ])) {
+            return response()->json([
+                'message'   => '',
+                'result'    => true
+            ]);
+        } else {
+            return response()->json([
+                'message'   => 'Failed to delete product!',
+                'result'    => false
+            ]);
+        }
+    }
+
+    /**
+     * method to update hook post product
+     * 
+     * @param $request
+     * @return JSON
+     */
+    public function updatePost(Request $request) {
+        $user       = new User();
+        $product    = new Product();
+        // first we get the user info
+        $gotuser = $user->getUserData($request->iduser);
+
+        // the validation
+        $whatsup = $this->validatePostProduct($request->all());        
+
+        if($gotuser == null) {
+            return response()->json([
+                'message'   => "User not found!",
+                'result'    => false
+            ]);
+        }elseif(!$whatsup) {
+            return response()->json([
+                'message'   => "there is wrong with your data!",
+                'result'    => false
+            ]);
+        }
+
+        // lets check if the profile_photo is path and not url
+        $path = $user->getUserFolder($request->iduser);
+
+        $updatepost = Product::where('idproduct', $request->idproduct);
+
+        // update the post
+        if($updatepost->update([
+            'title'         => $request->title,
+            'description'   => $request->description,
+            'price'         => $request->price,
+            'categoryid'    => $request->categoryid,
+            'iduser'        => $request->iduser,
+            'condition'     => $request->condition,
+            'meetup'        => $request->meetup,
+            'delivery'      => $request->delivery,
+        ])) {
+
+            if(!$request->hasFile('image')) {
+                return response()->json([
+                    'message'   => '',
+                    'result'    => true
+                ]);
+            }
+            // image full path and name
+            $newpath = $path.'product_'.$request->idproduct.'/';
+            $photo = new ProductPhotoController();
+            $photo->deleteImage($request->idproduct);
+
+            // save the image
+            $this->savePostImages($request->image, $newpath, $request->idproduct);
+
+            return response()->json([
+                'message'   => '',
+                'result'    => true
+            ]);
+        } else {
+            return response()->json([
+                'message'   => "Failed to update product!",
+                'result'    => false
+            ]);
+        }
+
     }
 
     /**
@@ -242,7 +334,7 @@ class ProductController extends Controller
             ]);
         }
 
-        $search_product = Product::where('title', 'LIKE', "%{$request->search}%")->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
+        $search_product = Product::where('title', 'LIKE', "%{$request->search}%")->where('post', 'yes')->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
 
         // return noting if null
         if($search_product == null) {
@@ -279,7 +371,7 @@ class ProductController extends Controller
             ]);
         }
 
-        $filter_product = Product::where('categoryid', $filter)->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
+        $filter_product = Product::where('categoryid', $filter)->where('post', 'yes')->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
 
         // return noting if null
         if($filter_product == null) {
@@ -407,5 +499,26 @@ class ProductController extends Controller
             'skip'  => $skip,
             'page'  => $page
         );
+    }
+
+    protected function savePostImages($imageObj, $path, $id) {
+        $save_image = new ProductPhotoController();
+
+        foreach($imageObj as $image) {
+            $newphoto = '';
+
+            // create new name for the image
+            $time = time();
+            $name = md5($image->getClientOriginalName());                
+
+            $newphoto = $name.$time.'.'.$image->getClientOriginalExtension();
+            $image_name = $path.$newphoto;
+
+            // lets save the image into the table
+            $save_image->insertImage($id, $image_name);
+
+            // next move the image
+            $image->move($path,$newphoto);
+        }
     }
 }

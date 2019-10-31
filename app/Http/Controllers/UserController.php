@@ -474,6 +474,7 @@ class UserController extends Controller
                 'link'              =>  'https://hook.com/p/'.$each['idproduct'],
                 'image'             =>  'http://api.geeknation.info/'.$image['image'],
                 'thumbnailimage'    =>  'http://api.geeknation.info/'.$image['image'],
+                'post'              =>  $each['post'],
                 'source'            =>  'Hook'
             ];
         }

@@ -1005,3 +1005,65 @@ class ScrapController extends Controller
         return $smallMBnewsLink[0] ;
     }
 }
+
+// public function scrapCarousell($id) {
+
+//     $carousell_url = 'https://www.carousell.ph/p/'.$id;
+
+//     $client = new Client();
+
+//     $description = [];
+//     $seller = [];
+//     $newcarousell_item = [];
+
+//     $scrapcarousells = $client->request('GET', $carousell_url);
+
+//     $sellerusername = $scrapcarousells->filter('.styles__sellerWrapper___3YRXI p')->each(function ($node) {
+//         return $node->text();
+//     });
+
+//     $sellerphoto = $scrapcarousells->filter('.styles__avatar___1p0El img')->eq(0)->attr('src');
+    
+//     $media = $scrapcarousells->filter('.styles__carouselVerticalTrack___Z4Gdv .styles__slide___1-pzx img')->each(function ($node) {
+//         return $node->eq(0)->attr('src');
+//     });
+
+//     $price = $scrapcarousells->filter('.styles__price___K6Kjb')->each(function ($node) {
+//         return $node->text();
+//     });
+
+//     $itemname = $scrapcarousells->filter('.styles__titleWrapper___3jSxG h1')->each(function ($node) {
+//         return $node->text();
+//     });
+
+//     $desc = $scrapcarousells->filter('.styles__textTruncate___2Mx1R .styles__overflowBreakWord___2rtT6')->each(function ($node) {
+//         return $node->text();
+//     });
+
+//     $condition = $scrapcarousells->filter('.styles__body___VSdV5 p')->each(function ($node) {
+//         return $node->text();
+//     });
+
+//     $shipping = $scrapcarousells->filter('.styles__textWithLeftLabel___20RQO .styles__text___1gJzw')->each(function ($node) {
+//         return $node->text();
+//     });
+
+//     $seller = [
+//         'id'            => '',
+//         'username'      => $sellerusername[0],
+//         'profile_photo' => $sellerphoto
+//     ];
+
+//     $newcarousell_item = [
+//         'url'               => $carousell_url,
+//         'seller'            => $seller,
+//         'media'             => $media,
+//         'itemname'          => $itemname[0],
+//         'price'             => $price[0],
+//         'description'       => $desc[0],
+//         'condition'         => $condition,
+//         'source'            => 'carousell'
+//     ];
+
+//     return $newcarousell_item;
+// }

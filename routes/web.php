@@ -59,6 +59,8 @@ $router->group(['prefix' => 'api'], function($router)
 
     // our own
     $router->post('product/add', ['middleware' => 'cors', 'uses' => 'ProductController@postProduct']);
+    $router->post('product/update', ['middleware' => 'cors', 'uses' => 'ProductController@updatePost']);
+    $router->post('product/delete', ['middleware' => 'cors', 'uses' => 'ProductController@deletePost']);
 });
 
 /**
@@ -86,5 +88,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('test', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@viewSingleContent']);
+    $router->get('test', ['middleware' => 'cors', 'uses' => 'ProductController@deletePost']);
 });
