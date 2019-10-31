@@ -52,7 +52,7 @@ $router->group(['prefix' => 'api'], function($router)
 {
     // carousell
     $router->get('buyandsell', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@mergeFrontDisplay']);
-    $router->get('buyandsellview', ['middleware' => 'cors', 'uses' => 'ScrapController@viewSingleContent']);
+    $router->get('buyandsellview', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@viewSingleContent']);
     $router->get('buyandsellfeed', ['middleware' => 'cors', 'uses' => 'BuyAndSellController@feedBuyandSell']);
     $router->get('buyandsellfilter', ['middleware' => 'cors', 'uses' => 'CarousellController@filterCarousell']);
     $router->get('carousellcategory', ['middleware' => 'cors', 'uses' => 'CarousellController@loadCarousellCategory']);
