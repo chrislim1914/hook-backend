@@ -16,12 +16,12 @@ class ScrapController extends Controller
     /**
      * scrap carousell.ph using item id
      * 
-     * @param Request $request
+     * @param $id
      * @return JSON
      */
     public function scrapCarousell($id) {
 
-        $carousell_url = 'https://www.carousell.ph/p/'.$request->id;
+        $carousell_url = 'https://www.carousell.ph/p/'.$id;
 
         $client = new Client();
 

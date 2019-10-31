@@ -47,8 +47,12 @@ class ProductController extends Controller
                 'url'               => '',
                 'seller'            => $seller,
                 'media'             => $media,
-                'price'             => $new['price'],
                 'itemname'          => $new['title'],
+                'price'             => $new['price'],                
+                'description'       => $new['description'],                
+                'condition'         => $new['condition'],                
+                'meetup'            => $new['meetup'],                
+                'delivery'          => $new['delivery'],                
                 'source'            => 'hook'
             ];
         }

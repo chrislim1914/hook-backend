@@ -129,6 +129,12 @@ class BuyAndSellController extends Controller
                     'data'          => $view_product,
                     'result'        => true
                 ]);
+            default:
+                $view_carousell = $scrap->scrapCarousell($request->id);
+                return response()->json([
+                    'data'          => $view_carousell,
+                    'result'        => true
+                ]);
         }
     }
 }
