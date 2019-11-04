@@ -41,6 +41,7 @@ class ProductController extends Controller
             $seller = [
                 'id'            => $user['iduser'],
                 'username'      => $user['username'],
+                'contactno'     => $user['contactno'],
                 'profile_photo' => $image == false ? $user['profile_photo'] : 'https://api.geeknation.info/'.$user['profile_photo']
             ];
 
