@@ -431,7 +431,7 @@ class ProductController extends Controller
                 'link'              =>  'https://hook.com/p/'.$each['idproduct'],
                 'image'             =>  'http://api.geeknation.info/'.$image['image'],
                 'thumbnailimage'    =>  'http://api.geeknation.info/'.$image['image'],
-                'source'            =>  'Hook'
+                'source'            =>  'hook'
             ];
             $count++;
         }
