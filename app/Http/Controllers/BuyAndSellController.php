@@ -53,7 +53,7 @@ class BuyAndSellController extends Controller
                             'seller'        =>  $carousell['seller'],
                             'photoUrls'     =>  $carousell['photoUrls'],
                             'info'          =>  $carousell['info'],
-                            'source'        =>  'Carousell'
+                            'source'        =>  'carousell'
                         ]);
                     }              
                 }
