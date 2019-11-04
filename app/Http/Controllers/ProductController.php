@@ -501,6 +501,11 @@ class ProductController extends Controller
         );
     }
 
+    /**
+     * method to insert hook product images
+     * 
+     * @param $imageObj, $path, $id
+     */
     protected function savePostImages($imageObj, $path, $id) {
         $save_image = new ProductPhotoController();
 

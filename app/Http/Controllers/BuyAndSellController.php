@@ -116,6 +116,8 @@ class BuyAndSellController extends Controller
     public function viewSingleContent(Request $request) {
         $scrap = new ScrapController();
         $product = new ProductController();
+
+        // if statement is temporarily
         if(!$request->has('source')) {
             $view_carousell = $scrap->scrapCarousell($request->id);
                 return response()->json([
@@ -123,6 +125,7 @@ class BuyAndSellController extends Controller
                     'result'        => true
                 ]);
         }
+
         switch ($request->source) {
             case 'carousell':
                 $view_carousell = $scrap->scrapCarousell($request->id);

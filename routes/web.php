@@ -88,5 +88,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('test', ['middleware' => 'cors', 'uses' => 'ProductController@deletePost']);
+    $router->get('test', ['middleware' => 'cors', 'uses' => 'RankingController@ranking']);
 });

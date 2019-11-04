@@ -21,64 +21,60 @@ class ScrapController extends Controller
      */
     public function scrapCarousell($id) {
 
-        $carousell_url = 'https://www.carousell.ph/p/'.$id;
+    $carousell_url = 'https://www.carousell.ph/p/'.$id;
 
-        $client = new Client();
+    $client = new Client();
 
-        $description = [];
-        $newcarousell_item = [];
+    $description = [];
+    $seller = [];
+    $newcarousell_item = [];
 
-        $scrapcarousells = $client->request('GET', $carousell_url);
-        
-        $media = $scrapcarousells->filter('.styles__carouselVerticalTrack___Z4Gdv .styles__slide___1-pzx img')->each(function ($node) {
-            return $node->eq(0)->attr('src');
-        });
+    $scrapcarousells = $client->request('GET', $carousell_url);
 
-        $price = $scrapcarousells->filter('.styles__price___K6Kjb')->each(function ($node) {
-            return $node->text();
-        });
-        $itemname = $scrapcarousells->filter('.styles__titleWrapper___3jSxG h1')->each(function ($node) {
-            return $node->text();
-        });
+    $sellerusername = $scrapcarousells->filter('.styles__sellerWrapper___3YRXI p')->each(function ($node) {
+        return $node->text();
+    });
 
-        $details = $scrapcarousells->filter('.styles__body___VSdV5 p')->each(function ($node) {
-            return $node->text();
-        });
+    $sellerphoto = $scrapcarousells->filter('.styles__avatar___1p0El img')->eq(0)->attr('src');
+    
+    $media = $scrapcarousells->filter('.styles__carouselVerticalTrack___Z4Gdv .styles__slide___1-pzx img')->each(function ($node) {
+        return $node->eq(0)->attr('src');
+    });
 
-        $desc = $scrapcarousells->filter('.styles__textTruncate___2Mx1R .styles__overflowBreakWord___2rtT6')->each(function ($node) {
-            return $node->text();
-        });
+    $price = $scrapcarousells->filter('.styles__price___K6Kjb')->each(function ($node) {
+        return $node->text();
+    });
 
-        $shipping = $scrapcarousells->filter('.styles__textWithLeftLabel___20RQO .styles__text___1gJzw')->each(function ($node) {
-            return $node->text();
-        });
+    $itemname = $scrapcarousells->filter('.styles__titleWrapper___3jSxG h1')->each(function ($node) {
+        return $node->text();
+    });
 
-        $locationicon = 'https://sl3-cdn.karousell.com/components/location_v3.svg';
-        $listingicon  = 'https://sl3-cdn.karousell.com/components/caroupay_listing_details_v7.svg';
-        $conditionicon = 'https://sl3-cdn.karousell.com/components/condition_v3.svg';
+    $desc = $scrapcarousells->filter('.styles__textTruncate___2Mx1R .styles__overflowBreakWord___2rtT6')->each(function ($node) {
+        return $node->text();
+    });
 
-        $description = [
-            'meetupicon'    => $locationicon,
-            'meetup'        => $details[0],
-            'listingicon'   => $listingicon,
-            'listing'       => $details[1],
-            'conditionicon' => $conditionicon,
-            'condition'     => $details[2],
-            'description'   => $desc[0],
-        ];
+    $shipping = $scrapcarousells->filter('.styles__textWithLeftLabel___20RQO .styles__text___1gJzw')->each(function ($node) {
+        return $node->text();
+    });
 
-        $newcarousell_item = [
-            'url'               => $carousell_url,
-            'media'             => $media,
-            'price'             => $price[0],
-            'itemname'          => $itemname[0],
-            'description'       => $description,
-            'Mailing&Delivery'  => $shipping,
-            'source'            => 'carousell'
-        ];
+    $seller = [
+        'id'            => '',
+        'username'      => $sellerusername[0],
+        'profile_photo' => $sellerphoto
+    ];
 
-        return $newcarousell_item;
-    }
+    $newcarousell_item = [
+        'url'               => $carousell_url,
+        'seller'            => $seller,
+        'media'             => $media,
+        'itemname'          => $itemname[0],
+        'price'             => $price[0],
+        'description'       => $desc[0],
+        'source'            => 'carousell'
+    ];
+
+    return $newcarousell_item;
+}
 
     /**
      * Rappler.com news Scrapping
