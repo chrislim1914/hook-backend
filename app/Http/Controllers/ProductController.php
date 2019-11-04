@@ -19,19 +19,20 @@ class ProductController extends Controller
      * @return JSON
      */
     public function viewProduct($id) {
-        
         $product    = Product::where('idproduct', $id)->get();
 
         if(!$product) {
             return false;
         }
-
+        
+        
         $viewitem = [];
         
         foreach($product as $new) {
             $photo = ProductPhoto::where('idproduct', $id)->get();
             $media = [];
             $user = User::where('iduser', $new['iduser'])->first();
+            $image = $user->getUserFolder($new['iduser']);
 
             foreach($photo as $newphoto) {
                 $media[] = 'http://api.geeknation.info/'.$newphoto['image'];
@@ -40,7 +41,7 @@ class ProductController extends Controller
             $seller = [
                 'id'            => $user['iduser'],
                 'username'      => $user['username'],
-                'profile_photo' => $user['profile_photo']
+                'profile_photo' => $image == false ? $user['profile_photo'] : 'https://api.geeknation.info/'.$user['profile_photo']
             ];
 
             $viewitem = [
