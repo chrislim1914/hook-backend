@@ -342,7 +342,7 @@ class CarousellController extends Controller
                     'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
                     'image'             =>  $image,
                     'thumbnailimage'    =>  $thumbnailimage,
-                    'source'            =>  'Carousell'
+                    'source'            =>  'carousell'
                ];
            }
            $count++;
