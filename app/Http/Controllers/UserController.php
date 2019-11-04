@@ -434,6 +434,7 @@ class UserController extends Controller
                     'email'         => $thisuser['email'],
                     'username'      => $thisuser['username'],
                     'birthdate'     => $thisuser['birthdate'],
+                    'contactno'     => $thisuser['contactno'],
                     'profile_photo' => $image == false ? $thisuser['profile_photo'] : 'https://api.geeknation.info/'.$thisuser['profile_photo'],
                     'snsproviderid' => $thisuser['snsproviderid'],
                     'created_at'    => $thisuser['created_at']->toDateString(),
