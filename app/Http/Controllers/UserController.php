@@ -417,9 +417,21 @@ class UserController extends Controller
 
         $thisuser = $this->user->getUserData($decoded['sub']);
 
+        // treat the user profile image if local or url 
+        $image = $this->user->getUserFolder($thisuser['iduser']);
+
         if($thisuser != null) {
             return response()->json([
-                'data'      => $thisuser,
+                'data'      => [
+                    'iduser'        => $thisuser['iduser'],
+                    'email'         => $thisuser['email'],
+                    'username'      => $thisuser['username'],
+                    'birthdate'     => $thisuser['birthdate'],
+                    'profile_photo' => $image == false ? $thisuser['profile_photo'] : 'https://api.geeknation.info/'.$thisuser['profile_photo'],
+                    'snsproviderid' => $thisuser['snsproviderid'],
+                    'created_at'    => $thisuser['created_at']->toDateString(),
+                    'updated_at'    => $thisuser['updated_at']->toDateString(),
+                ],
                 'result'    => true
             ]);
         } else {
