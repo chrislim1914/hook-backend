@@ -91,15 +91,10 @@ class CarousellController extends Controller
      * method to do search from carousell.ph
      * display 10 post per pagination
      * 
-     * @param Request $request->page
-     * @param Request $request->search
+     * @param Request $page, $search, $filter
      * @return JSON
      */
-    public function doCarousellSearch(Request $request) {
-
-        $page = $request->page;
-        $request->has('search') == true ? $search = $request->search : $search = '';
-        $request->has('filter') == true ? $filter = $request->filter : $filter = '';
+    public function doCarousellSearch($page, $search, $filter) {
         
         $param = $this->createCarousellHeadandBody($page, $search, $filter);  
 
@@ -109,16 +104,16 @@ class CarousellController extends Controller
         // check if there is result in the body and create output
         if($resultdata !== false) {
             $gotdata = $this->createCarousellData($resultdata, $page);
-            return response()->json([
+            return array(
                 'data'      => $gotdata['data'],
                 'total'     => $gotdata['total'],
                 'result'    => $gotdata['result'],
-            ]);
+            );
         } else {
-            return response()->json([
-                'message'   => 'Something went wrong on our side!',
+            return array(
+                'data'      => 'Something went wrong on our side!',
                 'result'    => false
-            ]);
+            );
         }
     }
 
@@ -216,7 +211,7 @@ class CarousellController extends Controller
 
         $jsonlist = json_decode($result, true);
 
-        if(array_key_exists('results', $jsonlist)) {
+        if($jsonlist == null || array_key_exists('results', $jsonlist)) {
             return false;
         }
 

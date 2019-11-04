@@ -66,6 +66,12 @@ class BuyAndSellController extends Controller
         ]);
     }
 
+    /**
+     * method to display cvarousell and our product in the buy and sell page
+     * 
+     * @param Request $request
+     * @return $buyandsell
+     */
     public function feedBuyandSell(Request $request) {
         $feedcarousell  = $this->carousell->feedCarousell($request->page);
         $feedhook       = $this->hook->feedHook($request->page);
@@ -113,6 +119,12 @@ class BuyAndSellController extends Controller
         ]);
     }
 
+    /**
+     * method to view single product from hook, and carousell
+     * 
+     * @param Request $request
+     * @return JSON
+     */
     public function viewSingleContent(Request $request) {
         $scrap = new ScrapController();
         $product = new ProductController();
@@ -140,5 +152,58 @@ class BuyAndSellController extends Controller
                     'result'        => true
                 ]);
         }
+    }
+
+    /**
+     * merge search method for carousell and hook
+     * 
+     * @param $request
+     * @return JSON
+     */
+    public function buyAndSellSearch(Request $request) {
+
+        $source = $request->source;
+        $page = $request->page;
+        $request->has('search') == true ? $search = $request->search : $search = '';
+        $request->has('filter') == true ? $filter = $request->filter : $filter = '';
+
+        switch ($source) {
+            case 'carousell';
+                $searchcar = $this->carousell->doCarousellSearch($page, $search, $filter);
+                if(array_key_exists('total', $searchcar )) {
+                    return response()->json([
+                        'data'      => $searchcar['data'],
+                        'total'     => $searchcar['total'],
+                        'result'    => $searchcar['result']
+                    ]);
+                } else {
+                    return response()->json([
+                        'message'   => $searchcar['data'],
+                        'result'    => $searchcar['result']
+                    ]);
+                }
+                break;                
+            case 'hook':
+                $searchhook = $this->hook->searchProduct($page, $search);
+                if(array_key_exists('total', $searchhook )) {
+                    return response()->json([
+                        'data'      => $searchhook['data'],
+                        'total'     => $searchhook['total'],
+                        'result'    => $searchhook['result']
+                    ]);
+                } else {
+                    return response()->json([
+                        'message'   => $searchhook['data'],
+                        'result'    => $searchhook['result']
+                    ]);
+                }
+                break; 
+            default:
+                return response()->json([
+                    'message'   => 'Source is empty!',
+                    'result'    => false
+                ]);
+        }
+
     }
 }

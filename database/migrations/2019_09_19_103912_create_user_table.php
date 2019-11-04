@@ -18,6 +18,7 @@ class CreateUserTable extends Migration
             $table->string('email')->unique();
             $table->string('username')->unique()->nullable($value = true);
             $table->string('password')->nullable($value = true);
+            $table->string('contactno')->nullable($value = true);
             $table->string('birthdate')->nullable($value = true);
             $table->longText('profile_photo')->nullable($value = true);
             $table->string('snsproviderid')->nullable($value = true);

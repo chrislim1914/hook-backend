@@ -277,6 +277,13 @@ class UserController extends Controller
         // check if user already have folder img
         $current_user = $this->user->getUserData($request->iduser);
 
+        if(!$current_user) {
+            return response()->json([
+                'message'   => 'User not found!',
+                'result'    => false
+            ]);
+        }
+
         // if no folder then we create new folder
         if($current_user->profile_photo == null) {
             $folderdir = 'img/profile/'.$request->iduser.'_'.$name.'/';
@@ -287,7 +294,7 @@ class UserController extends Controller
             $path = explode("/", $current_user->profile_photo);
             $oldPath = $path[0].'/'.$path[1].'/'.$path[2].'/';
 
-            $folderdir = $oldPath;
+            $folderdir = $oldPath.'/profile/';
         }        
 
         $newprofilephoto = '';
@@ -442,6 +449,12 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * method to display user posted product with pagination
+     * 
+     * @param Request $request
+     * @return JSON
+     */
     public function userPostProduct(Request $request) {
         // check iduser first
         $checkid = $this->user->isIDExist($request->iduser);
@@ -454,7 +467,7 @@ class UserController extends Controller
         }
 
         $paginate = $this->paginateHook($request->page);
-        $product = Product::where('iduser', $request->iduser)->skip($paginate['skip'])->take($paginate['page'])->get();
+        $product = Product::where('iduser', $request->iduser)->skip($paginate['skip'])->take(10)->get();
 
         if($product == null) {
             return response()->json([
@@ -496,6 +509,39 @@ class UserController extends Controller
             'total'     => count($product),
             'result'    => true
         ]);
+    }
+
+    /**
+     * method to update user profile
+     * but only contact no and birthdate
+     * 
+     * @param $request
+     * @return JSON
+     */
+    public function updateProfile(Request $request) {
+
+        $iduser = $request->iduser;
+        // lets check first if ID exist
+        $checkid = $this->user->isIDExist($iduser);
+        if(!$checkid) {
+            return response()->json([
+                'message'      => 'User not found!',
+                'result'    => false
+            ]);
+        }
+
+        $updateuser = $this->user::where('iduser', $iduser);
+
+        $updateuser->update([
+            'contactno' =>  $request->contactno,
+            'birthdate' =>  $request->birthdate
+        ]);
+
+        return response()->json([
+            'message'   => '',
+            'result'    => true
+        ]);
+
     }
 
     /**
