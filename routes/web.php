@@ -12,7 +12,7 @@
 */
 
 $router->get('/', function () use ($router) {
-    return $router->app->version();
+    return view('verify');
 });
 
 $router->options('/{any:.*}', ['middleware' => 'cors', function() {
@@ -38,6 +38,9 @@ $router->group(['prefix' => 'api/user'], function($router)
 
     // user product post
     $router->get('getPost', ['middleware' => 'cors', 'uses' => 'UserController@userPostProduct']);
+
+    // send verify email link
+    $router->get('sendEmailLink', ['middleware' => 'cors', 'uses' => 'UserController@verifyEmailUrl']);
 });
 
 /**

@@ -7,6 +7,7 @@
 
 namespace App\Http\Controllers;
 
+use App\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Carbon;
 use Stichoza\GoogleTranslate\GoogleTranslate;
@@ -16,6 +17,8 @@ use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Config;
 use App\Http\Controllers\IbmController;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class Functions extends Controller
 {    
@@ -264,5 +267,25 @@ class Functions extends Controller
         catch (\Exception $e) {
             return false;
         }
+    }
+
+    public function createVerifyEmailLink($iduser) {
+
+        $now = $this->setDatetime();
+        $expired = $now->addDay();
+        $user = new User();
+        $currentuser = $user->getUserData($iduser);
+
+        // lets create the payload
+        $payload = [
+            'email'     => $currentuser['email'],
+            'issueat'   => $now,
+            'expired'   => $expired
+        ];
+
+        $encrypt = Crypt::encrypt($payload);
+        $verifyEmailUrl = 'https://geeknation.info/verifyEmail/'.$encrypt;
+
+        return $verifyEmailUrl;
     }
 }

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "99fd378c26597838dcb9f110ad6c039c",
+    "content-hash": "6cf85546ee92f76ff844d636579a376a",
     "packages": [
         {
             "name": "classpreloader/classpreloader",
@@ -1377,20 +1377,20 @@
         },
         {
             "name": "illuminate/mail",
-            "version": "v5.6.39",
+            "version": "v5.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/illuminate/mail.git",
-                "reference": "affc84b390b8d482da2a05046834772c124b74b4"
+                "reference": "092ce0a2607d945bb188f4ced3dd523d2c866480"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/illuminate/mail/zipball/affc84b390b8d482da2a05046834772c124b74b4",
-                "reference": "affc84b390b8d482da2a05046834772c124b74b4",
+                "url": "https://api.github.com/repos/illuminate/mail/zipball/092ce0a2607d945bb188f4ced3dd523d2c866480",
+                "reference": "092ce0a2607d945bb188f4ced3dd523d2c866480",
                 "shasum": ""
             },
             "require": {
-                "erusev/parsedown": "~1.7",
+                "erusev/parsedown": "~1.6",
                 "illuminate/container": "5.6.*",
                 "illuminate/contracts": "5.6.*",
                 "illuminate/support": "5.6.*",
@@ -1426,7 +1426,7 @@
             ],
             "description": "The Illuminate Mail package.",
             "homepage": "https://laravel.com",
-            "time": "2018-08-29T21:40:58+00:00"
+            "time": "2018-02-02T14:34:59+00:00"
         },
         {
             "name": "illuminate/notifications",

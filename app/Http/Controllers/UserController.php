@@ -12,6 +12,7 @@ use Jdenticon\Identicon;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Product;
 use App\ProductPhoto;
+use App\Http\Controllers\SendMail;
 
 class UserController extends Controller
 {
@@ -21,6 +22,21 @@ class UserController extends Controller
     public function __construct(JWTAuth $jwt, User $user) {
         $this->user = $user;
         $this->jwt = $jwt;
+    }
+
+    public function verifyEmailUrl(Request $request) {
+        $iduser = $request->iduser;
+        $currentuser = $this->user->getUserData($iduser);
+        $function = new Functions();
+
+        $url = $function->createVerifyEmailLink($iduser);
+
+        $send = new SendMail();
+                $sendit = $send->sendMail($currentuser['email'], $currentuser['username'], $url);
+                return response()->json([
+                    'message'   => $sendit,
+                    'result' => true
+                ]);
     }
 
     /**
