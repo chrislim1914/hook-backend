@@ -278,14 +278,21 @@ class Functions extends Controller
 
         // lets create the payload
         $payload = [
+            'id'        => $currentuser['iduser'],
             'email'     => $currentuser['email'],
-            'issueat'   => $now,
-            'expired'   => $expired
+            'issueat'   => $now->toDateString(),
+            'expired'   => $expired->toDateString()
         ];
 
         $encrypt = Crypt::encrypt($payload);
         $verifyEmailUrl = 'https://geeknation.info/verifyEmail/'.$encrypt;
 
         return $verifyEmailUrl;
+    }
+
+    public function dismantleVerifyLink($payload) {
+        $dismantle = Crypt::decrypt($payload);
+
+        return $dismantle;
     }
 }

@@ -40,7 +40,9 @@ $router->group(['prefix' => 'api/user'], function($router)
     $router->get('getPost', ['middleware' => 'cors', 'uses' => 'UserController@userPostProduct']);
 
     // send verify email link
-    $router->get('sendEmailLink', ['middleware' => 'cors', 'uses' => 'UserController@verifyEmailUrl']);
+    $router->post('sendEmailLink', ['middleware' => 'cors', 'uses' => 'UserController@verifyEmailUrl']);
+    // verify email link
+    $router->get('verifyUrl/{payload}', ['middleware' => 'cors', 'uses' => 'UserController@verifyUrl']);
 });
 
 /**
@@ -93,5 +95,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('test', ['middleware' => 'cors', 'uses' => 'RankingController@ranking']);
+    $router->get('test/{payload}', ['middleware' => 'cors', 'uses' => 'Functions@dismantleVerifyLink']);
 });

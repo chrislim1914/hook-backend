@@ -18,25 +18,64 @@ class UserController extends Controller
 {
     public $user;
     protected $jwt;
+    protected $function;
 
-    public function __construct(JWTAuth $jwt, User $user) {
+    public function __construct(JWTAuth $jwt, User $user, Functions $function) {
         $this->user = $user;
         $this->jwt = $jwt;
+        $this->function = $function;
     }
 
+    /**
+     * method to create link with token to verify email address
+     * 
+     * @param $request
+     * @return JSON
+     */
     public function verifyEmailUrl(Request $request) {
         $iduser = $request->iduser;
         $currentuser = $this->user->getUserData($iduser);
-        $function = new Functions();
 
-        $url = $function->createVerifyEmailLink($iduser);
+        $url = $this->function->createVerifyEmailLink($iduser);
 
         $send = new SendMail();
                 $sendit = $send->sendMail($currentuser['email'], $currentuser['username'], $url);
                 return response()->json([
-                    'message'   => $sendit,
-                    'result' => true
+                    'message'   => '',
+                    'result'    => true
                 ]);
+    }
+
+    /**
+     * method to verify the link and update the user emailverify = 1
+     * 
+     * @param $request
+     * @return JSON
+     */
+    public function verifyUrl($payload) {
+
+        $token = $this->function->dismantleVerifyLink($payload);
+
+        // checkmail
+        $checkmail = $this->user->isemailExist($token['email']);
+
+        if(!$checkmail) {
+            return response()->json([
+                'message'   => 'Failed to retrieved User Data!',
+                'result'    => false
+            ]);
+        }
+
+        $current_user = $this->user::where('email', $token['email']);
+
+        $current_user->update([
+            'emailverify' => 1
+        ]);
+
+        return response()->json([
+            'message'   => '',
+            'result'    => true
+        ]);
     }
 
     /**
@@ -230,6 +269,7 @@ class UserController extends Controller
         $this->user->birthdate      = $birthdate;
         $this->user->profile_photo  = $profile_photo;
         $this->user->snsproviderid  = $snsproviderid;
+        $this->user->emailverify    = 0;
 
         if($this->user->save()) {
             if($userimage['url'] === 'no') {
@@ -454,6 +494,7 @@ class UserController extends Controller
                     'contactno'     => $thisuser['contactno'],
                     'profile_photo' => $image == false ? $thisuser['profile_photo'] : 'https://api.geeknation.info/'.$thisuser['profile_photo'],
                     'snsproviderid' => $thisuser['snsproviderid'],
+                    'emailverify'   => $thisuser['emailverify'],
                     'created_at'    => $thisuser['created_at']->toDateString(),
                     'updated_at'    => $thisuser['updated_at']->toDateString(),
                 ],
