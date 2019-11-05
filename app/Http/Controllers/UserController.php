@@ -321,7 +321,7 @@ class UserController extends Controller
             ]);
         } else {
             return response()->json([
-                'message'   => 'Failed to create new employee!',
+                'message'   => 'Failed to update!',
                 'result'    => false
             ]);
         }
@@ -459,9 +459,9 @@ class UserController extends Controller
      */
     public function userPostProduct(Request $request) {
         // check iduser first
-        $checkid = $this->user->isIDExist($request->iduser);
+        $getusername = $this->user::where('username', $request->username)->first();
 
-        if(!$checkid) {
+        if($getusername == null) {
             return response()->json([
                 'message'      => 'User not found!',
                 'result'    => false
@@ -469,7 +469,7 @@ class UserController extends Controller
         }
 
         $paginate = $this->paginateHook($request->page);
-        $product = Product::where('iduser', $request->iduser)->skip($paginate['skip'])->take(10)->get();
+        $product = Product::where('iduser', $getusername['iduser'])->skip($paginate['skip'])->take(10)->get();
 
         if($product == null) {
             return response()->json([
