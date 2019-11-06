@@ -43,6 +43,9 @@ $router->group(['prefix' => 'api/user'], function($router)
     $router->post('sendEmailLink', ['middleware' => 'cors', 'uses' => 'UserController@verifyEmailUrl']);
     // verify email link
     $router->get('verifyUrl/{payload}', ['middleware' => 'cors', 'uses' => 'UserController@verifyUrl']);
+
+    // get sellet data
+    $router->get('seller', ['middleware' => 'cors', 'uses' => 'UserController@getSellerData']);
 });
 
 /**
@@ -95,5 +98,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('test/{payload}', ['middleware' => 'cors', 'uses' => 'Functions@dismantleVerifyLink']);
+    $router->get('test', ['middleware' => 'cors', 'uses' => 'AwsController@awsTRanlate']);
 });

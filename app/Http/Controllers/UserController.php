@@ -508,6 +508,45 @@ class UserController extends Controller
         }
     }
 
+    public function getSellerData(Request $request) {
+        // check iduser first
+        $getseller = $this->user::where('username', $request->username)->first();
+
+        if($getseller == null) {
+            return response()->json([
+                'message'      => 'User not found!',
+                'result'    => false
+            ]);
+        }
+
+        // treat the user profile image if local or url 
+        $image = $this->user->getUserFolder($getseller['iduser']);
+
+        if($getseller != null) {
+            return response()->json([
+                'data'      => [
+                    'iduser'        => $getseller['iduser'],
+                    'username'      => $getseller['username'],
+                    'birthdate'     => $getseller['birthdate'],
+                    'contactno'     => $getseller['contactno'],
+                    'profile_photo' => $image == false ? $getseller['profile_photo'] : 'https://api.geeknation.info/'.$getseller['profile_photo'],
+                    'snsproviderid' => $getseller['snsproviderid'],
+                    'emailverify'   => $getseller['emailverify'],
+                    'created_at'    => $getseller['created_at']->toDateString(),
+                    'updated_at'    => $getseller['updated_at']->toDateString(),
+                ],
+                'result'    => true
+            ]);
+        } else {
+            return response()->json([
+                'data'      => 'failed to get user info',
+                'result'    => false
+            ]);
+        }
+
+
+    }
+
     /**
      * method to display user posted product with pagination
      * 
