@@ -12,7 +12,7 @@
 */
 
 $router->get('/', function () use ($router) {
-    return view('verify');
+    return $router->app->version();
 });
 
 $router->options('/{any:.*}', ['middleware' => 'cors', function() {
@@ -98,5 +98,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('test', ['middleware' => 'cors', 'uses' => 'AwsController@awsTRanlate']);
+    $router->get('test', ['middleware' => 'cors', 'uses' => 'Functions@translator']);
 });
