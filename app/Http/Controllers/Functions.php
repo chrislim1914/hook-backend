@@ -130,7 +130,7 @@ class Functions extends Controller
      * @param $item, $countrycode
      * @return $translated
      */
-    public function translator($item, $countrycode) {        
+    public function translator($item, $countrycode) {
         $lang = $this->getLanguageCode($countrycode);
         $trans_text = $this->transIBM($item, $countrycode);
         if($trans_text == null) {
@@ -303,7 +303,13 @@ class Functions extends Controller
      * @return $dismantle
      */
     public function dismantleVerifyLink($payload) {
-        $dismantle = Crypt::decrypt($payload);
+
+        try {
+            $dismantle = Crypt::decrypt($payload);
+        } catch (Illuminate\Contracts\Encryption\DecryptException $e) {
+
+            return false;
+        
 
         return $dismantle;
     }

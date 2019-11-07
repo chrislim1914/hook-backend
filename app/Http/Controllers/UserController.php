@@ -56,6 +56,13 @@ class UserController extends Controller
 
         $token = $this->function->dismantleVerifyLink($payload);
 
+        if(!$token) {
+            return response()->json([
+                'message'   => 'Payload error!',
+                'result'    => false
+            ]);
+        }
+
         // checkmail
         $checkmail = $this->user->isemailExist($token['email']);
 
