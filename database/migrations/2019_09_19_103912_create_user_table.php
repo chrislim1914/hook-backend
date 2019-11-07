@@ -23,6 +23,7 @@ class CreateUserTable extends Migration
             $table->longText('profile_photo')->nullable($value = true);
             $table->string('snsproviderid')->nullable($value = true);
             $table->tinyInteger('emailverify')->nullable($value = true);
+            $table->longText('emailverifytoken')->nullable($value = true);
             $table->timestamps();
         });
     }

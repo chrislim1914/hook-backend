@@ -72,11 +72,21 @@ class UserController extends Controller
                 'result'    => false
             ]);
         }
+        $checkuser = $this->user::where('iduser', $token['id'])->first();
+
+        // check if the user request the token
+        if( $checkuser == null || $checkuser['emailverifytoken'] == null || $checkuser['emailverifytoken'] == '') {
+            return response()->json([
+                'message'   => 'you did not request for verification!',
+                'result'    => false
+            ]);
+        }
 
         $current_user = $this->user::where('email', $token['email']);
 
         $current_user->update([
-            'emailverify' => 1
+            'emailverify' => 1,
+            'emailverifytoken'  => ''
         ]);
 
         return response()->json([
@@ -269,14 +279,15 @@ class UserController extends Controller
         $snsproviderid  = $userdata['snsproviderid'];
 
         // ok let save the new user
-        $this->user->email          = $email;
-        $this->user->username       = $username;
-        $this->user->password       = $password;
-        $this->user->contactno      = '';
-        $this->user->birthdate      = $birthdate;
-        $this->user->profile_photo  = $profile_photo;
-        $this->user->snsproviderid  = $snsproviderid;
-        $this->user->emailverify    = 0;
+        $this->user->email               = $email;
+        $this->user->username            = $username;
+        $this->user->password            = $password;
+        $this->user->contactno           = '';
+        $this->user->birthdate           = $birthdate;
+        $this->user->profile_photo       = $profile_photo;
+        $this->user->snsproviderid       = $snsproviderid;
+        $this->user->emailverify         = 0;
+        $this->user->emailverifytoken    = '';
 
         if($this->user->save()) {
             if($userimage['url'] === 'no') {

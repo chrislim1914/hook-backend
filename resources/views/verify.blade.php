@@ -16,13 +16,13 @@
     <!-- box -->
     <div class="box">
         <h1>Verify this Email Address</h1>
-        <h3>Hi username,</h3>
+        <h3>Hi {{ $username }},</h3>
         <h3>to verify your email, please click the button below</h3>
-        <a  href="" class="verify">VERIFY EMAIL</a>
+        <a  href="{{ $url }}" class="verify">VERIFY EMAIL</a>
         <hr>
         <p>or copy this link and paste in your browser</p>
         <a href=>
-            dfsdf
+            {{ $username }}
         </a>
         <br />
         <br />
