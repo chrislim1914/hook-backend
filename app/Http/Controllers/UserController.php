@@ -510,7 +510,7 @@ class UserController extends Controller
                     'username'      => $thisuser['username'],
                     'birthdate'     => $thisuser['birthdate'],
                     'contactno'     => $thisuser['contactno'],
-                    'profile_photo' => $image == false ? $thisuser['profile_photo'] : 'https://api.geeknation.info/'.$thisuser['profile_photo'],
+                    'profile_photo' => $image == false ? $thisuser['profile_photo'] : 'https://api.allgamegeek.com/'.$thisuser['profile_photo'],
                     'snsproviderid' => $thisuser['snsproviderid'],
                     'emailverify'   => $thisuser['emailverify'],
                     'created_at'    => $thisuser['created_at']->toDateString(),
@@ -547,7 +547,7 @@ class UserController extends Controller
                     'username'      => $getseller['username'],
                     'birthdate'     => $getseller['birthdate'],
                     'contactno'     => $getseller['contactno'],
-                    'profile_photo' => $image == false ? $getseller['profile_photo'] : 'https://api.geeknation.info/'.$getseller['profile_photo'],
+                    'profile_photo' => $image == false ? $getseller['profile_photo'] : 'https://api.allgamegeek.com/'.$getseller['profile_photo'],
                     'snsproviderid' => $getseller['snsproviderid'],
                     'emailverify'   => $getseller['emailverify'],
                     'created_at'    => $getseller['created_at']->toDateString(),
@@ -613,8 +613,8 @@ class UserController extends Controller
                 'title'             =>  $each['title'],
                 'snippet'           =>  $info,
                 'link'              =>  'https://hook.com/p/'.$each['idproduct'],
-                'image'             =>  'http://api.geeknation.info/'.$image['image'],
-                'thumbnailimage'    =>  'http://api.geeknation.info/'.$image['image'],
+                'image'             =>  'http://api.allgamegeek.com/'.$image['image'],
+                'thumbnailimage'    =>  'http://api.allgamegeek.com/'.$image['image'],
                 'post'              =>  $each['post'],
                 'source'            =>  'hook'
             ];
@@ -649,8 +649,7 @@ class UserController extends Controller
         $updateuser = $this->user::where('iduser', $iduser);
 
         $updateuser->update([
-            'contactno' =>  $request->contactno,
-            'birthdate' =>  $request->birthdate
+            'contactno' =>  $request->contactno
         ]);
 
         return response()->json([
