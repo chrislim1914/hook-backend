@@ -291,7 +291,7 @@ class Functions extends Controller
         ];
 
         $encrypt = Crypt::encrypt($payload);
-        $verifyEmailUrl = 'https://geeknation.info/verify-email?t='.$encrypt;
+        $verifyEmailUrl = 'https://allgamegeek.com/verify-email?t='.$encrypt;
 
         // ok lets save the token to the user table
         $usertoken = $user::where('iduser', $iduser);

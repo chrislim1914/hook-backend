@@ -35,14 +35,14 @@ class ProductController extends Controller
             $image = $user->getUserFolder($new['iduser']);
 
             foreach($photo as $newphoto) {
-                $media[] = 'http://api.geeknation.info/'.$newphoto['image'];
+                $media[] = 'http://api.allgamegeek.com/'.$newphoto['image'];
             }
 
             $seller = [
                 'id'            => $user['iduser'],
                 'username'      => $user['username'],
                 'contactno'     => $user['contactno'],
-                'profile_photo' => $image == false ? $user['profile_photo'] : 'https://api.geeknation.info/'.$user['profile_photo']
+                'profile_photo' => $image == false ? $user['profile_photo'] : 'https://api.allgamegeek.com/'.$user['profile_photo']
             ];
 
             $viewitem = [
@@ -114,7 +114,7 @@ class ProductController extends Controller
                 'no'            =>  $count,
                 'id'            =>  $each['idproduct'],
                 'seller'        =>  $seller,
-                'photoUrls'     =>  ['http://api.geeknation.info/'.$image['image']],
+                'photoUrls'     =>  ['http://api.allgamegeek.com/'.$image['image']],
                 'info'          =>  $info,
                 'source'        =>  'Hook'
             ];
@@ -411,7 +411,7 @@ class ProductController extends Controller
 
             $seller = [
                 'id'                => $user['iduser'],
-                'profilePicture'    => 'http://api.geeknation.info/'.$user['profile_photo'],
+                'profilePicture'    => 'http://api.allgamegeek.com/'.$user['profile_photo'],
                 'username'          => $user['username'],
             ];
 
@@ -431,8 +431,8 @@ class ProductController extends Controller
                 'title'             =>  $each['title'],
                 'snippet'           =>  $info,
                 'link'              =>  'https://hook.com/p/'.$each['idproduct'],
-                'image'             =>  'http://api.geeknation.info/'.$image['image'],
-                'thumbnailimage'    =>  'http://api.geeknation.info/'.$image['image'],
+                'image'             =>  'http://api.allgamegeek.com/'.$image['image'],
+                'thumbnailimage'    =>  'http://api.allgamegeek.com/'.$image['image'],
                 'source'            =>  'hook'
             ];
             $count++;

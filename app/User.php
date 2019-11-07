@@ -187,7 +187,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
     public function profilePath($pathphoto) {
         $path = explode("/", $pathphoto);
         if($path[0] === 'img') {
-            return 'http://api.geeknation.info/'.$pathphoto;
+            return 'http://api.allgamegeek.com/'.$pathphoto;
         } else {
            return $pathphoto;
         }
