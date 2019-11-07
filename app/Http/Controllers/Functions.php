@@ -130,7 +130,7 @@ class Functions extends Controller
      * @param $item, $countrycode
      * @return $translated
      */
-    public function translator($item, $countrycode) {
+    public function translator($item, $countrycode) {        
         $lang = $this->getLanguageCode($countrycode);
         $trans_text = $this->transIBM($item, $countrycode);
         if($trans_text == null) {
@@ -269,6 +269,12 @@ class Functions extends Controller
         }
     }
 
+    /**
+     * method to create verification email
+     * 
+     * @param $iduser
+     * @return $verifyEmailUrl
+     */
     public function createVerifyEmailLink($iduser) {
 
         $now = $this->setDatetime();
@@ -285,11 +291,17 @@ class Functions extends Controller
         ];
 
         $encrypt = Crypt::encrypt($payload);
-        $verifyEmailUrl = 'https://geeknation.info/verifyEmail/'.$encrypt;
+        $verifyEmailUrl = 'https://geeknation.info/verify-email?t='.$encrypt;
 
         return $verifyEmailUrl;
     }
 
+    /**
+     * method to decrypt token from createVerifyEmailLink()
+     * 
+     * @param $payload
+     * @return $dismantle
+     */
     public function dismantleVerifyLink($payload) {
         $dismantle = Crypt::decrypt($payload);
 
