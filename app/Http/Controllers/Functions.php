@@ -312,5 +312,6 @@ class Functions extends Controller
         
 
         return $dismantle;
+        }
     }
 }
