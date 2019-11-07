@@ -308,10 +308,9 @@ class Functions extends Controller
             $dismantle = Crypt::decrypt($payload);
         } catch (Illuminate\Contracts\Encryption\DecryptException $e) {
 
-            return false;
-        
+            return false;  
+        }
 
         return $dismantle;
-        }
     }
 }
