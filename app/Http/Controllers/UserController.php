@@ -494,7 +494,7 @@ class UserController extends Controller
 
         // if no folder then we create new folder
         if($current_user->profile_photo == null) {
-            $folderdir = 'img/user/'.$current_user['username'].'_'.$name.'/';
+            $folderdir = 'img/user/'.$current_user['username'].'_'.$name.'/profile/';
             File::makeDirectory($folderdir, 0777, true);
         } else {
             // lets see if the image is on local server or url
@@ -502,7 +502,7 @@ class UserController extends Controller
 
             if(!$checkpath) {
                 // its false means URL image. lets create folder for user
-                $folderdir = 'img/user/'.$current_user['username'].'_'.$name.'/';
+                $folderdir = 'img/user/'.$current_user['username'].'_'.$name.'/profile/';
                 File::makeDirectory($folderdir, 0777, true);
             }else{
                 // we just get the old folder path and
