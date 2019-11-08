@@ -494,15 +494,25 @@ class UserController extends Controller
 
         // if no folder then we create new folder
         if($current_user->profile_photo == null) {
-            $folderdir = 'img/profile/'.$request->iduser.'_'.$name.'/';
+            $folderdir = 'img/user/'.$current_user['username'].'_'.$name.'/';
             File::makeDirectory($folderdir, 0777, true);
         } else {
-            // we just get the old folder path and
-            // explode the string
-            $path = explode("/", $current_user->profile_photo);
-            $oldPath = $path[0].'/'.$path[1].'/'.$path[2].'/';
+            // lets see if the image is on local server or url
+            $checkpath = $this->user->getUserFolder($request->iduser);
 
-            $folderdir = $oldPath.'/profile/';
+            if(!$checkpath) {
+                // its false means URL image. lets create folder for user
+                $folderdir = 'img/user/'.$current_user['username'].'_'.$name.'/';
+                File::makeDirectory($folderdir, 0777, true);
+            }else{
+                // we just get the old folder path and
+                // explode the string
+                $path = explode("/", $current_user->profile_photo);
+                $oldPath = $path[0].'/'.$path[1].'/'.$path[2].'/';
+
+                $folderdir = $oldPath.'/profile/';
+            }
+            
         }        
 
         $newprofilephoto = '';
@@ -625,8 +635,8 @@ class UserController extends Controller
 
         } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
             return response()->json([
-                'message'   =>'Invalid Token',
-                'result'    =>false
+                'message'   => 'Invalid Token',
+                'result'    => false
             ]);
 
         } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
@@ -683,12 +693,10 @@ class UserController extends Controller
         if($getseller != null) {
             return response()->json([
                 'data'      => [
-                    'iduser'        => $getseller['iduser'],
                     'username'      => $getseller['username'],
                     'birthdate'     => $getseller['birthdate'],
                     'contactno'     => $getseller['contactno'],
                     'profile_photo' => $image == false ? $getseller['profile_photo'] : 'https://api.allgamegeek.com/'.$getseller['profile_photo'],
-                    'snsproviderid' => $getseller['snsproviderid'],
                     'emailverify'   => $getseller['emailverify'],
                     'created_at'    => $getseller['created_at']->toDateString(),
                     'updated_at'    => $getseller['updated_at']->toDateString(),
