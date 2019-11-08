@@ -510,7 +510,7 @@ class UserController extends Controller
                 $path = explode("/", $current_user->profile_photo);
                 $oldPath = $path[0].'/'.$path[1].'/'.$path[2].'/';
 
-                $folderdir = $oldPath.'/profile/';
+                $folderdir = $oldPath.'profile/';
             }
             
         }        
