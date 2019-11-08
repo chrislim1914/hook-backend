@@ -33,17 +33,18 @@ class UserController extends Controller
      * @return JSON
      */
     public function verifyEmailUrl(Request $request) {
-        $iduser = $request->iduser;
-        $currentuser = $this->user->getUserData($iduser);
+        $send = $this->createEmailUrl($request->iduser, 'verify');
+        if(!$send) {
+            return response()->json([
+                'message'   => 'Error sending email!',
+                'result'    => false
+            ]);
+        }
 
-        $url = $this->function->createVerifyEmailLink($iduser);
-
-        $send = new SendMail();
-                $sendit = $send->sendMail($currentuser['email'], $currentuser['username'], $url);
-                return response()->json([
-                    'message'   => '',
-                    'result'    => true
-                ]);
+        return response()->json([
+            'message'   => '',
+            'result'    => true
+        ]);
     }
 
     /**
@@ -72,10 +73,13 @@ class UserController extends Controller
                 'result'    => false
             ]);
         }
+
         $checkuser = $this->user::where('iduser', $token['id'])->first();
 
+        $checkthis = $token['reason'] === 'verify' ? 'emailverifytoken' : 'resetpasswordtoken' ;
+
         // check if the user request the token
-        if( $checkuser == null || $checkuser['emailverifytoken'] == null || $checkuser['emailverifytoken'] == '') {
+        if( $checkuser == null || $checkuser[$checkthis] == null || $checkuser[$checkthis] == '') {
             return response()->json([
                 'message'   => 'you did not request for verification!',
                 'result'    => false
@@ -84,10 +88,138 @@ class UserController extends Controller
 
         $current_user = $this->user::where('email', $token['email']);
 
-        $current_user->update([
-            'emailverify' => 1,
+        $updatethis = $token['reason'] === 'verify' ? [
+            'emailverify'       => 1,
             'emailverifytoken'  => ''
+            ]
+        : [
+            'resetpasswordtoken'  => ''
+        ];
+
+        $current_user->update($updatethis);
+
+        return response()->json([
+            'message'   => '',
+            'result'    => true
         ]);
+    }
+
+    /**
+     * method to reset password after the user verify the reset-password email
+     * 
+     * @param $request
+     * @return JSON
+     */
+    public function resetPassword(Request $request) {
+
+        // we neeed JWT token to authenticate that we have 
+        $header = $request->header('Authorization');
+
+        // remove the first 7 character
+        $token = substr($header, 7);
+
+        // get the original payload
+        $clearuser = $this->function->dismantleVerifyLink($token);
+
+        // get user data
+        $thisuser = $this->user->getUserData($clearuser['id']);
+
+        // if false then return false
+        if($thisuser == null) {
+            return array(
+                'message'   => 'Token is invalid!',
+                'result'    => false
+            );
+        }
+
+        // AUTH the user
+        $changepass = $this->user::where('iduser', $thisuser['iduser']);
+
+        $changepass->update([
+            'password'  => $this->hashPassword($request->password)
+        ]);
+
+        try {
+
+            if (! $token = $this->jwt->fromUser($thisuser)) {
+                return array(
+                    'message'   => 'Error Authenticating SNS user!',
+                    'result'    => false
+                );
+            }
+
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return array(
+                'message'   => 'Error Authenticating SNS user!',
+                'result'    => false
+            );
+
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return array(
+                'message'   => 'Error Authenticating SNS user!',
+                'result'    => false
+            );
+
+        }       
+
+        return response()->json([
+            'token'   => $token,
+            'result'    => true
+        ]);
+    }
+
+    public function changePassword(Request $request) {
+        // set the var we need
+        $iduser         = $request->iduser;
+        $newpassword    = $request->newpassword;
+        $oldpassword    = $request->oldpassword;
+
+        // check user
+        $usertochange = $this->user->getUserData($iduser);
+
+        if($usertochange == null) {
+            return array(
+                'message'   => 'User not found!',
+                'result'    => false
+            );  
+        }
+
+        // check old password to the database
+        if(!$this->function->verifyPassword($oldpassword, $usertochange['password'])) {
+            return array(
+                'message'   => 'Password is not same as store in database!',
+                'result'    => false
+            );  
+        }
+
+        // ok lets change that password
+        $changepass = $this->user::where('iduser', $iduser);
+
+        $changepass->update([
+            'password'  => $this->hashPassword($newpassword)
+        ]);
+
+        return response()->json([
+            'message'   => '',
+            'result'    => true
+        ]);
+
+    }
+
+     /**
+     * method to create link with token to reset password
+     * 
+     * @param $request
+     * @return JSON
+     */
+    public function forgetPasswordEmail(Request $request) {
+        $send = $this->createEmailUrl($request->iduser, 'reset');
+        if(!$send) {
+            return response()->json([
+                'message'   => 'Error sending email!',
+                'result'    => false
+            ]);
+        }
 
         return response()->json([
             'message'   => '',
@@ -288,6 +420,7 @@ class UserController extends Controller
         $this->user->snsproviderid       = $snsproviderid;
         $this->user->emailverify         = 0;
         $this->user->emailverifytoken    = '';
+        $this->user->resetpasswordtoken  = '';
 
         if($this->user->save()) {
             if($userimage['url'] === 'no') {
@@ -484,16 +617,23 @@ class UserController extends Controller
 
         try {
             if(! $decoded = Auth::getPayload($header)->toArray()){
-                return response()->json(['message' => 'access denied','result'=> false], 200);
+                return response()->json([
+                    'message'   => 'access denied',
+                    'result'    => false
+                ]);
             }
 
         } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-
-            return response()->json(['message'=>'Invalid Token','result'=>false], 500);
+            return response()->json([
+                'message'   =>'Invalid Token',
+                'result'    =>false
+            ]);
 
         } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-
-            return response()->json(['message' => $e->getMessage(),'result'=>false], 401);
+            return response()->json([
+                'message' => $e->getMessage(),
+                'result'=>false
+            ]);
 
         }
 
@@ -693,5 +833,36 @@ class UserController extends Controller
             'skip'  => $skip,
             'page'  => $page
         );
+    }
+
+    /**
+     * method to send email to user
+     * 
+     * @param $iduser, $for
+     * @return Boolean
+     */
+    protected function createEmailUrl($iduser, $for) {
+        
+        $currentuser = $this->user->getUserData($iduser);
+
+        $url = $this->function->createVerifyEmailLink($iduser, $for);
+
+        if($for === 'verify') {
+            $send = new SendMail();
+                try {
+                    $sendit = $send->verifyEmail($currentuser['email'], $currentuser['username'], $url);
+                    return true;
+                } catch (ErrorException $e) {
+                    return false;
+                }
+        }elseif($for === 'reset') {
+            $send = new SendMail();
+                try {
+                    $sendit = $send->resetEmail($currentuser['email'], $currentuser['username'], $url);
+                    return true;
+                } catch (ErrorException $e) {
+                    return false;
+                }
+        }        
     }
 }

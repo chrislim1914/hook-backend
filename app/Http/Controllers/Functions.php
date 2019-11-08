@@ -275,7 +275,7 @@ class Functions extends Controller
      * @param $iduser
      * @return $verifyEmailUrl
      */
-    public function createVerifyEmailLink($iduser) {
+    public function createVerifyEmailLink($iduser, $for) {
 
         $now = $this->setDatetime();
         $expired = $now->addDay();
@@ -287,18 +287,30 @@ class Functions extends Controller
             'id'        => $currentuser['iduser'],
             'email'     => $currentuser['email'],
             'issueat'   => $now->toDateString(),
-            'expired'   => $expired->toDateString()
+            'expired'   => $expired->toDateString(),
+            'reason'    => $for
         ];
 
         $encrypt = Crypt::encrypt($payload);
-        $verifyEmailUrl = 'https://allgamegeek.com/verify-email?t='.$encrypt;
-
+        
         // ok lets save the token to the user table
         $usertoken = $user::where('iduser', $iduser);
 
-        $usertoken->update([
-            'emailverifytoken' => $encrypt
-        ]);
+        if($for === 'verify') {
+
+            $verifyEmailUrl = 'https://allgamegeek.com/verify-email?t='.$encrypt;
+
+            $usertoken->update([
+                'emailverifytoken' => $encrypt
+            ]);
+        } elseif($for === 'reset') {
+
+            $verifyEmailUrl = 'https://allgamegeek.com/reset-password?t='.$encrypt;
+
+            $usertoken->update([
+                'resetpasswordtoken' => $encrypt
+            ]); 
+        }
 
         return $verifyEmailUrl;
     }

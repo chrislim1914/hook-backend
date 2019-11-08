@@ -39,8 +39,18 @@ $router->group(['prefix' => 'api/user'], function($router)
     // user product post
     $router->get('getPost', ['middleware' => 'cors', 'uses' => 'UserController@userPostProduct']);
 
-    // send verify email link
+    // send reset password link
     $router->post('sendEmailLink', ['middleware' => 'cors', 'uses' => 'UserController@verifyEmailUrl']);
+
+    // send verify email link
+    $router->post('resetEmailLink', ['middleware' => 'cors', 'uses' => 'UserController@forgetPasswordEmail']);
+    // change the password after resetEmailLink
+    $router->post('resetPassword', ['middleware' => 'cors', 'uses' => 'UserController@resetPassword']);
+
+    // change the password
+    $router->post('changePassword', ['middleware' => 'cors', 'uses' => 'UserController@changePassword']);
+
+
     // verify email link
     $router->get('verifyUrl/{payload}', ['middleware' => 'cors', 'uses' => 'UserController@verifyUrl']);
 

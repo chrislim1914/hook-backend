@@ -27,6 +27,7 @@ $app->withFacades(true, [
     Tymon\JWTAuth\Facades\JWTAuth::class            =>  'JWTAuth',
     Tymon\JWTAuth\Facades\JWTFactory::class         =>  'JWTFactory',
     Illuminate\Support\Facades\Auth::class          =>  'auth',
+    Aws\Laravel\AwsFacade::class                    =>  'AWS',
 ]);
 
 $app->withEloquent();
@@ -80,6 +81,7 @@ $app->configure('engine');
 $app->configure('language');
 $app->configure('corousell_category');
 $app->configure('mail');
+$app->configure('aws');
 
 /*
 |--------------------------------------------------------------------------
@@ -98,6 +100,7 @@ $app->register(App\Providers\EventServiceProvider::class);
 
 $app->register(Tymon\JWTAuth\Providers\LumenServiceProvider::class);
 $app->register(Flipbox\LumenGenerator\LumenGeneratorServiceProvider::class);
+$app->register(Aws\Laravel\AwsServiceProvider::class);
 
 /*
 |--------------------------------------------------------------------------

@@ -24,6 +24,7 @@ class CreateUserTable extends Migration
             $table->string('snsproviderid')->nullable($value = true);
             $table->tinyInteger('emailverify')->nullable($value = true);
             $table->longText('emailverifytoken')->nullable($value = true);
+            $table->longText('resetpasswordtoken')->nullable($value = true);
             $table->timestamps();
         });
     }
