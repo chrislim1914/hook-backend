@@ -139,35 +139,27 @@ class UserController extends Controller
             'password'  => $this->hashPassword($request->password)
         ]);
 
-        try {
+        $jwtFromUser = $this->createjwtFromUser($thisuser);
 
-            if (! $token = $this->jwt->fromUser($thisuser)) {
-                return array(
-                    'message'   => 'Error Authenticating SNS user!',
-                    'result'    => false
-                );
-            }
-
-        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
-            return array(
-                'message'   => 'Error Authenticating SNS user!',
-                'result'    => false
-            );
-
-        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-            return array(
-                'message'   => 'Error Authenticating SNS user!',
-                'result'    => false
-            );
-
-        }       
+        if($jwtFromUser['result'] == false) {
+            return response()->json([
+                'message'   => $jwtFromUser['message'],
+                'result'    => $jwtFromUser['result']
+            ]);
+        }
 
         return response()->json([
-            'token'   => $token,
-            'result'    => true
+            'token'     => $jwtFromUser['data'],
+            'result'    => $jwtFromUser['result']
         ]);
     }
 
+    /**
+     * method to change password traditionally
+     * 
+     * @param $request
+     * @return JSON
+     */
     public function changePassword(Request $request) {
         // set the var we need
         $iduser         = $request->iduser;
@@ -294,7 +286,7 @@ class UserController extends Controller
         $authuser = $this->authSnsUser($snsproviderid);
 
         return response()->json([
-            'token'   => $authuser['message'],
+            'token'     => $authuser['message'],
             'result'    => $authuser['result']
         ]);
 
@@ -308,37 +300,26 @@ class UserController extends Controller
      */
     protected function authSnsUser($credential) {
         $currentuser = $this->user::where('snsproviderid', $credential)->first();
+
         if($currentuser == null) {
             return array(
                 'message'   => 'User not found!',
                 'result'    => false
             );
         }
-        try {
 
-            if (! $token = $this->jwt->fromUser($currentuser)) {
-                return array(
-                    'message'   => 'Error Authenticating SNS user!',
-                    'result'    => false
-                );
-            }
+        $jwtFromUser = $this->createjwtFromUser($currentuser);
 
-        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+        if($jwtFromUser['result'] == false) {
             return array(
-                'message'   => 'Error Authenticating SNS user!',
-                'result'    => false
+                'message'   => $jwtFromUser['message'],
+                'result'    => $jwtFromUser['result']
             );
-
-        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
-            return array(
-                'message'   => 'Error Authenticating SNS user!',
-                'result'    => false
-            );
-
         }
+
         return array(
-            'message'   => $token,
-            'result'    => true
+            'message'   => $jwtFromUser['data'],
+            'result'    => $jwtFromUser['result']
         );
     }
 
@@ -395,86 +376,8 @@ class UserController extends Controller
     }
 
     /**
-     * method to insert new user
-     * 
-     * @param array $userdata
-     * @param array $userimage
-     * 
-     * @return Boolean
-     */
-    protected function insertUser($userdata, $userimage) {
-        $email          = $userdata['email'];
-        $username       = $userdata['username'];
-        $password       = $userdata['password'];
-        $birthdate      = $userdata['birthdate'];
-        $profile_photo  = $userimage['url'] === 'yes' ? $userimage['filename'] : $userimage['folder'].$userimage['filename'];
-        $snsproviderid  = $userdata['snsproviderid'];
-
-        // ok let save the new user
-        $this->user->email               = $email;
-        $this->user->username            = $username;
-        $this->user->password            = $password;
-        $this->user->contactno           = '';
-        $this->user->birthdate           = $birthdate;
-        $this->user->profile_photo       = $profile_photo;
-        $this->user->snsproviderid       = $snsproviderid;
-        $this->user->emailverify         = 0;
-        $this->user->emailverifytoken    = '';
-        $this->user->resetpasswordtoken  = '';
-
-        if($this->user->save()) {
-            if($userimage['url'] === 'no') {
-                file_put_contents($userimage['folder'].$userimage['filename'], $userimage['identicon']);
-            }            
-            return  true;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * method to create Identicon
-     * 
-     * @param $username
-     * @return array
-     */
-    protected function createIdenticon($username) {
-        // lets create Identicon
-
-        // lets create time for name purpose
-        $name = time();
-
-        $img = new \Jdenticon\Identicon();
-        $img->setValue($username);
-        $img->setSize(150);
-        
-        $folderdir = 'img/user/'.$username.'_'.$name.'/profile/';
-        File::makeDirectory($folderdir, 0777, true);
-
-        /**
-         * we need to Turn on output buffering coz there's no way we can get the image
-         * then Clean (erase) the output buffer and turn off output buffering
-         */
-        ob_start();
-            $photo  = $img->displayImage('png');
-            $binary = $img->getImageData('png');
-            $identicon = ob_get_contents();
-        ob_end_clean();
-
-        // name of the temporary profile image
-        $filename = $username.'_'.$name.'.png';
-
-        return array(
-            'url'       => 'no',
-            'folder'    => $folderdir,
-            'filename'  => $filename,
-            'identicon' => $identicon
-        );
-    }
-
-    /**
      * method to upload user profile photo
-     * TODO i change the path folder
+     * 
      * @param Request $request
      * @return response JSON
      */
@@ -676,6 +579,12 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * method to retrieved seller info
+     * 
+     * @param $request
+     * @return JSON
+     */
     public function getSellerData(Request $request) {
         // check iduser first
         $getseller = $this->user::where('username', $request->username)->first();
@@ -808,6 +717,38 @@ class UserController extends Controller
     }
 
     /**
+     * method to create jwt token using fromUser() JWT method
+     * 
+     * @param Object $currentuser
+     * @return Array
+     */
+    protected function createjwtFromUser($userdata) {
+        try {
+            if (! $token = $this->jwt->fromUser($userdata)) {
+                return array(
+                    'message'   => 'Error Authenticating SNS user!',
+                    'result'    => false
+                );
+            }
+        } catch (\Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+            return array(
+                'message'   => 'Error Authenticating SNS user!',
+                'result'    => false
+            );
+        } catch (\Tymon\JWTAuth\Exceptions\JWTException $e) {
+            return array(
+                'message'   => 'Error Authenticating SNS user!',
+                'result'    => false
+            );
+        }
+
+        return array(
+            'data'      => $token,
+            'result'    => true
+        );
+    }
+
+    /**
      * method to hash user password
      * 
      * @param $password
@@ -872,5 +813,83 @@ class UserController extends Controller
                     return false;
                 }
         }        
+    }
+
+    /**
+     * method to insert new user
+     * 
+     * @param array $userdata
+     * @param array $userimage
+     * 
+     * @return Boolean
+     */
+    protected function insertUser($userdata, $userimage) {
+        $email          = $userdata['email'];
+        $username       = $userdata['username'];
+        $password       = $userdata['password'];
+        $birthdate      = $userdata['birthdate'];
+        $profile_photo  = $userimage['url'] === 'yes' ? $userimage['filename'] : $userimage['folder'].$userimage['filename'];
+        $snsproviderid  = $userdata['snsproviderid'];
+
+        // ok let save the new user
+        $this->user->email               = $email;
+        $this->user->username            = $username;
+        $this->user->password            = $password;
+        $this->user->contactno           = '';
+        $this->user->birthdate           = $birthdate;
+        $this->user->profile_photo       = $profile_photo;
+        $this->user->snsproviderid       = $snsproviderid;
+        $this->user->emailverify         = 0;
+        $this->user->emailverifytoken    = '';
+        $this->user->resetpasswordtoken  = '';
+
+        if($this->user->save()) {
+            if($userimage['url'] === 'no') {
+                file_put_contents($userimage['folder'].$userimage['filename'], $userimage['identicon']);
+            }            
+            return  true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * method to create Identicon
+     * 
+     * @param $username
+     * @return array
+     */
+    protected function createIdenticon($username) {
+        // lets create Identicon
+
+        // lets create time for name purpose
+        $name = time();
+
+        $img = new \Jdenticon\Identicon();
+        $img->setValue($username);
+        $img->setSize(150);
+        
+        $folderdir = 'img/user/'.$username.'_'.$name.'/profile/';
+        File::makeDirectory($folderdir, 0777, true);
+
+        /**
+         * we need to Turn on output buffering coz there's no way we can get the image
+         * then Clean (erase) the output buffer and turn off output buffering
+         */
+        ob_start();
+            $photo  = $img->displayImage('png');
+            $binary = $img->getImageData('png');
+            $identicon = ob_get_contents();
+        ob_end_clean();
+
+        // name of the temporary profile image
+        $filename = $username.'_'.$name.'.png';
+
+        return array(
+            'url'       => 'no',
+            'folder'    => $folderdir,
+            'filename'  => $filename,
+            'identicon' => $identicon
+        );
     }
 }
