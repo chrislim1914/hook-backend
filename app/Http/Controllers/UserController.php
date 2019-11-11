@@ -121,7 +121,7 @@ class UserController extends Controller
         // get the original payload
         $clearuser = $this->function->dismantleVerifyLink($token);
 
-        if(!$thisuser) {
+        if(!$clearuser) {
             return array(
                 'message'   => 'Token is invalid!',
                 'result'    => false
