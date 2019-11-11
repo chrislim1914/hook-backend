@@ -121,13 +121,20 @@ class UserController extends Controller
         // get the original payload
         $clearuser = $this->function->dismantleVerifyLink($token);
 
+        if(!$thisuser) {
+            return array(
+                'message'   => 'Token is invalid!',
+                'result'    => false
+            );
+        }
+
         // get user data
         $thisuser = $this->user->getUserData($clearuser['id']);
 
         // if false then return false
         if($thisuser == null) {
             return array(
-                'message'   => 'Token is invalid!',
+                'message'   => 'User not found!',
                 'result'    => false
             );
         }
