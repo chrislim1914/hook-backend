@@ -205,7 +205,17 @@ class UserController extends Controller
      * @return JSON
      */
     public function forgetPasswordEmail(Request $request) {
-        $send = $this->createEmailUrl($request->iduser, 'reset');
+        $thisuser = $this->user::where('email', $request->email)->first();
+
+        if($thisuser == null) {
+            return response()->json([
+                'message'   => 'User not found!',
+                'result'    => false
+            ]);
+        }
+
+        $send = $this->createEmailUrl($thisuser['iduser'], 'reset');
+
         if(!$send) {
             return response()->json([
                 'message'   => 'Error sending email!',
