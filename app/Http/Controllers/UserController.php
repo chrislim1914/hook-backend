@@ -583,6 +583,8 @@ class UserController extends Controller
                 'data'      => [
                     'iduser'        => $thisuser['iduser'],
                     'email'         => $thisuser['email'],
+                    'firstname'     => $thisuser['firstname'],
+                    'lastname'      => $thisuser['lastname'],
                     'username'      => $thisuser['username'],
                     'birthdate'     => $thisuser['birthdate'],
                     'contactno'     => $thisuser['contactno'],
@@ -626,6 +628,8 @@ class UserController extends Controller
             return response()->json([
                 'data'      => [
                     'username'      => $getseller['username'],
+                    'firstname'     => $getseller['firstname'],
+                    'lastname'      => $getseller['lastname'],
                     'birthdate'     => $getseller['birthdate'],
                     'contactno'     => $getseller['contactno'],
                     'profile_photo' => $image == false ? $getseller['profile_photo'] : 'https://api.allgamegeek.com/'.$getseller['profile_photo'],
