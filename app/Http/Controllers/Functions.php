@@ -19,6 +19,9 @@ use App\Http\Controllers\IbmController;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use App\Http\Controllers\AwsController;
+use App\Http\Controllers\KakaoController;
+
 
 class Functions extends Controller
 {    
@@ -131,13 +134,76 @@ class Functions extends Controller
      * @return $translated
      */
     public function translator($item, $countrycode) {
-        $lang = $this->getLanguageCode($countrycode);
-        $trans_text = $this->transIBM($item, $countrycode);
-        if($trans_text == null) {
-            $trans_text = $this->transGoogle($item, $countrycode);
-            return $trans_text;
+        /**
+         * ok we have 4 translator
+         * AWS
+         * IBM
+         * Google
+         * Kakao
+         * 
+         * we use Kakao first, if failed 
+         * we use Google, if failed 
+         * we use AWS, if failed
+         * we use IBM
+         */
+        if($countrycode === 'en') {
+            return $item;            
         }
-        return $trans_text;
+        
+        $trans_kakao = $this->kakaoTranslator($item, $countrycode);
+        if(!$trans_kakao) {
+            $trans_google = $this->transGoogle($item, $countrycode);
+            if(!$trans_google) {
+                $trans_aws = $this->awsTranslator($item, $countrycode);
+                if(!$trans_aws) {
+                    $trans_ibm = $this->transIBM($item, $countrycode);
+                    if(!$trans_ibm) {
+                        return $item;
+                    }
+                    return $trans_ibm;
+                }
+                return $trans_aws;
+            }
+            return $trans_google;
+        }
+        return $trans_kakao;
+    }
+
+    /**
+     * method to translate text using AWS Translate API
+     * 
+     * @param $item, $countrycode
+     * @return $translated
+     */
+    protected function kakaoTranslator($item, $countrycode) {
+        $kakao_trans = new KakaoController();
+
+        $translated = $kakao_trans->kakaoTranslation($item, $countrycode);
+
+        if(!$translated) {
+            return false;
+        }
+        // return response()->json($translated);
+        // var_dump($translated);
+        return $translated['translated_text'][0][0];
+    }
+
+    /**
+     * method to translate text using AWS Translate API
+     * 
+     * @param $item, $countrycode
+     * @return $translated
+     */
+    protected function awsTranslator($item, $countrycode) {
+        $awstranslate = new AwsController();
+
+        $translated = $awstranslate->awsTRanlate($item, $countrycode);
+
+        if(!$translated) {
+            return false;
+        }
+
+        return $translated;
     }
 
     /**
@@ -150,7 +216,7 @@ class Functions extends Controller
         $ibmTranslator = new IbmController();
         $translated = $ibmTranslator->ibmTranslate($item, $countrycode);
         if($translated == null) {
-            return null;
+            return false;
         }
         return $translated;  
     }
@@ -176,17 +242,14 @@ class Functions extends Controller
                 ]
             ]
         ]);
+       
+        $translated = $tr->translate($item);
 
-        if($item == null) {
-            $translated = $item;
-        } elseif ($countrycode === 'en') {
-            $translated = $item;
-        } else {
-            $translated = $tr->translate($item);
-            $translated == null ? $translated = $item : $translated;
+        if($translated == null) {
+            return false;
         }
 
-        return $translated;
+        return $translated;  
     }
 
     /**

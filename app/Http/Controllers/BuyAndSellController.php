@@ -206,4 +206,55 @@ class BuyAndSellController extends Controller
         }
 
     }
+
+    public function buyAndSellFilter(Request $request) {
+        $page = $request->page;
+        $request->has('search') == true ? $search = $request->search : $search = '';
+        $request->has('filter') == true ? $filter = $request->filter : $filter = '';
+    
+        $filtercarousell    = $this->carousell->filterCarousell($page, $search, $filter);
+        $filterhook         = $this->hook->filterProduct($filter, $page);
+    
+        $buyandsellfilter = [];  
+    
+        for($i=0;$i<3;$i++) {           
+    
+            if($filterhook) {
+                foreach($filterhook as $hook) {
+                    if($i == $hook['no']) {
+                        array_push($buyandsellfilter, [
+                            'id'                =>  $hook['id'],
+                            'title'             =>  $hook['title'],
+                            'snippet'           =>  $hook['snippet'],
+                            'link'              =>  $hook['link'],
+                            'image'             =>  $hook['image'],
+                            'thumbnailimage'    =>  $hook['thumbnailimage'],
+                            'source'            =>  $hook['source'],
+                        ]);
+                    }
+                }
+            }
+            
+            if($filtercarousell) {
+                foreach($filtercarousell as $carousell) {
+                    if($i == $carousell['no']) {
+                        array_push($buyandsellfilter, [
+                            'id'                =>  $carousell['id'],
+                            'title'             =>  $carousell['title'],
+                            'snippet'           =>  $carousell['snippet'],
+                            'link'              =>  $carousell['link'],
+                            'image'             =>  $carousell['image'],
+                            'thumbnailimage'    =>  $carousell['thumbnailimage'],
+                            'source'            =>  $carousell['source'],
+                        ]);
+                    }              
+                }
+            }
+        }
+    
+        return response()->json([
+            'data'      => $buyandsellfilter,
+            'result'    => true
+        ]);
+    }
 }

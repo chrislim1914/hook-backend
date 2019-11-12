@@ -125,12 +125,8 @@ class CarousellController extends Controller
      * @param Request $request->filter
      * @return JSON
      */
-    public function filterCarousell(Request $request) {
-        
-        $page = $request->page;
-        $request->has('search') == true ? $search = $request->search : $search = '';
-        $request->has('filter') == true ? $filter = $request->filter : $filter = '';
-        
+    public function filterCarousell($page, $search, $filter) {
+                
         // lets check the id first before we mess around
         $checkid = $this->checkCategoryID($filter[0]);
         if(!$checkid) {
@@ -148,18 +144,12 @@ class CarousellController extends Controller
 
 
         // check if there is result in the body and create output
-        if($resultdata !== false) {
-            $gotdata = $this->createCarousellData($resultdata, $page);
-            return response()->json([
-                'data'      => $gotdata['data'],
-                'total'     => $gotdata['total'],
-                'result'    => $gotdata['result'],
-            ]);
+
+        if(!$resultdata) {
+            return false;
         } else {
-            return response()->json([
-                'message'   => 'Something went wrong on our side!',
-                'result'    => false
-            ]);
+            $gotdata = $this->createCarousellData($resultdata, $page);
+            return $gotdata['data'];           
         }
     }
 

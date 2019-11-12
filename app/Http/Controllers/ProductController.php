@@ -376,21 +376,13 @@ class ProductController extends Controller
         $filter_product = Product::where('categoryid', $filter)->where('post', 'yes')->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
 
         // return noting if null
-        if($filter_product == null) {
-            return response()->json([
-                'data'      => [],
-                'total'     => [],
-                'result'    => true
-            ]);
+        if($filter_product->count() <= 0) {
+            return false;
         }
 
-        $filterproduct = $this->createProductJsonData($product);
+        $filterproduct = $this->createProductJsonData($filter_product);
 
-        return response()->json([
-            'data'      => $filterproduct,            
-            'total'     => count($filter_product),
-            'result'    => true
-        ]);
+        return $filterproduct;
     }
 
     /**
