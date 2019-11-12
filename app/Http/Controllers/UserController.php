@@ -246,6 +246,8 @@ class UserController extends Controller
 
         // lets get everything we need
         $email          = $request->email;
+        $firstname      = $request->firstname;
+        $lastname       = $request->lastname;
         $profile_photo  = $request->profile_photo;
         $snsproviderid  = $request->snsproviderid;
 
@@ -285,6 +287,8 @@ class UserController extends Controller
         // if not then insert the data and auth the new user also send jwt
         $newuser = array(
             'email'             => $email,
+            'firstname'         => $firstname,
+            'lastname'          => $lastname,
             'username'          => $username,
             'password'          => '',
             'birthdate'         => '',
@@ -371,6 +375,8 @@ class UserController extends Controller
         // lets create new user
         $data = array(
             'email'             => $request->email,
+            'firstname'         => $request->firstname,
+            'lastname'          => $request->lastname,
             'username'          => $request->username,
             'password'          => $this->hashPassword($request->password),
             'birthdate'         => $request->birthdate,
@@ -703,7 +709,7 @@ class UserController extends Controller
 
     /**
      * method to update user profile
-     * but only contact no and birthdate
+     * contact no, username, first name, last name, birthdate
      * 
      * @param $request
      * @return JSON
@@ -711,6 +717,7 @@ class UserController extends Controller
     public function updateProfile(Request $request) {
 
         $iduser = $request->iduser;
+
         // lets check first if ID exist
         $checkid = $this->user->isIDExist($iduser);
         if(!$checkid) {
@@ -720,10 +727,24 @@ class UserController extends Controller
             ]);
         }
 
+        // lets check username
+        $checkusername = $this->user->isUsernameExist($request->username, $iduser);
+        if(!$checkusername) {
+            return response()->json([
+                'message'      => 'Username already use!',
+                'result'    => false
+            ]);
+        }
+
+        // update the user info
         $updateuser = $this->user::where('iduser', $iduser);
 
         $updateuser->update([
-            'contactno' =>  $request->contactno
+            'username'  =>  $request->username,
+            'firstname' =>  $request->firstname,
+            'lastname'  =>  $request->lastname,
+            'contactno' =>  $request->contactno,
+            'birthdate' =>  $request->birthdate
         ]);
 
         return response()->json([
@@ -842,6 +863,8 @@ class UserController extends Controller
      */
     protected function insertUser($userdata, $userimage) {
         $email          = $userdata['email'];
+        $firstname      = $userdata['firstname'];
+        $lastname       = $userdata['lastname'];
         $username       = $userdata['username'];
         $password       = $userdata['password'];
         $birthdate      = $userdata['birthdate'];
@@ -850,6 +873,8 @@ class UserController extends Controller
 
         // ok let save the new user
         $this->user->email               = $email;
+        $this->user->firstname           = $firstname;
+        $this->user->lastname            = $lastname;
         $this->user->username            = $username;
         $this->user->password            = $password;
         $this->user->contactno           = '';

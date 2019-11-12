@@ -25,7 +25,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @var array
      */
     protected $fillable = [
-        'iduser', 'email', 'username', 'password', 'contactno', 'birthdate', 'profile_photo', 'snsproviderid', 'emailverify', 'emailverifytoken', 'resetpasswordtoken'
+        'iduser', 'email', 'firstname', 'lastname', 'username', 'password', 'contactno', 'birthdate', 'profile_photo', 'snsproviderid', 'emailverify', 'emailverifytoken', 'resetpasswordtoken'
     ];
 
     /**
@@ -97,6 +97,12 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         }
     }
 
+    /**
+     * method to check if user snsprodiverid exist
+     * 
+     * @param $snsproviderid
+     * @return Bool
+     */
     public function issnsprovideridExist($snsproviderid) {
         $snsproviderid_exist = User::where('snsproviderid', $snsproviderid)->first();
         if($snsproviderid_exist != null){
@@ -112,13 +118,23 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
      * @param $username
      * @return Bool
      */
-    public function isUsernameExist($username) {
-        $username_exist = User::where('username', $username)->first();
-        if($username_exist != null){
-            return true;
+    public function isUsernameExist($username, $iduser = null) {
+
+        if($iduser == null) {
+            $username_exist = User::where('username', $username)->first();
+            if($username_exist != null){
+                return true;
+            }else{
+                return false;
+            }
         }else{
-            return false;
-        }
+            $username_exist = User::where('username', $username)->having('iduser', '<>', $iduser)->get();
+            if($username_exist->count() !== 0){
+                return false;
+            }else{
+                return true;
+            }
+        }        
     }
 
     /**
