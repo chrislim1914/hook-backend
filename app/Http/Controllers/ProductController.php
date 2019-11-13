@@ -19,7 +19,7 @@ class ProductController extends Controller
      * @return JSON
      */
     public function viewProduct($id) {
-        $product    = Product::where('idproduct', $id)->get();
+        $product    = Product::where('idproduct', $id)->having('status', 'available')->get();
 
         if(!$product) {
             return false;
@@ -68,7 +68,7 @@ class ProductController extends Controller
      */
     public function loadOurProduct() {
         $user = new User();
-        $product    = Product::where('post', 'yes')->Orderby('idproduct', 'desc')->get();
+        $product    = Product::where('status', 'available')->Orderby('idproduct', 'desc')->get();
 
         $hookfeed = [];
         $count=0;
@@ -133,7 +133,7 @@ class ProductController extends Controller
 
         $paginate = $this->paginateHook($page);
 
-        $product    = Product::where('post', 'yes')->Orderby('idproduct', 'desc')->skip($paginate['skip'])->take($paginate['page'])->get();
+        $product    = Product::where('status', 'available')->Orderby('idproduct', 'desc')->skip($paginate['skip'])->take($paginate['page'])->get();
 
         // return noting if null
         if($product == null) {
@@ -183,7 +183,7 @@ class ProductController extends Controller
         $product->condition   = $request->condition;
         $product->meetup      = $request->meetup;
         $product->delivery    = $request->delivery;
-        $product->post        = 'yes';
+        $product->status      = 'available';
 
         if($product->save()) {
             // set the id
@@ -217,9 +217,10 @@ class ProductController extends Controller
      * @param $request
      * @return JSON
      */
-    public function deletePost(Request $request) {
-        $idproduct = $request->idproduct;
-        $product = new Product();
+    public function changeStatus(Request $request) {
+        $idproduct  = $request->idproduct;
+        $status     = $request->status;
+        $product    = new Product();
 
         // check if exist
         $checkid = $product->isProductIDExist($idproduct);
@@ -234,7 +235,7 @@ class ProductController extends Controller
         $del_product = $product::where('idproduct', $idproduct);
 
         if($del_product->update([
-            'post'  => 'no'
+            'post'  => $status
         ])) {
             return response()->json([
                 'message'   => '',
@@ -336,7 +337,7 @@ class ProductController extends Controller
             );
         }
 
-        $search_product = Product::where('title', 'LIKE', "%{$search}%")->where('post', 'yes')->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
+        $search_product = Product::where('title', 'LIKE', "%{$search}%")->where('status', 'available')->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
 
         // return noting if null
         if($search_product == null) {
@@ -373,7 +374,7 @@ class ProductController extends Controller
             ]);
         }
 
-        $filter_product = Product::where('categoryid', $filter)->where('post', 'yes')->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
+        $filter_product = Product::where('categoryid', $filter)->where('status', 'available')->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
 
         // return noting if null
         if($filter_product->count() <= 0) {
@@ -422,7 +423,7 @@ class ProductController extends Controller
                 'id'                =>  $each['idproduct'],
                 'title'             =>  $each['title'],
                 'snippet'           =>  $info,
-                'link'              =>  'https://hook.com/p/'.$each['idproduct'],
+                'link'              =>  'https://allgamegeek.com/product/hook/'.$each['idproduct'],
                 'image'             =>  'http://api.allgamegeek.com/'.$image['image'],
                 'thumbnailimage'    =>  'http://api.allgamegeek.com/'.$image['image'],
                 'source'            =>  'hook'

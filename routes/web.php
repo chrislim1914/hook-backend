@@ -81,7 +81,7 @@ $router->group(['prefix' => 'api'], function($router)
     // our own
     $router->post('product/add', ['middleware' => 'cors', 'uses' => 'ProductController@postProduct']);
     $router->post('product/update', ['middleware' => 'cors', 'uses' => 'ProductController@updatePost']);
-    $router->post('product/delete', ['middleware' => 'cors', 'uses' => 'ProductController@deletePost']);
+    $router->post('product/changeStatus', ['middleware' => 'cors', 'uses' => 'ProductController@changeStatus']);
 });
 
 /**

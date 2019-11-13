@@ -158,14 +158,19 @@ class Functions extends Controller
                 if(!$trans_aws) {
                     $trans_ibm = $this->transIBM($item, $countrycode);
                     if(!$trans_ibm) {
+                        // echo "nothing";
                         return $item;
                     }
+                    // echo "ibm";
                     return $trans_ibm;
                 }
+                // echo "aws";
                 return $trans_aws;
             }
+            // echo "google";
             return $trans_google;
         }
+        // echo "kakao";
         return $trans_kakao;
     }
 

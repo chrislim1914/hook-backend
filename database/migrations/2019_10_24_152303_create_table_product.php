@@ -23,7 +23,7 @@ class CreateTableProduct extends Migration
             $table->string('condition');
             $table->text('meetup');
             $table->text('delivery');
-            $table->text('post');
+            $table->string('status');
             $table->timestamps();
         });
     }

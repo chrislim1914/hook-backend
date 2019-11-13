@@ -658,6 +658,7 @@ class UserController extends Controller
     public function userPostProduct(Request $request) {
         // check iduser first
         $getusername = $this->user::where('username', $request->username)->first();
+        $view = (!$request->has('view') || $request->view === '') ? '' : $request->view;
 
         if($getusername == null) {
             return response()->json([
@@ -667,7 +668,17 @@ class UserController extends Controller
         }
 
         $paginate = $this->paginateHook($request->page);
-        $product = Product::where('iduser', $getusername['iduser'])->skip($paginate['skip'])->take(10)->get();
+        if($view === 'public') {
+            $product = Product::where('iduser', $getusername['iduser'])->having('status', 'available')->skip($paginate['skip'])->take(10)->get();
+        } elseif($view === 'private') {
+            $product = Product::where('iduser', $getusername['iduser'])->skip($paginate['skip'])->take(10)->get();
+        } else {
+            return response()->json([
+                'message'   => 'view method is empty!',
+                'result'    => false
+            ]);
+        }
+        
 
         if($product == null) {
             return response()->json([
