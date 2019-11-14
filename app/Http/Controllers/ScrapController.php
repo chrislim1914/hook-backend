@@ -976,7 +976,7 @@ class ScrapController extends Controller
                 $media = '';
             }
         }
-
+        var_dump($title[0]):
         if(count($title) == 0 || count($body) == 0) {
             return false;
         }
