@@ -85,7 +85,7 @@ class ScrapController extends Controller
         // prepare the news filter
         $businessmirrorfilter = array(
             'url'       => $url,
-            'title'     => '.entry-title',
+            'title'     => '.td-post-title .entry-title',
             'subtitle'  => '',
             'publish'   => '.entry-date',
             'editor'    => '.td-post-author-name',
