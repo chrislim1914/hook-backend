@@ -232,7 +232,7 @@ class BuyAndSellController extends Controller
         $feedhook       = $this->hook->feedHook($request->page);
         $buyandsell = [];
 
-        for($i=0;$i<5;$i++) {
+        for($i=0;$i<10;$i++) {
 
             if($feedhook) {
                 foreach($feedhook as $hook) {

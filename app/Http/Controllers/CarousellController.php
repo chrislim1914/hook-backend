@@ -274,9 +274,10 @@ class CarousellController extends Controller
 
         // let's get the total result of search query
         $totalquery = $resultdata['data']['total']['value']['low'];
+
         // lets create virtual pagination
-        $endat = $page > $totalquery ? $totalquery : $page;
-        $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
+        $endat = $page['end'] > $totalquery ? $totalquery : $page['end'];
+        $startfrom = $page['start'];
         
         // let see if there are still data to output
         if(count($resultdata['data']['results']) <= 0 ) {
@@ -364,10 +365,19 @@ class CarousellController extends Controller
      */
     protected function paginationTrick($page) {
         if($page == null || $page == 0 || $page == 1 ) {
-            return $page = 10;
+            return array(
+                'start' => 0,
+                'end'   => 9
+            );
         }
 
-        return $page = $page * 10;
+        $start  = ($page * 10) - 10;
+        $end    = $start + 9;
+
+        return array(
+            'start' => $start,
+            'end'   => $end
+        );
     }
 
     // no use as of now
