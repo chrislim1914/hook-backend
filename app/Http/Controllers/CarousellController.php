@@ -278,7 +278,7 @@ class CarousellController extends Controller
         // lets create virtual pagination
         $endat = $page['end'] > $totalquery ? $totalquery : $page['end'];
         $startfrom = $page['start'];
-        
+
         // let see if there are still data to output
         if(count($resultdata['data']['results']) <= 0 ) {
             return array(
@@ -361,7 +361,7 @@ class CarousellController extends Controller
      * we just trick the count body param as our pagination
      * 
      * @param $page
-     * @return $page
+     * @return Array
      */
     protected function paginationTrick($page) {
         if($page == null || $page == 0 || $page == 1 ) {

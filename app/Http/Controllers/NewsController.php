@@ -9,9 +9,9 @@ use Goutte\Client;
 
 class NewsController extends Controller
 {
-    private $url            = 'https://newsapi.org/v2/top-headlines?country=ph';
-    private $everything_url = 'https://newsapi.org/v2/everything?domains=abs-cbn.com,rappler.com,gmanetwork.com&sortBy=popularity&pageSize=5';
-    private $world_url      = 'https://newsapi.org/v2/everything?domains=bbc.com,cnn.com,aljazeera.com&sortBy=popularity&pageSize=5';
+    private $url            = 'https://newsapi.org/v2/top-headlines?country=ph&pageSize=10';
+    private $everything_url = 'https://newsapi.org/v2/everything?domains=abs-cbn.com,rappler.com,gmanetwork.com&sortBy=popularity&pageSize=10';
+    private $world_url      = 'https://newsapi.org/v2/everything?domains=bbc.com,cnn.com,aljazeera.com&sortBy=popularity&pageSize=10';
     private $function;
     private $apikey;
 
@@ -36,6 +36,12 @@ class NewsController extends Controller
         $newsscrapper = new ScrapController();
         
         switch ($request->agency) {
+            case 'businessmirror.com.ph':
+                $viewnews = $newsscrapper->scrapBusinessMirror($request->url);                
+                return response()->json([
+                    'data'      => $viewnews['body'],
+                    'result'    => $viewnews['result']
+                ]);
             case 'Rappler.com':
                 $viewnews = $newsscrapper->scrapRapplerNews($request->url);                
                 return response()->json([
@@ -312,6 +318,7 @@ class NewsController extends Controller
             // 'Gmanetwork.com',
             'Mb.com.ph',
             'Bworldonline.com',
+            'Businessmirror.com.ph',
             // international news
             'CNN',
             'Bbc.com',

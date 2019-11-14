@@ -77,6 +77,49 @@ class ScrapController extends Controller
     }
 
     /**
+     * businessmirror.com.ph news Scrapping
+     * 
+     * @param $url
+     */
+    public function scrapBusinessMirror($url) {
+        // prepare the news filter
+        $businessmirrorfilter = array(
+            'url'       => $url,
+            'title'     => '.td-post-title h1',
+            'subtitle'  => '',
+            'publish'   => '.entry-date',
+            'editor'    => '.td-post-author-name',
+            'body'      => '.has-content-area p',
+            'media'     => '.td-post-featured-image img',
+            'img-link'  => 'src',
+        );
+
+        $businessmirror = $this->getNewsData($businessmirrorfilter);
+
+        if($businessmirror == false) {
+            return array(
+                'body'      => "Something went wrong on our side!",
+                'result'    => false
+            );
+        }
+
+        $businessmirror_data = array(
+            'title'     => str_replace($this->getThatAnnoyingChar(),"",$businessmirror->title()),
+            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$businessmirror->subtitle()),
+            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$businessmirror->publish()),
+            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$businessmirror->editor()),
+            'image'     => str_replace($this->getThatAnnoyingChar(),"",$businessmirror->media()),
+            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $businessmirror->body())),
+            'media'     => '/img/news-img/BM-logo.png',
+        );
+
+        return array(
+            'body'      => $businessmirror_data,
+            'result'    => true
+        );
+    }
+
+    /**
      * Rappler.com news Scrapping
      * 
      * @param $url

@@ -108,5 +108,5 @@ $router->group(['prefix' => 'api'], function($router)
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('test/{page}', ['middleware' => 'cors', 'uses' => 'CarousellController@feedCarousell']);
+    $router->get('test', ['middleware' => 'cors', 'uses' => 'ScrapController@scrapBusinessMirror']);
 });
