@@ -669,9 +669,9 @@ class UserController extends Controller
 
         $paginate = $this->paginateHook($request->page);
         if($view === 'public') {
-            $product = Product::where('iduser', $getusername['iduser'])->having('status', 'available')->skip($paginate['skip'])->take(10)->get();
+            $product = Product::where('iduser', $getusername['iduser'])->having('status', 'available')->orderBy('idproduct', 'desc')->skip($paginate['skip'])->take(10)->get();
         } elseif($view === 'private') {
-            $product = Product::where('iduser', $getusername['iduser'])->skip($paginate['skip'])->take(10)->get();
+            $product = Product::where('iduser', $getusername['iduser'])->orderBy('idproduct', 'desc')->skip($paginate['skip'])->take(10)->get();
         } else {
             return response()->json([
                 'message'   => 'view method is empty!',
