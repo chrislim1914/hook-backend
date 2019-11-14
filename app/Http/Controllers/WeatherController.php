@@ -27,6 +27,9 @@ class WeatherController extends Controller
     }
 
     public function getCCandFC(Request $request) {
+        // get the countrycode
+        $languagecode = $this->function->isThereCountryCode($request);
+
         // get api key
         $this->apikey = $this->getCredential();
 
@@ -75,7 +78,7 @@ class WeatherController extends Controller
             'EpochDate'     => $cc_body['dt'],
             'Temp'          => $cc_body['main']['temp'],
             'Icon'          => 'http://openweathermap.org/img/wn/'.$icon.'@2x.png',
-            'Description'   => $description
+            'Description'   => $languagecode === 'en' || $languagecode == false ? $description : $this->function->translator($description, $languagecode)
         ];
 
         $fcFeed = [];
@@ -96,7 +99,7 @@ class WeatherController extends Controller
                     'Min-Temp'      => $item['main']['temp_min'],
                     'Max-Temp'      => $item['main']['temp_max'],
                     'Icon'          => 'http://openweathermap.org/img/wn/'.$innericon.'@2x.png',
-                    'Description'   => $innerdes
+                    'Description'   =>  $languagecode === 'en' || $languagecode == false ? $innerdes : $this->function->translator($innerdes, $languagecode)
                 ];
             }elseif($thistime == $item['dt']) {
                 $fcFeed[] = [
@@ -105,7 +108,7 @@ class WeatherController extends Controller
                     'Min-Temp'      => $item['main']['temp_min'],
                     'Max-Temp'      => $item['main']['temp_max'],
                     'Icon'          => 'http://openweathermap.org/img/wn/'.$innericon.'@2x.png',
-                    'Description'   => $innerdes
+                    'Description'   =>  $languagecode === 'en' || $languagecode == false ? $innerdes : $this->function->translator($innerdes, $languagecode)
                 ];
             }            
             $count++;

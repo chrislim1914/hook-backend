@@ -270,7 +270,6 @@ class CarousellController extends Controller
      * @return Array
      */
     protected function createCarousellData($resultdata, $page) {
-
         $page = $this->paginationTrick($page);
 
         // let's get the total result of search query
@@ -279,64 +278,64 @@ class CarousellController extends Controller
         $endat = $page > $totalquery ? $totalquery : $page;
         $startfrom = $page > 10 ? $page - 9 : $page - 10 ;
         
-       // let see if there are still data to output
-       if(count($resultdata['data']['results']) <= 0 ) {
-           return array(
-                'data'      => [],
+        // let see if there are still data to output
+        if(count($resultdata['data']['results']) <= 0 ) {
+            return array(
+                    'data'      => [],
+                    'total'     => $totalquery,
+                    'result'    => true
+            );
+        }
+
+        // json body to output
+        $carouselljsonfeed = [];
+        $count=0;
+        for($i = $startfrom; $i < count($resultdata['data']['results']); $i++){
+            foreach($resultdata['data']['results'][$i] as $sfeed) {
+                // for image "photos": []
+                foreach($sfeed['photos'] as $imageurl) {
+                    $image          = $imageurl['thumbnailUrl'];
+                    $thumbnailimage = array_key_exists('thumbnailProgressiveUrl', $imageurl) == false ? $image : $imageurl['thumbnailProgressiveUrl'];
+                }
+                
+                // for title
+                $counttitle=0;
+                foreach($sfeed['belowFold'] as $titledesc) {
+                    if($counttitle == 0) {
+                        $title          = $titledesc['stringContent'];
+                        $titlenotrans   = $titledesc['stringContent'];
+                        break;
+                    }                    
+                    $counttitle++;
+                }
+
+                // for description
+                $still=0;
+                $snippet = [];
+                foreach($sfeed['belowFold'] as $snippetdesc) {
+                    
+                    $snippet[]          = $snippetdesc['stringContent'];                                          
+                    $still++;
+                }
+
+                $carouselljsonfeed[] = [
+                        'no'                =>  $count,
+                        'id'                =>  $sfeed['id'],
+                        'title'             =>  $title,
+                        'snippet'           =>  $snippet,
+                        'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
+                        'image'             =>  $image,
+                        'thumbnailimage'    =>  $thumbnailimage,
+                        'source'            =>  'carousell'
+                ];
+            }
+            $count++;
+        }
+        return array(
+                'data'      => $carouselljsonfeed,
                 'total'     => $totalquery,
                 'result'    => true
-           );
-       }
-
-       // json body to output
-       $carouselljsonfeed = [];
-       $count=0;
-       for($i = $startfrom; $i < count($resultdata['data']['results']); $i++){
-           foreach($resultdata['data']['results'][$i] as $sfeed) {
-               // for image "photos": []
-               foreach($sfeed['photos'] as $imageurl) {
-                   $image          = $imageurl['thumbnailUrl'];
-                   $thumbnailimage = array_key_exists('thumbnailProgressiveUrl', $imageurl) == false ? $image : $imageurl['thumbnailProgressiveUrl'];
-               }
-               
-               // for title
-               $counttitle=0;
-               foreach($sfeed['belowFold'] as $titledesc) {
-                   if($counttitle == 0) {
-                       $title          = $titledesc['stringContent'];
-                       $titlenotrans   = $titledesc['stringContent'];
-                       break;
-                   }                    
-                   $counttitle++;
-               }
-
-               // for description
-               $still=0;
-               $snippet = [];
-               foreach($sfeed['belowFold'] as $snippetdesc) {
-                  
-                   $snippet[]          = $snippetdesc['stringContent'];                                          
-                   $still++;
-               }
-
-               $carouselljsonfeed[] = [
-                    'no'                =>  $count,
-                    'id'                =>  $sfeed['id'],
-                    'title'             =>  $title,
-                    'snippet'           =>  $snippet,
-                    'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$sfeed['id'],
-                    'image'             =>  $image,
-                    'thumbnailimage'    =>  $thumbnailimage,
-                    'source'            =>  'carousell'
-               ];
-           }
-           $count++;
-       }
-       return array(
-            'data'      => $carouselljsonfeed,
-            'total'     => $totalquery,
-            'result'    => true
-        );
+            );
     }
 
     /**

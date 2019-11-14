@@ -400,4 +400,19 @@ class Functions extends Controller
 
         return $dismantle;
     }
+
+    
+    /**
+     * method to get $request->countrycode
+     * 
+     * @param $request
+     * @return $countrycode 
+     * @return Boolean 
+     */
+    public function isThereCountryCode($request) {
+        if($request->has('countrycode')) {            
+            return $request->countrycode;
+        }
+        return false;
+    }
 }

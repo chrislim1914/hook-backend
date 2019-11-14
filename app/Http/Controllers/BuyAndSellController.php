@@ -96,20 +96,7 @@ class BuyAndSellController extends Controller
                 return $viewitem;
         }
     }
-    /**
-     * method to get $request->countrycode
-     * 
-     * @param $request
-     * @return $countrycode 
-     * @return Boolean 
-     */
-    protected function isThereCountryCode(Request $request) {
-        if($request->has('countrycode')) {            
-            return $request->countrycode;
-        }
-        return false;
-    }
-
+    
     /**
      * method to translate mergeFrontDisplay() method
      * 
@@ -179,7 +166,7 @@ class BuyAndSellController extends Controller
      * @return $buyandsell
      */
     public function mergeFrontDisplay(Request $request) {
-        $countrycode = $this->isThereCountryCode($request);
+        $countrycode = $this->function->isThereCountryCode($request);
 
         $front_carousell    = $this->carousell->getCarousell();
         $front_hook         = $this->hook->loadOurProduct();
@@ -239,12 +226,11 @@ class BuyAndSellController extends Controller
      */
     public function feedBuyandSell(Request $request) {
 
-        $countrycode = $this->isThereCountryCode($request);
+        $countrycode = $this->function->isThereCountryCode($request);
 
         $feedcarousell  = $this->carousell->feedCarousell($request->page);
         $feedhook       = $this->hook->feedHook($request->page);
-
-        $buyandsell = [];  
+        $buyandsell = [];
 
         for($i=0;$i<5;$i++) {
 
@@ -303,7 +289,7 @@ class BuyAndSellController extends Controller
      * @return JSON
      */
     public function viewSingleContent(Request $request) {
-        $countrycode = $this->isThereCountryCode($request);
+        $countrycode = $this->function->isThereCountryCode($request);
         $source = $request->source;
 
         $scrap = new ScrapController();
@@ -353,7 +339,7 @@ class BuyAndSellController extends Controller
      * @return JSON
      */
     public function buyAndSellSearch(Request $request) {
-        $countrycode = $this->isThereCountryCode($request);
+        $countrycode = $this->function->isThereCountryCode($request);
         $source = $request->source;
         $page = $request->page;
         $request->has('search') == true ? $search = $request->search : $search = '';
@@ -422,7 +408,7 @@ class BuyAndSellController extends Controller
      * @return JSON
      */
     public function buyAndSellFilter(Request $request) {
-        $countrycode = $this->isThereCountryCode($request);
+        $countrycode = $this->function->isThereCountryCode($request);
         $page = $request->page;
         $request->has('search') == true ? $search = $request->search : $search = '';
         $request->has('filter') == true ? $filter = $request->filter : $filter = '';

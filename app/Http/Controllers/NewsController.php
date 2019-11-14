@@ -26,6 +26,12 @@ class NewsController extends Controller
         $this->apikey   = $this->getKey();
     }
 
+    /**
+     * method to display the scraped news
+     * 
+     * @param $request
+     * @return JSON
+     */
     public function viewNewsArticle(Request $request) {
         $newsscrapper = new ScrapController();
         
@@ -98,7 +104,9 @@ class NewsController extends Controller
      * @param Request $request
      * @return JSON
      */
-    public function feedNews() {
+    public function feedNews(Request $request) {
+         // get the countrycode
+        $countrycode = $this->function->isThereCountryCode($request);
 
         // lets create the newsapi url
         $newsapi_url = $this->url.'&apiKey='.$this->apikey;
@@ -115,8 +123,17 @@ class NewsController extends Controller
         
         $headlines = $this->createNewsJsonBody($httpcall);
 
+        if(!$countrycode){
+            return response()->json([
+                'data'      => $headlines,
+                'result'    => true
+            ]);
+        }
+
+        $trans = $this->translateFeedNews($headlines, $countrycode);
+
         return response()->json([
-            'data'      => $headlines,
+            'data'      => $trans,
             'result'    => true
         ]);
     }
@@ -128,6 +145,9 @@ class NewsController extends Controller
      * @return JSON
      */
     public function feedNewsByCategory(Request $request) {
+        // get the countrycode
+        $countrycode = $this->function->isThereCountryCode($request);
+
         // check input category and page
         $cat = $this->newsapi_category($request->category);
         $page = $this->newsapi_page($request->page);
@@ -161,11 +181,50 @@ class NewsController extends Controller
 
         $newsjson = $this->createNewsJsonBody($httpcall);
 
+        if(!$countrycode){
+            return response()->json([
+                'data'          => $newsjson,
+                'totalResults'  => $httpcall['totalResults'],
+                'result'        => true
+            ]);
+        }
+
+        $trans = $this->translateFeedNews($newsjson, $countrycode);
+
         return response()->json([
-            'data'          => $newsjson,
+            'data'          => $trans,
             'totalResults'  => $httpcall['totalResults'],
             'result'        => true
         ]);
+    }
+    
+    /**
+     * method to translate feedNews()
+     * 
+     * @param $newsdata, $countrycode
+     * @return $translateData
+     */
+    protected function translateFeedNews($newsdata, $countrycode) {
+
+        if($countrycode === 'en') {
+            return $newsdata;
+        }
+
+        $translateData = [];
+
+        foreach($newsdata as $source) {            
+            $translateData[] = [
+                'Source'            =>  $source['Source'],
+                'author'            =>  $source['author'],
+                'title'             =>  $this->function->translator($source['title'], $countrycode),
+                'description'       =>  $this->function->translator($source['description'], $countrycode),
+                'url'               =>  $source['url'],
+                'image'             =>  $source['image'],
+                'publishedAt'       =>  $this->function->timeLapse($source['publishedAt'])
+            ];
+        }
+
+        return $translateData;
     }
 
     /**
