@@ -961,15 +961,16 @@ class ScrapController extends Controller
         }
 
         // get news media
-        if($newsdata['media'] == '') {
-            $media = '';
-        } elseif(array_key_exists('video', $newsdata)) {
+       if(array_key_exists('video', $newsdata)) {
             try {
                 $media = $scrapnews->filter($newsdata['video'])->eq(0)->attr($newsdata['video-link']);
             } catch (\Exception $e) {
                 $media = '';
             }
         }else{
+            if($newsdata['media'] == '') {
+                $media = '';
+            }
             try {
                 $media = $scrapnews->filter($newsdata['media'])->eq(0)->attr($newsdata['img-link']);
             } catch (\Exception $e) {
