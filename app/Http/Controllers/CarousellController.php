@@ -300,14 +300,14 @@ class CarousellController extends Controller
                }
                
                // for title
-               $count=0;
+               $counttitle=0;
                foreach($sfeed['belowFold'] as $titledesc) {
-                   if($count == 0) {
+                   if($counttitle == 0) {
                        $title          = $titledesc['stringContent'];
                        $titlenotrans   = $titledesc['stringContent'];
                        break;
                    }                    
-                   $count++;
+                   $counttitle++;
                }
 
                // for description

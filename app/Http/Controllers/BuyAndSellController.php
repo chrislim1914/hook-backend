@@ -246,7 +246,7 @@ class BuyAndSellController extends Controller
 
         $buyandsell = [];  
 
-        for($i=0;$i<5;$i++) {           
+        for($i=0;$i<5;$i++) {
 
             if($feedhook) {
                 foreach($feedhook as $hook) {
