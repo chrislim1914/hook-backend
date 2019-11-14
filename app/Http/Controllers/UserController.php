@@ -246,8 +246,8 @@ class UserController extends Controller
 
         // lets get everything we need
         $email          = $request->email;
-        $firstname      = $request->firstname;
-        $lastname       = $request->lastname;
+        $firstname      = !$request->has('firstname') || $request->firstname == '' ? '' : $request->firstname;
+        $lastname       = !$request->has('lastname') || $request->lastname == '' ? '' : $request->lastname;
         $profile_photo  = $request->profile_photo;
         $snsproviderid  = $request->snsproviderid;
 
