@@ -89,7 +89,7 @@ class ScrapController extends Controller
             'subtitle'  => '',
             'publish'   => '.entry-date',
             'editor'    => '.td-post-author-name',
-            'body'      => '.has-content-area p',
+            'body'      => '.has-content-area',
             'media'     => '.td-post-featured-image img',
             'img-link'  => 'src',
         );
