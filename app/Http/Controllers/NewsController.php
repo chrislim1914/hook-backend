@@ -36,7 +36,7 @@ class NewsController extends Controller
         $newsscrapper = new ScrapController();
         
         switch ($request->agency) {
-            case 'businessmirror.com.ph':
+            case 'Businessmirror.com.ph':
                 $viewnews = $newsscrapper->scrapBusinessMirror($request->url);                
                 return response()->json([
                     'data'      => $viewnews['body'],
