@@ -260,7 +260,7 @@ class UserController extends Controller
         if($emailexist == true || $snsexist == true) {
 
             // if already exist then auth the user and send jwt
-            $authuser = $this->authSnsUser($snsproviderid);
+            $authuser = $this->authSnsUser($email, $snsproviderid);
 
             return response()->json([
                 'token'     => $authuser['message'],
@@ -304,7 +304,7 @@ class UserController extends Controller
             ]);
         }
 
-        $authuser = $this->authSnsUser($snsproviderid);
+        $authuser = $this->authSnsUser($email, $snsproviderid);
 
         return response()->json([
             'token'     => $authuser['message'],
@@ -319,17 +319,20 @@ class UserController extends Controller
      * @param $credential
      * @return array
      */
-    protected function authSnsUser($credential) {
-        $currentuser = $this->user::where('snsproviderid', $credential)->first();
+    protected function authSnsUser($email, $snsproviderid) {
+        $snscurrentuser = $this->user::where('snsproviderid', $snsproviderid)->first();
+        $emailcurrentuser = $this->user::where('email', $email)->first();
 
-        if($currentuser == null) {
+        if($snscurrentuser == null && $emailcurrentuser == null) {
             return array(
                 'message'   => 'User not found!',
                 'result'    => false
             );
+        }elseif($snscurrentuser == null) {
+            $jwtFromUser = $this->createjwtFromUser($emailcurrentuser);
+        }else {
+            $jwtFromUser = $this->createjwtFromUser($snscurrentuser);
         }
-
-        $jwtFromUser = $this->createjwtFromUser($currentuser);
 
         if($jwtFromUser['result'] == false) {
             return array(
