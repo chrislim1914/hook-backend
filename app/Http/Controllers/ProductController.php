@@ -57,6 +57,7 @@ class ProductController extends Controller
                 'condition'         => $new['condition'],                
                 'meetup'            => $new['meetup'],                
                 'delivery'          => $new['delivery'],                
+                'status'            => $new['status'],
                 'source'            => 'hook'
             ];
         }
