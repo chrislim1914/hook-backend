@@ -713,7 +713,7 @@ class UserController extends Controller
                 'link'              =>  'https://hook.com/p/'.$each['idproduct'],
                 'image'             =>  'http://api.allgamegeek.com/'.$image['image'],
                 'thumbnailimage'    =>  'http://api.allgamegeek.com/'.$image['image'],
-                'post'              =>  $each['post'],
+                'status'            =>  $each['status'],
                 'source'            =>  'hook'
             ];
         }
