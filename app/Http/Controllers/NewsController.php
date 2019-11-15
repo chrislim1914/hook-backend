@@ -34,64 +34,65 @@ class NewsController extends Controller
      */
     public function viewNewsArticle(Request $request) {
         $newsscrapper = new ScrapController();
-        
+        $countrycode = $this->function->isThereCountryCode($request);
+
         switch ($request->agency) {
             case 'Businessmirror.com.ph':
-                $viewnews = $newsscrapper->scrapBusinessMirror($request->url);                
+                $viewnews = $newsscrapper->scrapBusinessMirror($request->url, $countrycode);                
                 return response()->json([
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']
                 ]);
             case 'Rappler.com':
-                $viewnews = $newsscrapper->scrapRapplerNews($request->url);                
+                $viewnews = $newsscrapper->scrapRapplerNews($request->url, $countrycode);                
                 return response()->json([
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']
                 ]);
             case 'Abs-cbn.com':
-                $viewnews = $newsscrapper->scrapAbsCbnNews($request->url);                
+                $viewnews = $newsscrapper->scrapAbsCbnNews($request->url, $countrycode);                
                 return response()->json([
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']
                 ]);
             case 'Cnnphilippines.com':
-                $viewnews = $newsscrapper->scrapCnnPhilNews($request->url);        
+                $viewnews = $newsscrapper->scrapCnnPhilNews($request->url, $countrycode);        
                 return response()->json([
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']
                 ]);
             case 'Mb.com.ph':
-                $viewnews = $newsscrapper->scrapMBNews($request->url);                
+                $viewnews = $newsscrapper->scrapMBNews($request->url, $countrycode);                
                 return response()->json([
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']
                 ]);
             case 'Gmanetwork.com':
-                $viewnews = $newsscrapper->scrapGmaNews($request->url);                
+                $viewnews = $newsscrapper->scrapGmaNews($request->url, $countrycode);                
                 return response()->json([
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']
                 ]);
             case 'Bworldonline.com':
-                $viewnews = $newsscrapper->scrapBWNews($request->url);                
+                $viewnews = $newsscrapper->scrapBWNews($request->url, $countrycode);                
                 return response()->json([
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']
                 ]);
             case 'CNN':
-                $viewnews = $newsscrapper->scrapCnnInt($request->url);                
+                $viewnews = $newsscrapper->scrapCnnInt($request->url, $countrycode);                
                 return response()->json([
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']
                 ]);
             case 'Bbc.com':
-                $viewnews = $newsscrapper->scrapBbc($request->url);                
+                $viewnews = $newsscrapper->scrapBbc($request->url, $countrycode);                
                 return response()->json([
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']
                 ]);
             case 'Al Jazeera English':
-                $viewnews = $newsscrapper->scrapAljazeera($request->url);                
+                $viewnews = $newsscrapper->scrapAljazeera($request->url, $countrycode);                
                 return response()->json([
                     'data'      => $viewnews['body'],
                     'result'    => $viewnews['result']

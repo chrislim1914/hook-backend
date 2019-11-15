@@ -415,4 +415,11 @@ class Functions extends Controller
         }
         return false;
     }
+
+    /**
+     * list of annoying character you get from scrapping
+     */
+    public function getThatAnnoyingChar() {
+        return array("\n","\r","\\");
+    }
 }

@@ -43,7 +43,7 @@ class CarousellController extends Controller
                     $deatail = [];
                     foreach($innercfeed['belowFold'] as $belowFold) {
                         $deatail[] = [
-                            'stringContent' => $belowFold['stringContent']
+                            'stringContent' => str_replace($function->getThatAnnoyingChar(), "", $belowFold['stringContent'])
                         ];
                     }
                     
@@ -270,6 +270,7 @@ class CarousellController extends Controller
      * @return Array
      */
     protected function createCarousellData($resultdata, $page) {
+        $function = new Functions();
         $page = $this->paginationTrick($page);
 
         // let's get the total result of search query
@@ -315,7 +316,7 @@ class CarousellController extends Controller
                 $snippet = [];
                 foreach($sfeed['belowFold'] as $snippetdesc) {
                     
-                    $snippet[]          = $snippetdesc['stringContent'];                                          
+                    $snippet[]          = str_replace($function->getThatAnnoyingChar(), "", $snippetdesc['stringContent']);                                          
                     $still++;
                 }
 

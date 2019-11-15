@@ -9,6 +9,7 @@ use App\ProductPhoto;
 use App\User;
 use App\Http\Controllers\ProductPhotoController;
 use Illuminate\Support\Facades\Config;
+use App\Http\Controllers\Functions;
 
 class ProductController extends Controller
 {   
@@ -19,6 +20,7 @@ class ProductController extends Controller
      * @return JSON
      */
     public function viewProduct($id) {
+        $function = new Functions();
         $product    = Product::where('idproduct', $id)->having('status', 'available')->get();
 
         if(!$product) {
@@ -51,7 +53,7 @@ class ProductController extends Controller
                 'media'             => $media,
                 'itemname'          => $new['title'],
                 'price'             => $new['price'],                
-                'description'       => $new['description'],                
+                'description'       => str_replace($function->getThatAnnoyingChar(), "", $new['description']),          
                 'condition'         => $new['condition'],                
                 'meetup'            => $new['meetup'],                
                 'delivery'          => $new['delivery'],                
@@ -67,6 +69,7 @@ class ProductController extends Controller
      * @return $hookfeed
      */
     public function loadOurProduct() {
+        $function = new Functions();
         $user = new User();
         $product    = Product::where('status', 'available')->Orderby('idproduct', 'desc')->get();
 
@@ -96,7 +99,7 @@ class ProductController extends Controller
             ];
 
             $info3 = [
-                'stringContent' => $each['description'],
+                'stringContent' => str_replace($function->getThatAnnoyingChar(), "", $each['description']),
             ];
 
             $info4 = [
@@ -235,7 +238,7 @@ class ProductController extends Controller
         $del_product = $product::where('idproduct', $idproduct);
 
         if($del_product->update([
-            'post'  => $status
+            'status'  => $status
         ])) {
             return response()->json([
                 'message'   => '',
@@ -393,7 +396,7 @@ class ProductController extends Controller
      * @return $hookfeed
      */
     protected function createProductJsonData($product) {
-
+        $function = new Functions();
         $hookfeed = [];
         $count=0;
         foreach($product as $each) {
@@ -413,7 +416,7 @@ class ProductController extends Controller
             $info = [
                 $each['title'],
                 $each['price'],
-                $each['description'],
+                str_replace($function->getThatAnnoyingChar(), "", $each['description']),
                 $each['condition'],
             ];
 

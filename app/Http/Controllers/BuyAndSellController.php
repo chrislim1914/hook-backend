@@ -7,6 +7,7 @@ use App\Http\Controllers\CarousellController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ScrapController;
 use App\Http\Controllers\Functions;
+
 class BuyAndSellController extends Controller
 {
 
@@ -231,7 +232,6 @@ class BuyAndSellController extends Controller
         $feedcarousell  = $this->carousell->feedCarousell($request->page);
         $feedhook       = $this->hook->feedHook($request->page);
         $buyandsell = [];
-
         for($i=0;$i<10;$i++) {
 
             if($feedhook) {

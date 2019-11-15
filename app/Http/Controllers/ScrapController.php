@@ -8,6 +8,7 @@ use Symfony\Component\DomCrawler\Crawler;
 use Pilipinews\Website\Gma\Scraper;
 use Pilipinews\Website\Bulletin\Scraper as MBScraper;
 use App\Http\Controllers\NewsArticle;
+use App\Http\Controllers\Functions;
 
 class ScrapController extends Controller
 {
@@ -81,7 +82,7 @@ class ScrapController extends Controller
      * 
      * @param $url
      */
-    public function scrapBusinessMirror($url) {
+    public function scrapBusinessMirror($url, $countrycode) {
         // prepare the news filter
         $businessmirrorfilter = array(
             'url'       => $url,
@@ -94,7 +95,7 @@ class ScrapController extends Controller
             'img-link'  => 'src',
         );
 
-        $businessmirror = $this->getNewsData($businessmirrorfilter);
+        $businessmirror = $this->getNewsData($businessmirrorfilter, $countrycode);
 
         if($businessmirror == false) {
             return array(
@@ -104,12 +105,12 @@ class ScrapController extends Controller
         }
 
         $businessmirror_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$businessmirror->title()),
-            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$businessmirror->subtitle()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$businessmirror->publish()),
-            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$businessmirror->editor()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",$businessmirror->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $businessmirror->body())),
+            'title'     => $businessmirror->title(),
+            'subtitle'  => $businessmirror->subtitle(),
+            'publish'   => $businessmirror->publish(),
+            'editor'    => $businessmirror->editor(),
+            'image'     => $businessmirror->media(),
+            'body'      => $businessmirror->body(),
             'media'     => '/img/news-img/BM-logo.png',
         );
 
@@ -124,7 +125,7 @@ class ScrapController extends Controller
      * 
      * @param $url
      */
-    public function scrapRapplerNews($url) {
+    public function scrapRapplerNews($url, $countrycode) {
         // prepare the news filter
         $rapplerfilter = array(
             'url'       => $url,
@@ -137,7 +138,7 @@ class ScrapController extends Controller
             'img-link'  => 'data-original',
         );
 
-        $rappler = $this->getNewsData($rapplerfilter);
+        $rappler = $this->getNewsData($rapplerfilter, $countrycode);
 
         if($rappler == false) {
             return array(
@@ -147,12 +148,12 @@ class ScrapController extends Controller
         }
 
         $rappler_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$rappler->title()),
-            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$rappler->subtitle()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$rappler->publish()),
-            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$rappler->editor()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",$rappler->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $rappler->body())),
+            'title'     => $rappler->title(),
+            'subtitle'  => $rappler->subtitle(),
+            'publish'   => $rappler->publish(),
+            'editor'    => $rappler->editor(),
+            'image'     => $rappler->media(),
+            'body'      => $rappler->body(),
             'media'     => '/img/news-img/rappler.jpg',
         );
 
@@ -167,7 +168,7 @@ class ScrapController extends Controller
      * 
      * @param $url
      */
-    public function scrapAbsCbnNews($url) {
+    public function scrapAbsCbnNews($url, $countrycode) {
         $is_sports = $this->isAbscbnSports($url);
         // prepare the news filter
         switch ($is_sports) {
@@ -262,7 +263,7 @@ class ScrapController extends Controller
                 );
         }
 
-        $abscbn = $this->getNewsData($abscbnfilter);
+        $abscbn = $this->getNewsData($abscbnfilter, $countrycode);
 
         if($abscbn == false) {
             return array(
@@ -271,17 +272,13 @@ class ScrapController extends Controller
             );
         }
 
-        // $pub = explode('on', str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()));
-
         $abscbn_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$abscbn->title()),
-            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$abscbn->subtitle()),
-            // 'publish'   => $is_sports == true ? $pub[1] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->publish()),
-            // 'editor'    => $is_sports == true ? $pub[0] : str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$abscbn->publish()),
-            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$abscbn->editor()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",$abscbn->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $abscbn->body())),
+            'title'     => $abscbn->title(),
+            'subtitle'  => $abscbn->subtitle(),
+            'publish'   => $abscbn->publish(),
+            'editor'    => $abscbn->editor(),
+            'image'     => $abscbn->media(),
+            'body'      => $abscbn->body(),
             'media'     => '/img/news-img/abscbn.png',
         );
 
@@ -296,7 +293,8 @@ class ScrapController extends Controller
      * 
      * @param $url
      */
-    public function scrapCnnPhilNews($url) {
+    public function scrapCnnPhilNews($url, $countrycode) {
+        $function = new Functions();
         // check the url if there is videos on address
         $is_video = $this->findVideoOnCnn($url);
 
@@ -326,7 +324,7 @@ class ScrapController extends Controller
         }
 
         // scrap
-        $cnnphil = $this->getNewsData($cnnphilfilter);
+        $cnnphil = $this->getNewsData($cnnphilfilter, $countrycode);
 
         if($cnnphil == false) {
             return array(
@@ -338,12 +336,12 @@ class ScrapController extends Controller
         $ytid = $this->getYTid($cnnphil->media());
 
         $cnnphil_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->title()),
-            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->subtitle()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->publish()),
-            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$cnnphil->editor()),
-            'image'     => $is_video === true ? 'https://i.ytimg.com/vi/'.$ytid[4].'/sddefault.jpg' : str_replace($this->getThatAnnoyingChar(),"",'http://cnnphilippines.com'.$cnnphil->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $cnnphil->body())),
+            'title'     => $cnnphil->title(),
+            'subtitle'  => $cnnphil->subtitle(),
+            'publish'   => $cnnphil->publish(),
+            'editor'    => $cnnphil->editor(),
+            'image'     => $is_video === true ? 'https://i.ytimg.com/vi/'.$ytid[4].'/sddefault.jpg' : str_replace($function->getThatAnnoyingChar(),"",'http://cnnphilippines.com'.$cnnphil->media()),
+            'body'      => $cnnphil->body(),
             'media'     => '/img/news-img/cnnphil.png',
         );
         
@@ -358,7 +356,7 @@ class ScrapController extends Controller
      * 
      * @param $url
      */
-    public function scrapMBNews($url) {
+    public function scrapMBNews($url, $countrycode) {
         $mblink = $this->checkMBnewsLink($url);
         // prepare the news filter
         switch ($mblink) {
@@ -448,7 +446,7 @@ class ScrapController extends Controller
         }
         
 
-        $mb = $this->getNewsData($mbfilter);
+        $mb = $this->getNewsData($mbfilter, $countrycode);
 
         if($mb == false) {
             return array(
@@ -458,12 +456,12 @@ class ScrapController extends Controller
         }
 
         $mb_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$mb->title()),
-            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$mb->subtitle()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$mb->publish()),
-            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$mb->editor()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",$mb->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $mb->body())),
+            'title'     => $mb->title(),
+            'subtitle'  => $mb->subtitle(),
+            'publish'   => $mb->publish(),
+            'editor'    => $mb->editor(),
+            'image'     => $mb->media(),
+            'body'      => $mb->body(),
             'media'     => '/img/news-img/mb.png',
         );
 
@@ -474,59 +472,11 @@ class ScrapController extends Controller
     }
 
     /**
-     * Gmanetwork.com news Scrapping
-     * 
-     * @param $url
-     */
-    public function scrapGmaNews() {
-        // $url = 'https://www.gmanetwork.com/news/news/nation/712384/iranian-beauty-queen-barred-from-entering-phl-over-assault-charges-doj/story/';
-
-        // $client = new Client();
-        // $scrapnews = $client->request('GET', $url);
-
-        // // get news title
-        // $title = $scrapnews->filter('.storyContainer #story_container')->each(function ($node) {
-        //     return $node->html();
-        // });
-        // var_dump($title);
-        // $gma_data = array(
-        //     'title'      => str_replace($this->getThatAnnoyingChar(),"",$title[0]),
-        //     // 'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$title),
-        //     // 'publish'   => str_replace($this->getThatAnnoyingChar(),"",$title),
-        //     // 'editor'    => str_replace($this->getThatAnnoyingChar(),"",$title),
-        //     // 'image'     => str_replace($this->getThatAnnoyingChar(),"",$title),
-        //     // 'body'      => str_replace($this->getThatAnnoyingChar(),"",$title),
-        //     'media'     => '/img/news-img/gma.png',
-        // );
-
-        // return array(
-        //     'body'      => $gma_data,
-        //     'result'    => true
-        // );
-        $gma = new Scraper();
-
-        $gmanews = $gma->scrape($url);
-        
-        $gma_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$gmanews->title()),
-            'subtitle'  => '',
-            'editor'    => '',
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",$gmanews->body()),
-            'media'     => '/img/news-img/gma.png',
-        );
-       
-        return array(
-            'body'      => $gma_data,
-            'result'    => true
-        );
-    }
-
-    /**
      *Bworldonline.com news Scrapping
      * 
      * @param $url
      */
-    public function scrapBWNews($url) {
+    public function scrapBWNews($url, $countrycode) {
         // prepare the news filter
         $bwfilter = array(
             'url'       => $url,
@@ -539,7 +489,7 @@ class ScrapController extends Controller
             'img-link'  => '',
         );
 
-        $bw = $this->getNewsData($bwfilter);
+        $bw = $this->getNewsData($bwfilter, $countrycode);
 
         if($bw == false) {
             return array(
@@ -549,12 +499,12 @@ class ScrapController extends Controller
         }
 
         $bw_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$bw->title()),
-            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$bw->subtitle()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$bw->subtitle()),
-            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$bw->editor()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",$bw->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $bw->body())),
+            'title'     => $bw->title(),
+            'subtitle'  => $bw->subtitle(),
+            'publish'   => $bw->subtitle(),
+            'editor'    => $bw->editor(),
+            'image'     => $bw->media(),
+            'body'      => $bw->body(),
             'media'     => '/img/news-img/BW.png',
         );
 
@@ -577,7 +527,7 @@ class ScrapController extends Controller
      * 
      * @param $url
      */
-    public function scrapCnnInt($url) {
+    public function scrapCnnInt($url, $countrycode) {
         // check what type of link is
         $whattype_url = $this->checkCnnIntLink($url);
 
@@ -635,7 +585,7 @@ class ScrapController extends Controller
         
         
 
-        $cnnInt = $this->getNewsData($cnnfilter);
+        $cnnInt = $this->getNewsData($cnnfilter, $countrycode);
 
         if($cnnInt == false) {
             return array(
@@ -645,12 +595,12 @@ class ScrapController extends Controller
         }
 
         $cnn_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->title()),
-            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->subtitle()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->publish()),
-            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->editor()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",$cnnInt->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $cnnInt->body())),
+            'title'     => $cnnInt->title(),
+            'subtitle'  => $cnnInt->subtitle(),
+            'publish'   => $cnnInt->publish(),
+            'editor'    => $cnnInt->editor(),
+            'image'     => $cnnInt->media(),
+            'body'      => $cnnInt->body(),
             'media'     => '/img/news-img/cnn.png',
         );
 
@@ -665,7 +615,7 @@ class ScrapController extends Controller
      * 
      * @param $url
      */
-    public function scrapBbc($url) {
+    public function scrapBbc($url, $countrycode) {
         
         $check_bbc_link = $this->checkBbcLink($url);
 
@@ -769,7 +719,7 @@ class ScrapController extends Controller
         
         
 
-        $bbc = $this->getNewsData($bbcfilter);
+        $bbc = $this->getNewsData($bbcfilter, $countrycode);
 
         if($bbc == false) {            
             return array(
@@ -779,12 +729,12 @@ class ScrapController extends Controller
         }
 
         $bbc_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$bbc->title()),
-            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$bbc->subtitle()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$check_bbc_link === 'reel' ? $this->explodebbcReelPublishDate($bbc->publish()) : $bbc->publish()),
-            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$bbc->editor()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",$bbc->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",preg_replace("/<img[^>]+\>/i", "", $bbc->body())),
+            'title'     => $bbc->title(),
+            'subtitle'  => $bbc->subtitle(),
+            'publish'   => $check_bbc_link === 'reel' ? $this->explodebbcReelPublishDate($bbc->publish()) : $bbc->publish(),
+            'editor'    => $bbc->editor(),
+            'image'     => $bbc->media(),
+            'body'      => $bbc->body(),
             'media'     => '/img/news-img/bbc-news.jpg',
         );
 
@@ -799,7 +749,7 @@ class ScrapController extends Controller
      * 
      * @param $url
      */
-    public function scrapAljazeera($url) {
+    public function scrapAljazeera($url, $countrycode) {
 
         $link = $this->checkaljezeeraLink($url);
 
@@ -860,7 +810,7 @@ class ScrapController extends Controller
                 );
         }
 
-        $aljazeera = $this->getNewsData($aljazeerafilter);
+        $aljazeera = $this->getNewsData($aljazeerafilter, $countrycode);
 
         if($aljazeera == false) {
             return array(
@@ -870,12 +820,12 @@ class ScrapController extends Controller
         }
 
         $aljazeera_data = array(
-            'title'     => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->title()),
-            'subtitle'  => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->subtitle()),
-            'publish'   => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->publish()),
-            'editor'    => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->editor()),
-            'image'     => str_replace($this->getThatAnnoyingChar(),"",$link === 'indepth' || $link === 'ajimpact'? 'https://www.aljazeera.com'.$aljazeera->media()  : $aljazeera->media()),
-            'body'      => str_replace($this->getThatAnnoyingChar(),"",$aljazeera->body()),
+            'title'     => $aljazeera->title(),
+            'subtitle'  => $aljazeera->subtitle(),
+            'publish'   => $aljazeera->publish(),
+            'editor'    => $aljazeera->editor(),
+            'image'     => $link === 'indepth' || $link === 'ajimpact'? 'https://www.aljazeera.com'.$aljazeera->media()  : $aljazeera->media(),
+            'body'      => $aljazeera->body(),
             'media'     => '/img/news-img/aljazeera.jpg',
         );
 
@@ -885,10 +835,6 @@ class ScrapController extends Controller
         );
     }
 
-    protected function getThatAnnoyingChar() {
-        return array("\n","\r","\\");
-    }
-
     /**
      * method to scrap supported news agency
      * except GMA news and MB. it use package to extract data
@@ -896,7 +842,8 @@ class ScrapController extends Controller
      * @param array $newsdata
      * @return NewsArticle
      */
-    protected function getNewsData(array $newsdata) {
+    protected function getNewsData(array $newsdata, $countrycode) {
+        $function = new Functions();
         $client = new Client();
         $scrapnews = $client->request('GET', $newsdata['url']);
 
@@ -925,16 +872,6 @@ class ScrapController extends Controller
         } else {
             $editor = null;
         }
-
-        // $newsdata['editor'] !== '' ? 
-        //     ($editor = $scrapnews->filter($newsdata['editor'])->each(function ($node) {
-        //         if ($node->children()->last()->attr('class') == 'updated_date') {
-        //             return $node->text();
-        //         }else{
-        //             return '';
-        //         }
-        //     }))
-        // : $editor = null ;  
 
         // get news body
         $body = $scrapnews->filter($newsdata['body'])->each(function ($node) {
@@ -981,14 +918,32 @@ class ScrapController extends Controller
         if(count($title) == 0 || count($body) == 0) {
             return false;
         }
-        
+
+        $newtitle       = str_replace($function->getThatAnnoyingChar(), "", array_key_exists('sport', $newsdata) ? $title[1] : $title[0]);
+        $newsubtitle    = str_replace($function->getThatAnnoyingChar(), "", $subtitle[0]);
+        $neweditor      = str_replace($function->getThatAnnoyingChar(), "", $editor[0]);        
+        $newbody        = str_replace($function->getThatAnnoyingChar(), "", preg_replace("/<img[^>]+\>/i", "", $body[0]));
+        $newmedia       = str_replace($function->getThatAnnoyingChar(), "", $media);
+        $newpublish     = str_replace($function->getThatAnnoyingChar(), "", array_key_exists('sport', $newsdata) ? $publish : $publish[0]);
+
+        if(!$countrycode || $countrycode == 'en'){
+            return new NewsArticle($newtitle, $newsubtitle, $neweditor, $newbody, $newmedia, $newpublish);
+        }
+
+        $explode = explode("\n", str_replace($function->getThatAnnoyingChar(), "", preg_replace("/<img[^>]+\>/i", "", $body[0])));
+        $trans_body = [];
+        for($i=0;$i<count($explode);$i++) {
+            array_push($trans_body, (empty($explode[$i]) || $explode[$i] === " ")  ? $explode[$i] : $function->translator($explode[$i], $countrycode));
+        }
+       
+
         return new NewsArticle(
-            array_key_exists('sport', $newsdata) ? $title[1] : $title[0], 
-            $subtitle[0], 
-            $editor[0], 
-            implode("','",$body),
-            $media, 
-            array_key_exists('sport', $newsdata) ? $publish : $publish[0]
+            $function->translator($newtitle, $countrycode),  
+            $newsubtitle == '' || $newsubtitle == ' ' ? $newsubtitle : $function->translator($newsubtitle, $countrycode), 
+            $neweditor, 
+            implode("", $trans_body), 
+            $newmedia,
+            $newpublish == '' || $newpublish == ' ' ? $newsubtitle : $function->translator($newpublish, $countrycode)
         );
     }
 
