@@ -130,6 +130,20 @@ class NewsController extends Controller
         
         $headlines = $this->createNewsJsonBody($httpcall);
 
+        if(count($headlines) < 4) {
+            $httpcall = $this->function->guzzleHttpCall($newsapi_url.'&page=2');
+        
+            //get status
+            if($httpcall['status'] !== 'ok' || !is_array($httpcall)) {
+                return response()->json([
+                    'data'      => "Something went wrong on our side!",
+                    'result'    => false
+                ]);
+        }
+        
+        $headlines = $this->createNewsJsonBody($httpcall);
+        }
+
         if(!$countrycode){
             return response()->json([
                 'data'      => $headlines,
