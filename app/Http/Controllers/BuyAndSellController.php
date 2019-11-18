@@ -315,10 +315,9 @@ class BuyAndSellController extends Controller
                 
             case 'hook':
                 $view_product = $product->viewProduct($request->id);
-
                 if(!$countrycode){
                     return response()->json([
-                        'message'       => 'Product is not active/Product not Found!',
+                        'data'          => $view_product,
                         'result'        => false
                     ]);
                 }
