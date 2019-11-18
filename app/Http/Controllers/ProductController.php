@@ -416,7 +416,7 @@ class ProductController extends Controller
             $utf_convert = mb_convert_encoding($each['description'], 'UTF-8', 'UTF-8');
             $info = [
                 $each['title'],
-                'PHP'.$each['price'],
+                'PHP '.$each['price'],
                 str_replace($function->getThatAnnoyingChar(), "",$utf_convert),
                 $each['condition'],
             ];
