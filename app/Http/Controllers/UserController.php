@@ -291,7 +291,6 @@ class UserController extends Controller
             'lastname'          => $lastname,
             'username'          => $username,
             'password'          => '',
-            'birthdate'         => '',
             'snsproviderid'     => $snsproviderid,
         );
 
@@ -382,7 +381,7 @@ class UserController extends Controller
             'lastname'          => $request->lastname,
             'username'          => $request->username,
             'password'          => $this->hashPassword($request->password),
-            'birthdate'         => $request->birthdate,
+            'contactno'         => $request->contactno,
             'snsproviderid'     => $request->has('snsproviderid') ? $request->snsproviderid : ''
         );
 
@@ -589,7 +588,6 @@ class UserController extends Controller
                     'firstname'     => $thisuser['firstname'],
                     'lastname'      => $thisuser['lastname'],
                     'username'      => $thisuser['username'],
-                    'birthdate'     => $thisuser['birthdate'],
                     'contactno'     => $thisuser['contactno'],
                     'profile_photo' => $image == false ? $thisuser['profile_photo'] : 'https://api.allgamegeek.com/'.$thisuser['profile_photo'],
                     'snsproviderid' => $thisuser['snsproviderid'],
@@ -633,7 +631,6 @@ class UserController extends Controller
                     'username'      => $getseller['username'],
                     'firstname'     => $getseller['firstname'],
                     'lastname'      => $getseller['lastname'],
-                    'birthdate'     => $getseller['birthdate'],
                     'contactno'     => $getseller['contactno'],
                     'profile_photo' => $image == false ? $getseller['profile_photo'] : 'https://api.allgamegeek.com/'.$getseller['profile_photo'],
                     'emailverify'   => $getseller['emailverify'],
@@ -727,7 +724,7 @@ class UserController extends Controller
 
     /**
      * method to update user profile
-     * contact no, username, first name, last name, birthdate
+     * contact no, username, first name, last name
      * 
      * @param $request
      * @return JSON
@@ -761,8 +758,7 @@ class UserController extends Controller
             'username'  =>  $request->username,
             'firstname' =>  $request->firstname,
             'lastname'  =>  $request->lastname,
-            'contactno' =>  $request->contactno,
-            'birthdate' =>  $request->birthdate
+            'contactno' =>  $request->contactno
         ]);
 
         return response()->json([
@@ -881,11 +877,11 @@ class UserController extends Controller
      */
     protected function insertUser($userdata, $userimage) {
         $email          = $userdata['email'];
+        $contactno      = $userdata['contactno'];
         $firstname      = $userdata['firstname'];
         $lastname       = $userdata['lastname'];
         $username       = $userdata['username'];
         $password       = $userdata['password'];
-        $birthdate      = $userdata['birthdate'];
         $profile_photo  = $userimage['url'] === 'yes' ? $userimage['filename'] : $userimage['folder'].$userimage['filename'];
         $snsproviderid  = $userdata['snsproviderid'];
 
@@ -896,7 +892,6 @@ class UserController extends Controller
         $this->user->username            = $username;
         $this->user->password            = $password;
         $this->user->contactno           = '';
-        $this->user->birthdate           = $birthdate;
         $this->user->profile_photo       = $profile_photo;
         $this->user->snsproviderid       = $snsproviderid;
         $this->user->emailverify         = 0;
