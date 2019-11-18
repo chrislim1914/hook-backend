@@ -291,6 +291,7 @@ class UserController extends Controller
             'lastname'          => $lastname,
             'username'          => $username,
             'password'          => '',
+            'contactno'          => '',
             'snsproviderid'     => $snsproviderid,
         );
 
