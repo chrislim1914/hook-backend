@@ -37,7 +37,7 @@ class ProductController extends Controller
             $image = $user->getUserFolder($new['iduser']);
 
             foreach($photo as $newphoto) {
-                $media[] = 'http://api.allgamegeek.com/'.$newphoto['image'];
+                $media[] = 'https://api.allgamegeek.com/'.$newphoto['image'];
             }
 
             $seller = [
@@ -118,7 +118,7 @@ class ProductController extends Controller
                 'no'            =>  $count,
                 'id'            =>  $each['idproduct'],
                 'seller'        =>  $seller,
-                'photoUrls'     =>  ['http://api.allgamegeek.com/'.$image['image']],
+                'photoUrls'     =>  ['https://api.allgamegeek.com/'.$image['image']],
                 'info'          =>  $info,
                 'source'        =>  'Hook'
             ];
@@ -408,7 +408,7 @@ class ProductController extends Controller
 
             $seller = [
                 'id'                => $user['iduser'],
-                'profilePicture'    => 'http://api.allgamegeek.com/'.$user['profile_photo'],
+                'profilePicture'    => 'https://api.allgamegeek.com/'.$user['profile_photo'],
                 'username'          => $user['username'],
             ];
 
@@ -428,8 +428,8 @@ class ProductController extends Controller
                 'title'             =>  $each['title'],
                 'snippet'           =>  $info,
                 'link'              =>  'https://allgamegeek.com/product/hook/'.$each['idproduct'],
-                'image'             =>  'http://api.allgamegeek.com/'.$image['image'],
-                'thumbnailimage'    =>  'http://api.allgamegeek.com/'.$image['image'],
+                'image'             =>  'https://api.allgamegeek.com/'.$image['image'],
+                'thumbnailimage'    =>  'https://api.allgamegeek.com/'.$image['image'],
                 'source'            =>  'hook'
             ];
             $count++;
