@@ -243,7 +243,6 @@ class UserController extends Controller
      * @return JSON
      */
     public function snsSignupSignin(Request $request) {
-        var_dump($request->all());
         // lets get everything we need
         $email          = $request->email;
         $firstname      = !$request->has('firstname') || $request->firstname == '' ? '' : $request->firstname;
