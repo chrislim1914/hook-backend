@@ -77,7 +77,7 @@ class WeatherController extends Controller
             'Date'          => date("Y-m-d",$cc_body['dt']),
             'EpochDate'     => $cc_body['dt'],
             'Temp'          => $cc_body['main']['temp'],
-            'Icon'          => 'http://openweathermap.org/img/wn/'.$icon.'@2x.png',
+            'Icon'          => 'https://openweathermap.org/img/wn/'.$icon.'@2x.png',
             'Description'   => $languagecode === 'en' || $languagecode == false ? $description : $this->function->translator($description, $languagecode)
         ];
 
@@ -98,7 +98,7 @@ class WeatherController extends Controller
                     'EpochDate'     => $item['dt'],
                     'Min-Temp'      => $item['main']['temp_min'],
                     'Max-Temp'      => $item['main']['temp_max'],
-                    'Icon'          => 'http://openweathermap.org/img/wn/'.$innericon.'@2x.png',
+                    'Icon'          => 'https://openweathermap.org/img/wn/'.$innericon.'@2x.png',
                     'Description'   =>  $languagecode === 'en' || $languagecode == false ? $innerdes : $this->function->translator($innerdes, $languagecode)
                 ];
             }elseif($thistime == $item['dt']) {
@@ -107,7 +107,7 @@ class WeatherController extends Controller
                     'EpochDate'     => $item['dt'],
                     'Min-Temp'      => $item['main']['temp_min'],
                     'Max-Temp'      => $item['main']['temp_max'],
-                    'Icon'          => 'http://openweathermap.org/img/wn/'.$innericon.'@2x.png',
+                    'Icon'          => 'https://openweathermap.org/img/wn/'.$innericon.'@2x.png',
                     'Description'   =>  $languagecode === 'en' || $languagecode == false ? $innerdes : $this->function->translator($innerdes, $languagecode)
                 ];
             }            
