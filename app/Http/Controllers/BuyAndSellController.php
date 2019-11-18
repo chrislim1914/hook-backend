@@ -318,8 +318,8 @@ class BuyAndSellController extends Controller
 
                 if(!$countrycode){
                     return response()->json([
-                        'data'          => $view_product,
-                        'result'        => true
+                        'message'       => 'Product is not active/Product not Found!',
+                        'result'        => false
                     ]);
                 }
 

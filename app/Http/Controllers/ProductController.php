@@ -46,14 +46,14 @@ class ProductController extends Controller
                 'contactno'     => $user['contactno'],
                 'profile_photo' => $image == false ? $user['profile_photo'] : 'https://api.allgamegeek.com/'.$user['profile_photo']
             ];
-
+            $utf_convert = mb_convert_encoding(str_replace($function->getThatAnnoyingChar(), "", $new['description']), 'UTF-8', 'UTF-8');
             $viewitem = [
                 'url'               => '',
                 'seller'            => $seller,
                 'media'             => $media,
                 'itemname'          => $new['title'],
-                'price'             => $new['price'],                
-                'description'       => str_replace($function->getThatAnnoyingChar(), "", $new['description']),          
+                'price'             => 'PHP '.$new['price'],                
+                'description'       => $utf_convert,          
                 'condition'         => $new['condition'],                
                 'meetup'            => $new['meetup'],                
                 'delivery'          => $new['delivery'],                
@@ -96,11 +96,11 @@ class ProductController extends Controller
             ];
 
             $info2 = [
-                'stringContent' => $each['price'],
+                'stringContent' => 'PHP '.$each['price'],
             ];
-
+            $utf_convert = mb_convert_encoding($each['description'], 'UTF-8', 'UTF-8');
             $info3 = [
-                'stringContent' => str_replace($function->getThatAnnoyingChar(), "", $each['description']),
+                'stringContent' => str_replace($function->getThatAnnoyingChar(), "", $utf_convert),
             ];
 
             $info4 = [
@@ -413,11 +413,11 @@ class ProductController extends Controller
             ];
 
             $image = ProductPhoto::where('idproduct', $each['idproduct'])->first();
-
+            $utf_convert = mb_convert_encoding($each['description'], 'UTF-8', 'UTF-8');
             $info = [
                 $each['title'],
-                $each['price'],
-                str_replace($function->getThatAnnoyingChar(), "", $each['description']),
+                'PHP'.$each['price'],
+                str_replace($function->getThatAnnoyingChar(), "",$utf_convert),
                 $each['condition'],
             ];
 
