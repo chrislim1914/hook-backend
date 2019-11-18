@@ -891,7 +891,7 @@ class UserController extends Controller
         $this->user->lastname            = $lastname;
         $this->user->username            = $username;
         $this->user->password            = $password;
-        $this->user->contactno           = '';
+        $this->user->contactno           = $contactno;
         $this->user->profile_photo       = $profile_photo;
         $this->user->snsproviderid       = $snsproviderid;
         $this->user->emailverify         = 0;
