@@ -218,16 +218,13 @@ class CarousellController extends Controller
         // build URL
         $url = $this->carousell_search_url;
 
-        // build page
-        $page = $this->paginationTrick($page);
-
         // session
         $session = $this->getSession();
 
         // build body
         if($filter != '') {
             $data = json_encode(array(
-                "count"         => $page,
+                "count"         => $page * 10,
                 "countryId"     => $this->countryID,
                 "session"       => $session,
                 "query"         => $search,
@@ -241,7 +238,7 @@ class CarousellController extends Controller
             ));
         } else {
             $data = json_encode(array(
-                "count"         => $page,
+                "count"         => $page * 10,
                 "countryId"     => $this->countryID,
                 "session"       => $session,
                 "query"         => $search
@@ -254,7 +251,7 @@ class CarousellController extends Controller
             "Content-Length: ".strlen($data),
             "Host: www.carousell.ph"
         );
-
+        
         return array(
             'url'       => $url,
             'data'      => $data,
@@ -271,14 +268,14 @@ class CarousellController extends Controller
      */
     protected function createCarousellData($resultdata, $page) {
         $function = new Functions();
-        $page = $this->paginationTrick($page);
+        $paging = $this->paginationTrick($page);
 
         // let's get the total result of search query
         $totalquery = $resultdata['data']['total']['value']['low'];
 
         // lets create virtual pagination
-        $endat = $page['end'] > $totalquery ? $totalquery : $page['end'];
-        $startfrom = $page['start'];
+        $endat = $paging['end'] > $totalquery ? $totalquery : $paging['end'];
+        $startfrom = $paging['start'];
 
         // let see if there are still data to output
         if(count($resultdata['data']['results']) <= 0 ) {
