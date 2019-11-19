@@ -21,7 +21,7 @@ class ProductController extends Controller
      */
     public function viewProduct($id) {
         $function = new Functions();
-        $product    = Product::where('idproduct', $id)->having('status', 'available')->get();
+        $product    = Product::where('idproduct', $id)->get();
 
         if(!$product) {
             return false;
