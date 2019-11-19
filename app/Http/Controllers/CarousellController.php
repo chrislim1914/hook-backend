@@ -72,9 +72,9 @@ class CarousellController extends Controller
      * @return JSON
      */
     public function feedCarousell($page) {
-        
-        $param = $this->createCarousellHeadandBody($page, '', '');  
-
+        $param = array(
+            'url'   => $this->carousell_url.'&count='. ($page * 10) .'&session='.$this->getSession($page)
+        );
         // do cURL
         $resultdata = $this->carousellcURLCall($param);
 
@@ -188,19 +188,25 @@ class CarousellController extends Controller
 
         $ch = curl_init();
 
-        curl_setopt($ch, CURLOPT_URL,$param['url']);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-        curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $param['header']);    
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $param['data']);   
+        if(array_key_exists('header', $param)) {
+            curl_setopt($ch, CURLOPT_URL,$param['url']);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+            curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $param['header']);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $param['data']);
+        } else {
+            curl_setopt($ch, CURLOPT_URL,$param['url']);
+            curl_setopt($ch, CURLOPT_TIMEOUT, 30); //timeout after 30 seconds
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+        }
+        
 
         $result = curl_exec ($ch);
 
         curl_close ($ch);
 
         $jsonlist = json_decode($result, true);
-
         if($jsonlist == null || array_key_exists('results', $jsonlist)) {
             return false;
         }
@@ -219,7 +225,7 @@ class CarousellController extends Controller
         $url = $this->carousell_search_url;
 
         // session
-        $session = $this->getSession();
+        $session = $this->getSession($page);
 
         // build body
         if($filter != '') {
@@ -251,7 +257,7 @@ class CarousellController extends Controller
             "Content-Length: ".strlen($data),
             "Host: www.carousell.ph"
         );
-        
+
         return array(
             'url'       => $url,
             'data'      => $data,
@@ -271,7 +277,11 @@ class CarousellController extends Controller
         $paging = $this->paginationTrick($page);
 
         // let's get the total result of search query
-        $totalquery = $resultdata['data']['total']['value']['low'];
+        if(array_key_exists('total', $resultdata['data'])) {
+            $totalquery = $resultdata['data']['total']['value']['low'];
+        } else {
+            $totalquery = 0;
+        }        
 
         // lets create virtual pagination
         $endat = $paging['end'] > $totalquery ? $totalquery : $paging['end'];
@@ -406,9 +416,9 @@ class CarousellController extends Controller
      * 
      * @return $session
      */
-    protected function getSession() {
+    protected function getSession($page) {
         $function = new Functions();
-        $session = $function->guzzleHttpCall($this->carousell_url);
+        $session = $function->guzzleHttpCall($this->carousell_url.'&count='.$page*10);
         return $session['data']['session'];
     }
 
