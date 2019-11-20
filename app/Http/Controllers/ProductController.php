@@ -31,11 +31,15 @@ class ProductController extends Controller
         $viewitem = [];
         
         foreach($product as $new) {
-            $photo = ProductPhoto::where('idproduct', $id)->having('primary', 1)->get();
+            $photo          = ProductPhoto::where('idproduct', $id)->having('primary', 0)->get();
+            $primaryphoto   = ProductPhoto::where('idproduct', $id)->having('primary', 1)->first();
             $media = [];
             $user = User::where('iduser', $new['iduser'])->first();
             $image = $user->getUserFolder($new['iduser']);
 
+            $media = [
+                'https://api.allgamegeek.com/'.$primaryphoto['image']
+            ];
             foreach($photo as $newphoto) {
                 $media[] = 'https://api.allgamegeek.com/'.$newphoto['image'];
             }
