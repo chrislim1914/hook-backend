@@ -155,7 +155,7 @@ class ProductController extends Controller
      * @param $request
      * @return JSON
      */
-    public function postProduct(Request $request) {
+    public function postProduct(Request $request) {        
         $user       = new User();
         $product    = new Product();
         // first we get the user info
@@ -201,8 +201,18 @@ class ProductController extends Controller
                 $newpath = $user->createUserFolderProduct($path, $id);
             }
             
+            // lets get the binary image for primary
+            $primary_image = $this->getBinaryImageForPrimary($request->image, $request->primary_image);
+            
+            if(!$primary_image) {
+                return response()->json([
+                    'message'   => "Failed to parse image!",
+                    'result'    => false
+                ]);
+            }
             // lets save the primary image
-            $this->savePostImages($request->primary_image, $newpath, $id, 'primary');
+            $this->savePostImages($primary_image, $newpath, $id, 'primary');
+
             // lets save the gallery image
             $this->savePostImages($request->image, $newpath, $id, 'gallery');
 
@@ -510,13 +520,8 @@ class ProductController extends Controller
      * @param $imageObj, $path, $id
      */
     protected function savePostImages($imageObj, $path, $id, $for) {
-        $save_image = new ProductPhotoController();
+        $save_image = new ProductPhotoController();        
 
-        /**
-         * check if they give us image as an array
-         * if not then convert it to array so that
-         * we will not make anymore method
-         */
         if(!is_array($imageObj)) {
             $imageObj = array($imageObj);
         }
@@ -536,7 +541,17 @@ class ProductController extends Controller
 
             // next move the image
             $image->move($path,$newphoto);
-            echo "photo saved";
         }
     }
+
+    protected function getBinaryImageForPrimary($imageObj, $imageStr) {
+        foreach($imageObj as $image) {
+            if($image->getClientOriginalName() === $imageStr) {
+                return $primaryimage = $image;
+            }
+        }
+
+        return false;
+    }
+
 }
