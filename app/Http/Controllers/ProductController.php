@@ -211,10 +211,10 @@ class ProductController extends Controller
                 ]);
             }
             // lets save the primary image
-            $this->savePostImages($primary_image, $newpath, $id, 'primary');
+            // $this->savePostImages($primary_image, $newpath, $id, 'primary');
 
             // lets save the gallery image
-            $this->savePostImages($request->image, $newpath, $id, 'gallery');
+            $this->savePostImages($request->image, $newpath, $id, $request->primary_image);
 
             return response()->json([
                 'message'   => '',
@@ -519,7 +519,7 @@ class ProductController extends Controller
      * 
      * @param $imageObj, $path, $id
      */
-    protected function savePostImages($imageObj, $path, $id, $for) {
+    protected function savePostImages($imageObj, $path, $id, $primary_image) {
         $save_image = new ProductPhotoController();        
 
         if(!is_array($imageObj)) {
@@ -537,7 +537,11 @@ class ProductController extends Controller
             $image_name = $path.$newphoto;
 
             // lets save the image into the table
-            $save_image->insertImage($id, $image_name, $for);
+            if($image->getClientOriginalName() === $primary_image) {
+                $save_image->insertImage($id, $image_name, 'primary');
+            } else {
+                $save_image->insertImage($id, $image_name, 'gallery');
+            }            
 
             // next move the image
             $image->move($path,$newphoto);

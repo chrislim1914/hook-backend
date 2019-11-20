@@ -11,7 +11,7 @@ class ProductPhotoController extends Controller
         $photo = new ProductPhoto(); 
        
         $photo->idproduct   = $id;
-        $photo->primary     = $is_primary == 'primary' ? 1 : 0;
+        $photo->primary     = $is_primary === 'primary' ? 1 : 0;
         $photo->image       = $image_name;
 
         $photo->save();
