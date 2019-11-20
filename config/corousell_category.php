@@ -31,9 +31,9 @@ return [
 
     // Fashion & Beauty
     'Health & Beauty'         => "11",
-    'Women\'s Fashion'          => "4",
+    'Women\'s Fashion'        => "4",
     'Luxury'                  => "20",
-    'Men\'s Fashion'            => "3",
+    'Men\'s Fashion'          => "3",
     'Online Shop & Preorder'  => "1232",
 
     // Hobbies & Games
@@ -54,6 +54,6 @@ return [
     // Others
     'Community'                => "26",
     'Looking For'              => "21",
-    'Construction & Industrial'  => "2132",
+    'Construction & Industrial'=> "2132",
     'Everything Else'          => "16",
 ];

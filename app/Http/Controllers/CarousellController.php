@@ -322,8 +322,8 @@ class CarousellController extends Controller
                 $still=0;
                 $snippet = [];
                 foreach($sfeed['belowFold'] as $snippetdesc) {
-                    
-                    $snippet[]          = str_replace($function->getThatAnnoyingChar(), "", $snippetdesc['stringContent']);                                          
+                                        
+                    $snippet[]          = mb_convert_encoding(str_replace($function->getThatAnnoyingChar(), "", $snippetdesc['stringContent']), 'UTF-8', 'UTF-8');
                     $still++;
                 }
 

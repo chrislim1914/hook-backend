@@ -422,4 +422,23 @@ class Functions extends Controller
     public function getThatAnnoyingChar() {
         return array("\n","\r","\\");
     }
+
+    /**
+     * method to explode string using multiple delimiter
+     * 
+     * @param array $delimiters
+     * @param string $string
+     * 
+     * @return array $ary
+     */
+    public function multiexplode($delimiters,$string) {
+        $ary = explode($delimiters[0],$string);
+        array_shift($delimiters);
+        if($delimiters != NULL) {
+            foreach($ary as $key => $val) {
+                 $ary[$key] = $this->multiexplode($delimiters, $val);
+            }
+        }
+        return  $ary;
+    }
 }
