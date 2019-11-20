@@ -89,7 +89,7 @@ class ProductController extends Controller
                 'username'          => $c_user['username'],
             ];
 
-            $image = ProductPhoto::where('idproduct', $each['idproduct'])->first();
+            $image = ProductPhoto::where('idproduct', $each['idproduct'])->having('primary', 1)->first();
 
             $info1 = [
                 'stringContent' => $each['title'],
@@ -200,8 +200,11 @@ class ProductController extends Controller
             }else {
                 $newpath = $user->createUserFolderProduct($path, $id);
             }
-               
-            $this->savePostImages($request->image, $newpath, $id);
+            
+            // lets save the primary image
+            $this->savePostImages($request->primary_image, $newpath, $id, 'primary');
+            // lets save the gallery image
+            $this->savePostImages($request->image, $newpath, $id, 'gallery');
 
             return response()->json([
                 'message'   => '',
@@ -412,7 +415,7 @@ class ProductController extends Controller
                 'username'          => $user['username'],
             ];
 
-            $image = ProductPhoto::where('idproduct', $each['idproduct'])->first();
+            $image = ProductPhoto::where('idproduct', $each['idproduct'])->having('primary', 1)->first();
             $utf_convert = mb_convert_encoding($each['description'], 'UTF-8', 'UTF-8');
             $info = [
                 $each['title'],
@@ -455,6 +458,7 @@ class ProductController extends Controller
             'categoryid'    => 'required|integer',
             'iduser'        => 'required|integer',
             'condition'     => 'required',
+            'primary_image' => 'required',
         ]);
         
         // also to check categoryID and user ID
@@ -505,8 +509,17 @@ class ProductController extends Controller
      * 
      * @param $imageObj, $path, $id
      */
-    protected function savePostImages($imageObj, $path, $id) {
+    protected function savePostImages($imageObj, $path, $id, $for) {
         $save_image = new ProductPhotoController();
+
+        /**
+         * check if they give us image as an array
+         * if not then convert it to array so that
+         * we will not make anymore method
+         */
+        if(!is_array($imageObj)) {
+            $imageObj = array($imageObj);
+        }
 
         foreach($imageObj as $image) {
             $newphoto = '';
@@ -519,10 +532,11 @@ class ProductController extends Controller
             $image_name = $path.$newphoto;
 
             // lets save the image into the table
-            $save_image->insertImage($id, $image_name);
+            $save_image->insertImage($id, $image_name, $for);
 
             // next move the image
             $image->move($path,$newphoto);
+            echo "photo saved";
         }
     }
 }

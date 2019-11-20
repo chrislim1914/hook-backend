@@ -15,7 +15,7 @@ class ProductPhoto extends Model
      * @var array
      */
     protected $fillable = [
-        'idphoto', 'idproduct', 'image',
+        'idphoto', 'idproduct', 'primary', 'image',
     ];
 
     /**
