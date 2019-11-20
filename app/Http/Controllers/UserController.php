@@ -693,7 +693,7 @@ class UserController extends Controller
 
             $user = User::where('iduser', $each['iduser'])->first();
 
-            $image = ProductPhoto::where('idproduct', $each['idproduct'])->first();
+            $image = ProductPhoto::where('idproduct', $each['idproduct'])->having('primary', 1)->first();
 
             $info = [
                 $each['title'],

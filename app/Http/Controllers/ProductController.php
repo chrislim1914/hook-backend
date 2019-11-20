@@ -31,7 +31,7 @@ class ProductController extends Controller
         $viewitem = [];
         
         foreach($product as $new) {
-            $photo = ProductPhoto::where('idproduct', $id)->get();
+            $photo = ProductPhoto::where('idproduct', $id)->having('primary', 1)->get();
             $media = [];
             $user = User::where('iduser', $new['iduser'])->first();
             $image = $user->getUserFolder($new['iduser']);
