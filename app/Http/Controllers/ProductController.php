@@ -208,12 +208,12 @@ class ProductController extends Controller
             // lets get the binary image for primary
             // $primary_image = $this->getBinaryImageForPrimary($request->image, $request->primary_image);
             
-            if(!$primary_image) {
-                return response()->json([
-                    'message'   => "Failed to parse image!",
-                    'result'    => false
-                ]);
-            }
+            // if(!$primary_image) {
+            //     return response()->json([
+            //         'message'   => "Failed to parse image!",
+            //         'result'    => false
+            //     ]);
+            // }
             // lets save the primary image
             // $this->savePostImages($primary_image, $newpath, $id, 'primary');
 
