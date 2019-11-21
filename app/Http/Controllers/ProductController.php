@@ -20,7 +20,7 @@ class ProductController extends Controller
      * @return JSON
      */
     public function viewProduct($id) {
-        $function = new Functions();
+        $function   = new Functions();
         $product    = Product::where('idproduct', $id)->get();
 
         if(!$product) {
@@ -271,6 +271,56 @@ class ProductController extends Controller
     }
 
     /**
+     * method to load detailed product information
+     * 
+     * @param $request
+     * @return
+     */
+    public function loadProductforUpdate(Request $request) {
+        $productinfo    = [];
+        $productphoto   = [];
+
+        $product    = Product::where('idproduct', $request->idproduct)->first();
+        $photo      = ProductPhoto::where('idproduct', $request->idproduct)->get();
+
+        if($product == null) {
+            return response()->json([
+                'message'   => "Failed to load Product Data!",
+                'result'    => false
+            ]);
+        }
+
+        foreach($photo as $newphoto) {
+            $productphoto[]   = [
+                'idphoto'     => $newphoto['idphoto'],
+                'idproduct'   => $newphoto['idproduct'],
+                'image'       => 'https://api.allgamegeek.com/'.$newphoto['image'],
+                'primary'     => $newphoto['primary'],
+            ];
+        }        
+
+        $productinfo = [
+            'idproduct'     => $product['idproduct'],
+            'title'         => $product['title'],
+            'description'   => $product['description'],
+            'price'         => $product['price'],
+            'categoryid'    => $product['categoryid'],
+            'iduser'        => $product['iduser'],
+            'condition'     => $product['condition'],
+            'meetup'        => $product['meetup'],
+            'delivery'      => $product['delivery'],
+            'status'        => $product['status'],
+            'gallery'       => $productphoto
+        ];
+
+        return response()->json([
+            'data'   => $productinfo,
+            'result'    => true
+        ]);
+
+    }
+
+    /**
      * method to update hook post product
      * 
      * @param $request
@@ -279,11 +329,22 @@ class ProductController extends Controller
     public function updatePost(Request $request) {
         $user       = new User();
         $product    = new Product();
+        $photo      = new ProductPhotoController();
+
+        // lets check if they try to delete the primary image and there is no new primary image is supplied
+        $checkifWhat = $this->checkIfThereIsNoPrimaryLeft($request->delete_image, $request->idproduct, $request->primary_image);
+        if(!$checkifWhat) {
+            return response()->json([
+                'message'   => "Cannot delete primary without new primary image!",
+                'result'    => false
+            ]);
+        }
+
         // first we get the user info
         $gotuser = $user->getUserData($request->iduser);
 
         // the validation
-        $whatsup = $this->validatePostProduct($request->all());        
+        $whatsup = $this->validateUpdateProduct($request->all());        
 
         if($gotuser == null) {
             return response()->json([
@@ -314,19 +375,26 @@ class ProductController extends Controller
             'delivery'      => $request->delivery,
         ])) {
 
+            // image full path and name
+            $newpath = $path.'product_'.$request->idproduct.'/';
+
+            // delete the images in $request->delete_image            
+            foreach($request->delete_image as $to_be_deleted_id) {
+                $photo->deleteImage($to_be_deleted_id);
+            }
+
             if(!$request->hasFile('image')) {
                 return response()->json([
                     'message'   => '',
                     'result'    => true
                 ]);
             }
-            // image full path and name
-            $newpath = $path.'product_'.$request->idproduct.'/';
-            $photo = new ProductPhotoController();
-            $photo->deleteImage($request->idproduct);
+
+            // lets check if there is primary image is set
+            $change_primary = $photo->changePrimaryImage($request->idproduct);
 
             // save the image
-            $this->savePostImages($request->image, $newpath, $request->idproduct);
+            $this->savePostImages($request->image, $newpath, $request->idproduct, $request->primary_image);
 
             return response()->json([
                 'message'   => '',
@@ -496,6 +564,42 @@ class ProductController extends Controller
     }
 
     /**
+     * method to validate post product request
+     * 
+     * @param Object $validate
+     * @return Boolean
+     */
+    protected function validateUpdateProduct($validate) {
+        $user = new User();
+        
+        // lets validate
+        $validator = Validator::make($validate, [
+            'categoryid'    => 'required|integer',
+            'iduser'        => 'required|integer',
+            'idproduct'     => 'required',
+        ]);
+        
+        // also to check categoryID and user ID
+        $catlist = in_array($validate['categoryid'], config('corousell_category'), true);
+        $user = $user->isIDExist($validate['iduser']);
+
+        /**
+         * me: if something went wrong on our validation then say something.
+         * you: something.
+         */
+        if ($validator->fails()) {
+            return false;
+        }elseif(!$catlist){
+            return false;
+        }elseif(!$user){
+            return false;
+        }else{
+            return true;
+        }
+        
+    }
+
+    /**
      * pagination trick for eloquent
      * using skip and take method
      * 
@@ -552,14 +656,23 @@ class ProductController extends Controller
         }
     }
 
-    protected function getBinaryImageForPrimary($imageObj, $imageStr) {
-        foreach($imageObj as $image) {
-            if($image->getClientOriginalName() === $imageStr) {
-                return $primaryimage = $image;
+    /**
+     * method to check if they try to delete the priomary image
+     * of the product. and not puppling a new primary image
+     * 
+     * @param Array $imageObj, $idproduct, $primary_image
+     * @return Boolean
+     */
+    protected function checkIfThereIsNoPrimaryLeft(array $imageObj, $idproduct, $primary_image) {
+        $photo = new ProductPhotoController();
+
+        // lets check if they try to delete the primary image and there is no new primary image is supplied
+        $this_is_primaryID = $photo->getPrimaryImage($idproduct);
+        foreach($imageObj as $checkprimaryID) {
+            if($this_is_primaryID == $checkprimaryID && $primary_image == "") {
+                return false;
             }
+            return true;
         }
-
-        return false;
     }
-
 }

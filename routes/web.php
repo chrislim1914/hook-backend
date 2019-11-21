@@ -82,6 +82,9 @@ $router->group(['prefix' => 'api'], function($router)
     $router->post('product/add', ['middleware' => 'cors', 'uses' => 'ProductController@postProduct']);
     $router->post('product/update', ['middleware' => 'cors', 'uses' => 'ProductController@updatePost']);
     $router->post('product/changeStatus', ['middleware' => 'cors', 'uses' => 'ProductController@changeStatus']);
+
+    // load detailed hook product info
+    $router->get('product/load', ['middleware' => 'cors', 'uses' => 'ProductController@loadProductforUpdate']);
 });
 
 /**
