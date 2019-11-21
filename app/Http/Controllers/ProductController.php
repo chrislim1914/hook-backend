@@ -206,7 +206,7 @@ class ProductController extends Controller
             }
             
             // lets get the binary image for primary
-            $primary_image = $this->getBinaryImageForPrimary($request->image, $request->primary_image);
+            // $primary_image = $this->getBinaryImageForPrimary($request->image, $request->primary_image);
             
             if(!$primary_image) {
                 return response()->json([
