@@ -53,7 +53,7 @@ class ProductPhotoController extends Controller
             return false;
         }
         // if there is then change primary = 0
-        $change_primary = $photo::where('idproduct', $idproduct);
+        $change_primary = ProductPhoto::where('idproduct', $idproduct);
 
         $change_primary->update([
             'primary'   => 0
