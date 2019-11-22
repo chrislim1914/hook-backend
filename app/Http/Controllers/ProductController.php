@@ -78,6 +78,7 @@ class ProductController extends Controller
         $function = new Functions();
         $user = new User();
         $product    = Product::where('status', 'available')->Orderby('idproduct', 'desc')->get();
+        $baseURL    = $function::getAppURL();
 
         $hookfeed = [];
         $count=0;
@@ -284,6 +285,9 @@ class ProductController extends Controller
         $product    = Product::where('idproduct', $request->idproduct)->first();
         $photo      = ProductPhoto::where('idproduct', $request->idproduct)->get();
 
+        $function   = new Functions();
+        $baseURL    = $function::getAppURL();
+
         if($product == null) {
             return response()->json([
                 'message'   => "Failed to load Product Data!",
@@ -486,6 +490,7 @@ class ProductController extends Controller
      */
     protected function createProductJsonData($product) {
         $function = new Functions();
+        $baseURL    = $function::getAppURL();
         $hookfeed = [];
         $count=0;
         foreach($product as $each) {

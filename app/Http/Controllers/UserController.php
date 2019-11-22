@@ -710,8 +710,8 @@ class UserController extends Controller
                 'title'             =>  $each['title'],
                 'snippet'           =>  $info,
                 'link'              =>  'https://hook.com/p/'.$each['idproduct'],
-                'image'             =>  'http://api.allgamegeek.com/'.$image['image'],
-                'thumbnailimage'    =>  'http://api.allgamegeek.com/'.$image['image'],
+                'image'             =>  $this->baseURL.$image['image'],
+                'thumbnailimage'    =>  $this->baseURL.$image['image'],
                 'status'            =>  $each['status'],
                 'source'            =>  'hook'
             ];
