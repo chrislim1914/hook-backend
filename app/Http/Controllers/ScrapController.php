@@ -9,6 +9,7 @@ use Pilipinews\Website\Gma\Scraper;
 use Pilipinews\Website\Bulletin\Scraper as MBScraper;
 use App\Http\Controllers\NewsArticle;
 use App\Http\Controllers\Functions;
+use App\Http\Controllers\CarousellController;
 
 class ScrapController extends Controller
 {
@@ -31,6 +32,10 @@ class ScrapController extends Controller
         $newcarousell_item = [];
 
         $scrapcarousells = $client->request('GET', $carousell_url);
+
+        $carousellcat = $scrapcarousells->filter('.styles__breadcrumbItem___3KK_l a')->each(function ($node) {
+            return $node->eq(0)->attr('href');
+        });
 
         $sellerusername = $scrapcarousells->filter('.styles__sellerWrapper___3YRXI p')->each(function ($node) {
             return $node->text();
@@ -58,14 +63,25 @@ class ScrapController extends Controller
             return $node->text();
         });
 
+        // lets get the Main category ID, not the sub ID we dont use that
+        $catID = $this->getCarousellCategoryIDfromScrap($carousellcat[1]);
+
+        // lets use the filterCarousell() method on CarousellController to get similar items
+        $carousell = new CarousellController();
+        $similar = $carousell->filterCarousell(1,'', $catID);
+
         $seller = [
             'id'            => '',
             'username'      => $sellerusername[0],
             'profile_photo' => $sellerphoto
         ];
+        
+        // check if there is a content
+        // TODO
 
         $newcarousell_item = [
             'url'               => $carousell_url,
+            'category'          => $catID,
             'seller'            => $seller,
             'media'             => $media,
             'itemname'          => $itemname[0],
@@ -998,5 +1014,24 @@ class ScrapController extends Controller
         $partsMBnewsLink = explode('/', $url);
         $smallMBnewsLink = explode('.', $partsMBnewsLink[2]);
         return $smallMBnewsLink[0] ;
+    }
+
+    /**
+     * method to get carousell category ID
+     */
+    protected function getCarousellCategoryIDfromScrap($string) {
+        $function = new Functions();
+        $delimiters = array("/","-");
+        $getcat = $function->multiexplode($delimiters,$string);
+        $thisisid = 0;
+        foreach($getcat as $idontknow) {
+            for($i=0;$i<count($idontknow);$i++) {
+                if(is_numeric($idontknow[$i])) {
+                    $thisisid = $idontknow[$i];
+                }
+            }            
+        }
+
+        return $thisisid;
     }
 }

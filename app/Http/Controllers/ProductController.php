@@ -54,6 +54,7 @@ class ProductController extends Controller
             $viewitem = [
                 'url'               => '',
                 'seller'            => $seller,
+                'category'          => $new['categoryid'],
                 'media'             => $media,
                 'itemname'          => $new['title'],
                 'price'             => 'PHP '.$new['price'],                
@@ -452,7 +453,7 @@ class ProductController extends Controller
      * @param $request
      * @return JSON
      */
-    public function filterProduct($filter, $page) {
+    public function filterProduct($filter, $page, $idproduct) {
 
         $paginate = $this->paginateHook($page);
 
@@ -463,7 +464,7 @@ class ProductController extends Controller
             ]);
         }
 
-        $filter_product = Product::where('categoryid', $filter)->where('status', 'available')->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
+        $filter_product = Product::where('categoryid', $filter)->where('status', 'available')->having('idproduct', '<>', $idproduct)->skip($paginate['skip'])->take($paginate['page'])->Orderby('idproduct', 'desc')->get();
 
         // return noting if null
         if($filter_product->count() <= 0) {

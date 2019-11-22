@@ -293,15 +293,17 @@ class BuyAndSellController extends Controller
         $source = $request->source;
 
         $scrap = new ScrapController();
-        $product = new ProductController();
+        $product = new ProductController();       
 
         switch ($source) {
             case 'carousell':
                 $view_carousell = $scrap->scrapCarousell($request->id);
+                $similaritem = $this->buyAndSellFilter($countrycode, 1, '', array($view_carousell['category']));
+                $view_carousell['similar_item'] = $similaritem['data'];
 
                 if(!$countrycode){
                     return response()->json([
-                        'data'          => $view_carousell,
+                        'data'          => $view_carousell,                        
                         'result'        => true
                     ]);
                 }
@@ -315,6 +317,9 @@ class BuyAndSellController extends Controller
                 
             case 'hook':
                 $view_product = $product->viewProduct($request->id);
+                $similaritem = $this->buyAndSellFilter($countrycode, 1, '', array(strval($view_product['category'])), $request->id);
+                $view_product['similar_item'] = $similaritem['data'];
+                
                 if(!$countrycode){
                     return response()->json([
                         'data'          => $view_product,
@@ -400,24 +405,32 @@ class BuyAndSellController extends Controller
 
     }
 
+    public function buyAndSellFilterForPage(Request $request) {
+        $page = $request->page;
+        $request->has('countrycode') == true ? $countrycode = $request->countrycode : $countrycode = '';
+        $request->has('search') == true ? $search = $request->search : $search = '';
+        $request->has('filter') == true ? $filter = $request->filter : $filter = '';
+
+        $got_data = $this->buyAndSellFilter($countrycode, $page, $search, $filter);
+
+        return response()->json([
+            'data'      => $got_data['data'],
+            'result'    => $got_data['result']
+        ]);
+    }
+
     /**
      * filter method for carousell and hook
      * 
      * @param $request
      * @return JSON
      */
-    public function buyAndSellFilter(Request $request) {
-        $countrycode = $this->function->isThereCountryCode($request);
-        $page = $request->page;
-        $request->has('search') == true ? $search = $request->search : $search = '';
-        $request->has('filter') == true ? $filter = $request->filter : $filter = '';
-    
+    public function buyAndSellFilter($countrycode, $page, $search, $filter, $idproduct = '') {    
         $filtercarousell    = $this->carousell->filterCarousell($page, $search, $filter);
-        $filterhook         = $this->hook->filterProduct($filter, $page);
-    
-        $buyandsellfilter = [];  
-    
-        for($i=0;$i<3;$i++) {
+        $filterhook         = $this->hook->filterProduct($filter, $page, $idproduct);
+
+        $buyandsellfilter = [];
+        for($i=0;$i<10;$i++) {
     
             if($filterhook) {
                 foreach($filterhook as $hook) {
@@ -452,18 +465,18 @@ class BuyAndSellController extends Controller
             }
         }
 
-        if(!$countrycode){
-            return response()->json([
+        if($countrycode == ''){
+            return array(
                 'data'      => $buyandsellfilter,
                 'result'    => true
-            ]);
+            );
         }
     
         $trans = $this->translateFeedBuyandSell($buyandsellfilter, $countrycode);
         
-        return response()->json([
+        return array(
             'data'      => $trans,
             'result'    => true
-        ]);
+        );
     }
 }
