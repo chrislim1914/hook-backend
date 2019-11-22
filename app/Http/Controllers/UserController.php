@@ -19,11 +19,13 @@ class UserController extends Controller
     public $user;
     protected $jwt;
     protected $function;
+    public $baseURL;
 
     public function __construct(JWTAuth $jwt, User $user, Functions $function) {
         $this->user = $user;
         $this->jwt = $jwt;
         $this->function = $function;
+        $this->baseURL = Functions::getAppURL();
     }
 
     /**
@@ -589,7 +591,7 @@ class UserController extends Controller
                     'lastname'      => $thisuser['lastname'],
                     'username'      => $thisuser['username'],
                     'contactno'     => $thisuser['contactno'],
-                    'profile_photo' => $image == false ? $thisuser['profile_photo'] : 'https://api.allgamegeek.com/'.$thisuser['profile_photo'],
+                    'profile_photo' => $image == false ? $thisuser['profile_photo'] : $this->baseURL.$thisuser['profile_photo'],
                     'snsproviderid' => $thisuser['snsproviderid'],
                     'emailverify'   => $thisuser['emailverify'],
                     'created_at'    => $thisuser['created_at']->toDateString(),
@@ -632,7 +634,7 @@ class UserController extends Controller
                     'firstname'     => $getseller['firstname'],
                     'lastname'      => $getseller['lastname'],
                     'contactno'     => $getseller['contactno'],
-                    'profile_photo' => $image == false ? $getseller['profile_photo'] : 'https://api.allgamegeek.com/'.$getseller['profile_photo'],
+                    'profile_photo' => $image == false ? $getseller['profile_photo'] : $this->baseURL.$getseller['profile_photo'],
                     'emailverify'   => $getseller['emailverify'],
                     'created_at'    => $getseller['created_at']->toDateString(),
                     'updated_at'    => $getseller['updated_at']->toDateString(),

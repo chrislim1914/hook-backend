@@ -441,4 +441,14 @@ class Functions extends Controller
         }
         return  $ary;
     }
+
+    /**
+     * method to get APP_URL from .env
+     * 
+     * @return $baseURL
+     */
+    public static function getAppURL() {
+        $baseURL = env('APP_URL');
+        return $baseURL;
+    }
 }
