@@ -13,7 +13,7 @@ class ProductPhotoController extends Controller
      * 
      * @param $id, $image_name, $is_primary
      */
-    public function insertImage($id, $image_name, $is_primary) {  
+    public function insertImage($id, $image_name, $is_primary, $primary_image) {  
         $photo = new ProductPhoto(); 
        
         $photo->idproduct   = $id;
@@ -21,6 +21,15 @@ class ProductPhotoController extends Controller
         $photo->image       = $image_name;
 
         $photo->save();
+
+        /**
+         * if we reach this line means, t
+         * hat we have primary but its in the database 
+         * and not in $request->image[]
+         */
+        if($is_primary === 'gallery') {
+            $this->getProductPhotos($id, $primary_image);
+        }
     }
 
     /**
@@ -84,5 +93,25 @@ class ProductPhotoController extends Controller
         }
 
         return $is_there_primary;
+    }
+
+    public function getProductPhotos($idproduct, $primary_image) {
+        $dbphotos = ProductPhoto::where('idproduct', $idproduct)->get();
+
+        // return false if we got nothing
+        if($dbphotos->count() <= 0) {
+            return false;
+        }
+
+        foreach($dbphotos as $photos) {
+            $per = explode("/", $photos['image']);
+            if($primary_image === $per['4']) {
+                // let change the status = 1
+                $updateprimary = ProductPhoto::where('idphoto', $photos['idphoto']);
+                $updateprimary->update([
+                    'status' => 1
+                ]);
+            }
+        }
     }
 }

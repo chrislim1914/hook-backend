@@ -40,6 +40,7 @@ class ProductController extends Controller
             $media = [
                 $baseURL.$primaryphoto['image']
             ];
+
             foreach($photo as $newphoto) {
                 $media[] = $baseURL.$newphoto['image'];
             }
@@ -654,9 +655,9 @@ class ProductController extends Controller
 
             // lets save the image into the table
             if($image->getClientOriginalName() === $primary_image) {
-                $save_image->insertImage($id, $image_name, 'primary');
+                $save_image->insertImage($id, $image_name, 'primary', $primary_image);
             } else {
-                $save_image->insertImage($id, $image_name, 'gallery');
+                $save_image->insertImage($id, $image_name, 'gallery', $primary_image);
             }            
 
             // next move the image
