@@ -292,10 +292,12 @@ class ProductController extends Controller
         }
 
         foreach($photo as $newphoto) {
+            $imagenameonly = explode("/", $newphoto['image']);
             $productphoto[]   = [
                 'idphoto'     => $newphoto['idphoto'],
                 'idproduct'   => $newphoto['idproduct'],
                 'image'       => 'https://api.allgamegeek.com/'.$newphoto['image'],
+                'imagename'   => $imagenameonly[4],
                 'primary'     => $newphoto['primary'],
             ];
         }        
