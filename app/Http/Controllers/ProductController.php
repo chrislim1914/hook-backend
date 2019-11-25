@@ -305,7 +305,7 @@ class ProductController extends Controller
                 'idphoto'     => $newphoto['idphoto'],
                 'idproduct'   => $newphoto['idproduct'],
                 'image'       => $baseURL.$newphoto['image'],
-                'imagename'   => $imagenameonly[4],
+                'name'        => $imagenameonly[4],
                 'primary'     => $newphoto['primary'],
             ];
         }        
