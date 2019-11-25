@@ -294,15 +294,7 @@ class BuyAndSellController extends Controller
         $source = $request->source;
 
         $scrap = new ScrapController();
-        $product = new ProductController();       
-        $productmpdel = new Product();
-        // lets check if hook idproduct exist
-        if(!$productmpdel->isProductIDExist($request->id)){
-            return response()->json([
-                'message'       => 'Product not Found!',
-                'result'        => false
-            ]);
-        }
+        $product = new ProductController();
 
         switch ($source) {
             case 'carousell':
@@ -325,6 +317,14 @@ class BuyAndSellController extends Controller
                 ]);
                 
             case 'hook':
+                $productmpdel = new Product();
+                // lets check if hook idproduct exist
+                if(!$productmpdel->isProductIDExist($request->id)){
+                    return response()->json([
+                        'message'       => 'Product not Found!',
+                        'result'        => false
+                    ]);
+                }
                 $view_product = $product->viewProduct($request->id);
                 $similaritem = $this->buyAndSellFilter($countrycode, 1, '', array(strval($view_product['category'])), $request->id);
                 $view_product['similar_item'] = $similaritem['data'];
