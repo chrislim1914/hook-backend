@@ -693,10 +693,10 @@ class UserController extends Controller
         foreach($product as $each) {
             $info = [];
 
-            $user = User::where('iduser', $each['iduser'])->first();
+            // $user = User::where('iduser', $each['iduser'])->first();
 
             $image = ProductPhoto::where('idproduct', $each['idproduct'])->having('primary', 1)->first();
-
+            $countproduct = new Product();
             $info = [
                 $each['title'],
                 $each['price'],
@@ -716,10 +716,11 @@ class UserController extends Controller
                 'source'            =>  'hook'
             ];
         }
+        $counthowmany = $countproduct->getTotalProductCount($getusername['iduser'], $view);
 
         return response()->json([
             'data'      => $hookfeed,            
-            'total'     => count($product),
+            'total'     => $counthowmany == false ? 0 : $counthowmany,
             'result'    => true
         ]);
     }

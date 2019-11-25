@@ -41,5 +41,19 @@ class Product extends Model
             return false;
         }
     }
+
+    public function getTotalProductCount($iduser, $viewtype) {
+        if($viewtype === 'public') {
+            $product = Product::where('iduser', $iduser)->having('status', 'available')->orderBy('idproduct', 'desc')->get();
+        } elseif($viewtype === 'private') {
+            $product = Product::where('iduser', $iduser)->orderBy('idproduct', 'desc')->get();
+        }
+
+        if($product == null) {
+            return false;
+        }
+
+        return  count($product);
+    }
         
 }

@@ -7,6 +7,7 @@ use App\Http\Controllers\CarousellController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ScrapController;
 use App\Http\Controllers\Functions;
+use App\Product;
 
 class BuyAndSellController extends Controller
 {
@@ -294,6 +295,14 @@ class BuyAndSellController extends Controller
 
         $scrap = new ScrapController();
         $product = new ProductController();       
+        $productmpdel = new Product();
+        // lets check if hook idproduct exist
+        if(!$productmpdel->isProductIDExist($request->id)){
+            return response()->json([
+                'message'       => 'Product not Found!',
+                'result'        => false
+            ]);
+        }
 
         switch ($source) {
             case 'carousell':
@@ -323,7 +332,7 @@ class BuyAndSellController extends Controller
                 if(!$countrycode){
                     return response()->json([
                         'data'          => $view_product,
-                        'result'        => false
+                        'result'        => true
                     ]);
                 }
 
