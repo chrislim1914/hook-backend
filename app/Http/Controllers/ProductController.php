@@ -36,10 +36,13 @@ class ProductController extends Controller
             $media = [];
             $user = User::where('iduser', $new['iduser'])->first();
             $image = $user->getUserFolder($new['iduser']);
-
-            $media = [
-                $baseURL.$primaryphoto['image']
-            ];
+            
+            if($primaryphoto['image'] !== '') {
+                $media = [
+                    $baseURL.$primaryphoto['image']
+                ];
+            }
+            
 
             foreach($photo as $newphoto) {
                 $media[] = $baseURL.$newphoto['image'];
@@ -340,13 +343,15 @@ class ProductController extends Controller
         $photo      = new ProductPhotoController();
 
         // lets check if they try to delete the primary image and there is no new primary image is supplied
-        $checkifWhat = $this->checkIfThereIsNoPrimaryLeft($request->delete_image, $request->idproduct, $request->primary_image);
-        if(!$checkifWhat) {
-            return response()->json([
-                'message'   => "Cannot delete primary without new primary image!",
-                'result'    => false
-            ]);
-        }
+        if($request->has('delete_image')) {
+            $checkifWhat = $this->checkIfThereIsNoPrimaryLeft($request->delete_image, $request->idproduct, $request->primary_image);
+            if(!$checkifWhat) {
+                return response()->json([
+                    'message'   => "Cannot delete primary without new primary image!",
+                    'result'    => false
+                ]);
+            }
+        }        
 
         // first we get the user info
         $gotuser = $user->getUserData($request->iduser);
@@ -386,23 +391,45 @@ class ProductController extends Controller
             // image full path and name
             $newpath = $path.'product_'.$request->idproduct.'/';
 
-            // delete the images in $request->delete_image            
-            foreach($request->delete_image as $to_be_deleted_id) {
-                $photo->deleteImage($to_be_deleted_id);
-            }
+            if($request->hasFile('image')) {
+                // what to do if image[] is not empty
+                // check if delete_image[] is not empty/empty
+                if($request->has('delete_image')) {
+                    // delete the images in $request->delete_image            
+                    foreach($request->delete_image as $to_be_deleted_id) {
+                        $photo->deleteImage($to_be_deleted_id);
+                    }                    
+                }
 
-            if(!$request->hasFile('image')) {
-                return response()->json([
-                    'message'   => '',
-                    'result'    => true
-                ]);
-            }
+                // check if there is new primary_image to assign
+                if($request->has('primary_image')) {
+                    // reset status value if there is new primary_image
+                    $change_primary = $photo->resetPrimaryImage($request->idproduct);
+                    // mark the $request->primary_image as primary
+                    $markprimary = $photo->getProductPhotos($request->idproduct, $request->primary_image);
+                }
+                
+                // save the image
+                $this->savePostImages($request->image, $newpath, $request->idproduct, $request->primary_image);
+                
+            }else{
+                // what to do if image[] is empty
+                if($request->has('delete_image')) {
 
-            // lets check if there is primary image is set
-            $change_primary = $photo->changePrimaryImage($request->idproduct);
+                    // delete the images in $request->delete_image            
+                    foreach($request->delete_image as $to_be_deleted_id) {
+                        $photo->deleteImage($to_be_deleted_id);
+                    }                    
+                }
 
-            // save the image
-            $this->savePostImages($request->image, $newpath, $request->idproduct, $request->primary_image);
+                // check if there is new primary_image to assign
+                if($request->has('primary_image')) {
+                    // reset status value if there is new primary_image
+                    $change_primary = $photo->resetPrimaryImage($request->idproduct);
+                    // mark the $request->primary_image as primary
+                    $markprimary = $photo->getProductPhotos($request->idproduct, $request->primary_image);
+                }
+            }            
 
             return response()->json([
                 'message'   => '',

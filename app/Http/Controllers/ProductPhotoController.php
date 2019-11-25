@@ -27,7 +27,7 @@ class ProductPhotoController extends Controller
          * hat we have primary but its in the database 
          * and not in $request->image[]
          */
-        if($is_primary === 'gallery') {
+        if($is_primary == 'primary') {
             $this->getProductPhotos($id, $primary_image);
         }
     }
@@ -54,7 +54,7 @@ class ProductPhotoController extends Controller
      * @param $idproduct
      * @return Boolean
      */
-    public function changePrimaryImage($idproduct) {
+    public function resetPrimaryImage($idproduct) {
 
         $get_primary = $this->getPrimary($idproduct);
         
@@ -105,11 +105,11 @@ class ProductPhotoController extends Controller
 
         foreach($dbphotos as $photos) {
             $per = explode("/", $photos['image']);
-            if($primary_image === $per['4']) {
+            if($primary_image == $per['4']) {
                 // let change the status = 1
                 $updateprimary = ProductPhoto::where('idphoto', $photos['idphoto']);
                 $updateprimary->update([
-                    'status' => 1
+                    'primary' => 1
                 ]);
             }
         }
