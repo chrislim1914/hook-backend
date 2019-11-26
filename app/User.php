@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Validator;
 use Illuminate\Auth\Authenticatable;
 use Laravel\Lumen\Auth\Authorizable;
 use Illuminate\Database\Eloquent\Model;
@@ -207,5 +208,63 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
         } else {
            return $pathphoto;
         }
+    }
+
+    /**
+     * method to validate param in SNS signin and signup
+     * 
+     * @param $request
+     * @return Boolean
+     */
+    public function validateSignupSignin($request) {
+        $user = new User();
+        
+        // lets validate
+        $validator = Validator::make($request, [
+            'email'         => 'required',
+            'firstname'     => 'required',
+            'lastname'      => 'required',
+            'profile_photo' => 'required',
+            'snsproviderid' => 'required',
+        ]);
+        /**
+         * me: if something went wrong on our validation then say something.
+         * you: something.
+         */
+        if ($validator->fails()) {
+            return false;       
+        }else{
+            return true;
+        }
+        
+    }
+
+    /**
+     * method to validate param in user registration
+     * 
+     * @param $request
+     * @return Boolean
+     */
+    public function validateregisterUser($request) {
+        $user = new User();
+        
+        // lets validate
+        $validator = Validator::make($request, [
+            'email'         => 'required',
+            'firstname'     => 'required',
+            'lastname'      => 'required',
+            'username'      => 'required',
+            'password'      => 'required',
+        ]);
+        /**
+         * me: if something went wrong on our validation then say something.
+         * you: something.
+         */
+        if ($validator->fails()) {
+            return false;       
+        }else{
+            return true;
+        }
+        
     }
 }

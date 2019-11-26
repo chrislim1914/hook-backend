@@ -245,6 +245,14 @@ class UserController extends Controller
      * @return JSON
      */
     public function snsSignupSignin(Request $request) {
+        // lets validate first the needed input
+        $validate_input = $this->user->validateSignupSignin($request->all());
+        if(!$validate_input) {
+            return response()->json([
+                'massage'   => 'There is wrong with the param or missing some param!',
+                'result'    => false
+            ]);
+        }
         // lets get everything we need
         $email          = $request->email;
         $firstname      = !$request->has('firstname') || $request->firstname == '' ? '' : $request->firstname;
@@ -355,6 +363,16 @@ class UserController extends Controller
      * @return $response JSON
      */
     public function registerUser(Request $request) {
+
+        // lets validate the param
+        $validate_registration = $this->user->validateregisterUser($request->all());
+
+        if(!$validate_registration) {
+            return response()->json([
+                'massage'   => 'There is wrong with the param or missing some param!',
+                'result'    => false
+            ]);
+        }
 
         // check email and username
         $checkemail = $this->user->isemailExist($request->email);
