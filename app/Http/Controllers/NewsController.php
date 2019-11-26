@@ -262,7 +262,7 @@ class NewsController extends Controller
         foreach($newsbody['articles'] as $source) {
 
             // filter supported news agency
-            if($feedcount >= 5) {
+            if($feedcount >= 10) {
                 break;
             }elseif($this->supportedNewsAgency($source['source']['name']) == true ) {
                 $newsource      = $source['source']['name'];

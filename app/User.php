@@ -255,6 +255,7 @@ class User extends Model implements AuthenticatableContract, AuthorizableContrac
             'lastname'      => 'required',
             'username'      => 'required',
             'password'      => 'required',
+            'contactno'      => 'required',
         ]);
         /**
          * me: if something went wrong on our validation then say something.
