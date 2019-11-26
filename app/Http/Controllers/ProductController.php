@@ -61,7 +61,7 @@ class ProductController extends Controller
                 'category'          => $new['categoryid'],
                 'media'             => $media,
                 'itemname'          => $new['title'],
-                'price'             => 'PHP '.$new['price'],                
+                'price'             => 'PHP '.number_format($new['price'], 2, '.', ','),                
                 'description'       => $utf_convert,          
                 'condition'         => $new['condition'],                
                 'meetup'            => $new['meetup'],                
@@ -106,7 +106,7 @@ class ProductController extends Controller
             ];
 
             $info2 = [
-                'stringContent' => 'PHP '.$each['price'],
+                'stringContent' => 'PHP '.number_format($each['price'], 2, '.', ','),
             ];
             $utf_convert = mb_convert_encoding($each['description'], 'UTF-8', 'UTF-8');
             $info3 = [
@@ -537,7 +537,7 @@ class ProductController extends Controller
             $utf_convert = mb_convert_encoding($each['description'], 'UTF-8', 'UTF-8');
             $info = [
                 $each['title'],
-                'PHP '.$each['price'],
+                'PHP '.number_format($each['price'], 2, '.', ','),
                 str_replace($function->getThatAnnoyingChar(), "",$utf_convert),
                 $each['condition'],
             ];
