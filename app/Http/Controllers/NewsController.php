@@ -117,8 +117,10 @@ class NewsController extends Controller
 
         // lets create the newsapi url
         $newsapi_url = $this->url.'&apiKey='.$this->apikey;
+        $newsapi_url_page2 = $this->url.'&apiKey='.$this->apikey.'&page=2';
 
         $httpcall = $this->function->guzzleHttpCall($newsapi_url);
+        $httpcall_page2 = $this->function->guzzleHttpCall($newsapi_url_page2);
         
         //get status
         if($httpcall['status'] !== 'ok' || !is_array($httpcall)) {
@@ -129,7 +131,11 @@ class NewsController extends Controller
         }
         
         $headlines = $this->createNewsJsonBody($httpcall);
-
+        $headlines_page2 = $this->createNewsJsonBody($httpcall_page2);
+        for($i=0;$i<count($headlines_page2); $i++) {
+            array_push($headlines,  $headlines_page2[$i]);
+        }
+        
         // if(count($headlines) < 3) {
         //         $httpcall = $this->function->guzzleHttpCall($newsapi_url.'&page=2');
             
