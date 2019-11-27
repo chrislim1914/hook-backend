@@ -264,7 +264,7 @@ class NewsController extends Controller
             // filter supported news agency
             // if($feedcount >= 10) {
             //     break;
-            // }elseif($this->supportedNewsAgency($source['source']['name']) == true ) {
+            if($this->supportedNewsAgency($source['source']['name']) == true ) {
                 $newsource      = $source['source']['name'];
                 $author         = $source['author'];
                 $title          = $source['title'];
@@ -283,7 +283,7 @@ class NewsController extends Controller
                     'publishedAt'       =>  $this->function->timeLapse($publishedAt)
                 ];
             // $feedcount++;
-            // }            
+            }            
         }
 
         return $newsfeed;
