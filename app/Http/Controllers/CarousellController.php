@@ -84,6 +84,7 @@ class CarousellController extends Controller
                 $description = $find['meta']['default_value']['flattened_description'];
                 $condition = $find['meta']['default_value']['condition'] == 1 ? 'Used' : 'New';
                 $keyword = $find['meta']['default_value']['collection']['display_name'];
+                $meta_keywords = $find['meta']['default_value']['collection']['meta_keywords'];
             }
             
 
@@ -99,6 +100,7 @@ class CarousellController extends Controller
                 'meetup'            => '',                
                 'delivery'          => '',                
                 'keyword'           => $keyword,                
+                'meta_keywords'     => $meta_keywords,                
                 'source'            => 'carousell'
             ];
         }        

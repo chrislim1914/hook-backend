@@ -300,6 +300,10 @@ class BuyAndSellController extends Controller
             case 'carousell':
                 $view_carousell = $this->carousell->viewCarousell($request->id);
                 $categoryid = $this->carousell->carousellKeywords($view_carousell['keyword']);
+                if($categoryid == null) {
+                    // lets use the meta_keywords key
+                    $categoryid = $this->carousell->carousellKeywords($view_carousell['meta_keywords']);
+                }
                 $similaritem = $this->buyAndSellFilter($countrycode, 1, '', array(strval($categoryid)));
                 $view_carousell['similar_item'] = $similaritem['data'];
 
