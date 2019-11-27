@@ -14,6 +14,66 @@ class CarousellController extends Controller
     private $countryID = '1694008';
     private $carousell_url = 'https://www.carousell.ph/api-service/home/?countryID=1694008';
     private $carousell_search_url = 'https://www.carousell.ph/api-service/filter/search/3.3/products/';
+    private $carousell_detail_url = 'https://www.carousell.ph/api-service/listing/3.1/listings/';
+    private $carousell_related_url = 'https://www.carousell.ph/api-service/related-listing/';
+
+    public function viewCarousell($id) {
+        $param = array(
+            'url'   => $this->carousell_detail_url.$id.'/detail/'
+        );
+
+        $resultdata = $this->carousellcURLCall($param);
+
+        if(!$resultdata) {
+            return false;
+        }
+        $newcarousell_item = [];
+
+        foreach($resultdata as $car) {
+
+            $seller = [];
+            $media = [];
+            foreach($car['screens'] as $find) {
+                // get seller info
+                $seller = [
+                    'id'            => $find['meta']['default_value']['seller']['id'],
+                    'username'      => $find['meta']['default_value']['seller']['username'],
+                    'profile_photo' => $find['meta']['default_value']['seller']['profile']['image_url']
+                ];
+
+                // get media image
+                for($i=0;$i<count($find['meta']['default_value']['photos']);$i++) {
+                    $media[] = $find['meta']['default_value']['photos'][$i]['image_url'];
+                }
+
+                $category = $find['meta']['default_value']['collection']['id'];
+                // get title
+                $title = $find['meta']['default_value']['title'];
+                // get formated price
+                $price = $find['meta']['default_value']['price_formatted'];
+                // get description
+                $description = $find['meta']['default_value']['flattened_description'];
+                $condition = $find['meta']['default_value']['condition'] == 1 ? 'Used' : 'New';
+            }
+            
+
+            $newcarousell_item = [
+                'url'               => 'https://www.carousell.ph/p/'.$id,                
+                'seller'            => $seller,
+                'category'          => $category,
+                'media'             => $media,
+                'itemname'          => $title,
+                'price'             => 'PHP '.$price,
+                'description'       => $description,
+                'condition'         => $condition,
+                'meetup'            => '',                
+                'delivery'          => '',                
+                'source'            => 'carousell'
+            ];
+        }        
+
+        return $newcarousell_item; 
+    }
     
     /**
      * method to display 5 post from Carousell.ph
@@ -151,6 +211,74 @@ class CarousellController extends Controller
             $gotdata = $this->createCarousellData($resultdata, $page);
             return $gotdata['data'];           
         }
+    }
+
+    public function viewRelatedListing($cc_id, $productid) {
+        $param = array(
+            'url'   => $this->carousell_related_url.'?collection_id='.$cc_id.'&country_id='.$this->countryID.'&locale=en&product_id='.$productid
+        );
+
+        $resultdata = $this->carousellcURLCall($param);
+
+        if(!$resultdata) {
+            return false;
+        } 
+
+        // let see if there are still data to output
+        if(count($resultdata['data']['results']) <= 0 ) {
+            return array(
+                    'data'      => [],
+                    'result'    => true
+            );
+        }
+
+        $function = new Functions();
+        // json body to output
+        $carouselljsonfeed = [];
+        $count=0;
+        for($i = 0; $i < count($resultdata['data']['results']); $i++){
+            // for image "photos": []
+            foreach($resultdata['data']['results'][$i]['photoUrls'] as $imageurl) {
+                $image          = $imageurl;
+                $thumbnailimage = $imageurl;
+            }
+            
+            
+            // for title
+            $counttitle=0;
+            foreach($resultdata['data']['results'][$i]['belowFold'] as $titledesc) {
+                if($counttitle == 0) {
+                    $title          = $titledesc['stringContent'];
+                    $titlenotrans   = $titledesc['stringContent'];
+                    break;
+                }                    
+                $counttitle++;
+            }
+
+            // for description
+            $still=0;
+            $snippet = [];
+            foreach($resultdata['data']['results'][$i]['belowFold'] as $snippetdesc) {
+                                    
+                $snippet[]          = mb_convert_encoding(str_replace($function->getThatAnnoyingChar(), "", $snippetdesc['stringContent']), 'UTF-8', 'UTF-8');
+                $still++;
+            }
+
+            $carouselljsonfeed[] = [
+                    'id'                =>  $resultdata['data']['results'][$i]['id'],
+                    'title'             =>  $title,
+                    'snippet'           =>  $snippet,
+                    'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$resultdata['data']['results'][$i]['id'],
+                    'image'             =>  $image,
+                    'thumbnailimage'    =>  $thumbnailimage,
+                    'source'            =>  'carousell'
+            ];
+            $count++;
+        }
+        return array(
+                'data'      => $carouselljsonfeed,
+                'result'    => true
+            );
     }
 
     /**
@@ -302,10 +430,19 @@ class CarousellController extends Controller
         for($i = $startfrom; $i < count($resultdata['data']['results']); $i++){
             foreach($resultdata['data']['results'][$i] as $sfeed) {
                 // for image "photos": []
-                foreach($sfeed['photos'] as $imageurl) {
-                    $image          = $imageurl['thumbnailUrl'];
-                    $thumbnailimage = array_key_exists('thumbnailProgressiveUrl', $imageurl) == false ? $image : $imageurl['thumbnailProgressiveUrl'];
+
+                if(array_key_exists('photos', $sfeed)) {
+                    foreach($sfeed['photos'] as $imageurl) {
+                        $image          = $imageurl['thumbnailUrl'];
+                        $thumbnailimage = array_key_exists('thumbnailProgressiveUrl', $imageurl) == false ? $image : $imageurl['thumbnailProgressiveUrl'];
+                    }
+                }else{
+                    foreach($sfeed['photoUrls'] as $imageurl) {
+                        $image          = $imageurl[0];
+                        $thumbnailimage = $imageurl[0];
+                    }
                 }
+                
                 
                 // for title
                 $counttitle=0;

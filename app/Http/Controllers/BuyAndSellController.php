@@ -293,13 +293,13 @@ class BuyAndSellController extends Controller
         $countrycode = $this->function->isThereCountryCode($request);
         $source = $request->source;
 
-        $scrap = new ScrapController();
+        // $scrap = new ScrapController();
         $product = new ProductController();
 
         switch ($source) {
             case 'carousell':
-                $view_carousell = $scrap->scrapCarousell($request->id);
-                $similaritem = $this->buyAndSellFilter($countrycode, 1, '', array($view_carousell['category']));
+                $view_carousell = $this->carousell->viewCarousell($request->id);
+                $similaritem = $this->carousell->viewRelatedListing($view_carousell['category'], $request->id);
                 $view_carousell['similar_item'] = $similaritem['data'];
 
                 if(!$countrycode){
@@ -434,10 +434,9 @@ class BuyAndSellController extends Controller
      * @param $request
      * @return JSON
      */
-    public function buyAndSellFilter($countrycode, $page, $search, $filter, $idproduct = '') {    
-        $filtercarousell    = $this->carousell->filterCarousell($page, $search, $filter);
+    public function buyAndSellFilter($countrycode, $page, $search, $filter, $idproduct = '') {  
+        $filter_carousell    = $this->carousell->filterCarousell($page, $search, $filter);
         $filterhook         = $this->hook->filterProduct($filter, $page, $idproduct);
-
         $buyandsellfilter = [];
         for($i=0;$i<10;$i++) {
     
@@ -457,8 +456,8 @@ class BuyAndSellController extends Controller
                 }
             }
             
-            if($filtercarousell) {
-                foreach($filtercarousell as $carousell) {
+            if($filter_carousell) {
+                foreach($filter_carousell as $carousell) {
                     if($i == $carousell['no']) {
                         array_push($buyandsellfilter, [
                             'id'                =>  $carousell['id'],
