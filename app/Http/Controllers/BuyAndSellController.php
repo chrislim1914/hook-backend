@@ -174,7 +174,7 @@ class BuyAndSellController extends Controller
         $front_hook         = $this->hook->loadOurProduct();
         $buyandsell = [];  
 
-        for($i=0;$i<6;$i++) {
+        for($i=0;$i<5;$i++) {
 
             if($front_hook) {
                 foreach($front_hook as $hook) {
