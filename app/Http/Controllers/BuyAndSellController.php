@@ -299,7 +299,8 @@ class BuyAndSellController extends Controller
         switch ($source) {
             case 'carousell':
                 $view_carousell = $this->carousell->viewCarousell($request->id);
-                $similaritem = $this->carousell->viewRelatedListing($view_carousell['category'], $request->id);
+                $categoryid = $this->carousell->carousellKeywords($view_carousell['keyword']);
+                $similaritem = $this->buyAndSellFilter($countrycode, 1, '', array(strval($categoryid)));
                 $view_carousell['similar_item'] = $similaritem['data'];
 
                 if(!$countrycode){

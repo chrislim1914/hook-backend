@@ -15,8 +15,37 @@ class CarousellController extends Controller
     private $carousell_url = 'https://www.carousell.ph/api-service/home/?countryID=1694008';
     private $carousell_search_url = 'https://www.carousell.ph/api-service/filter/search/3.3/products/';
     private $carousell_detail_url = 'https://www.carousell.ph/api-service/listing/3.1/listings/';
-    private $carousell_related_url = 'https://www.carousell.ph/api-service/related-listing/';
 
+    /**
+     * method to get the main category of carousell to assosiate
+     * in viewSingleContent() method in BuyAndSellController.
+     * but why?
+     * because on hook we only use the main category, while carousell utilize the
+     * subcategory, so on similar item list our hook product
+     * wont display a thing. got that?
+     */
+    public function carousellKeywords($keyword) {
+        $keywords = file_get_contents("json/carousell_keywords.json");
+
+        $keyword_array = json_decode($keywords, true);
+
+        // loop through the array
+        foreach($keyword_array as $cat_key) {
+            // explode meta_keywords 
+            $meta = explode(", ", $cat_key['meta_keywords']);
+            $find = in_array($keyword, $meta);
+            if($find) {
+                return $cat_key['id'];
+            }
+        }       
+    }
+
+    /**
+     * method to view single content in carousell
+     * 
+     * @param $id
+     * @return $newcarousell_item
+     */
     public function viewCarousell($id) {
         $param = array(
             'url'   => $this->carousell_detail_url.$id.'/detail/'
@@ -54,6 +83,7 @@ class CarousellController extends Controller
                 // get description
                 $description = $find['meta']['default_value']['flattened_description'];
                 $condition = $find['meta']['default_value']['condition'] == 1 ? 'Used' : 'New';
+                $keyword = $find['meta']['default_value']['collection']['display_name'];
             }
             
 
@@ -68,6 +98,7 @@ class CarousellController extends Controller
                 'condition'         => $condition,
                 'meetup'            => '',                
                 'delivery'          => '',                
+                'keyword'           => $keyword,                
                 'source'            => 'carousell'
             ];
         }        
@@ -211,74 +242,6 @@ class CarousellController extends Controller
             $gotdata = $this->createCarousellData($resultdata, $page);
             return $gotdata['data'];           
         }
-    }
-
-    public function viewRelatedListing($cc_id, $productid) {
-        $param = array(
-            'url'   => $this->carousell_related_url.'?collection_id='.$cc_id.'&country_id='.$this->countryID.'&locale=en&product_id='.$productid
-        );
-
-        $resultdata = $this->carousellcURLCall($param);
-
-        if(!$resultdata) {
-            return false;
-        } 
-
-        // let see if there are still data to output
-        if(count($resultdata['data']['results']) <= 0 ) {
-            return array(
-                    'data'      => [],
-                    'result'    => true
-            );
-        }
-
-        $function = new Functions();
-        // json body to output
-        $carouselljsonfeed = [];
-        $count=0;
-        for($i = 0; $i < count($resultdata['data']['results']); $i++){
-            // for image "photos": []
-            foreach($resultdata['data']['results'][$i]['photoUrls'] as $imageurl) {
-                $image          = $imageurl;
-                $thumbnailimage = $imageurl;
-            }
-            
-            
-            // for title
-            $counttitle=0;
-            foreach($resultdata['data']['results'][$i]['belowFold'] as $titledesc) {
-                if($counttitle == 0) {
-                    $title          = $titledesc['stringContent'];
-                    $titlenotrans   = $titledesc['stringContent'];
-                    break;
-                }                    
-                $counttitle++;
-            }
-
-            // for description
-            $still=0;
-            $snippet = [];
-            foreach($resultdata['data']['results'][$i]['belowFold'] as $snippetdesc) {
-                                    
-                $snippet[]          = mb_convert_encoding(str_replace($function->getThatAnnoyingChar(), "", $snippetdesc['stringContent']), 'UTF-8', 'UTF-8');
-                $still++;
-            }
-
-            $carouselljsonfeed[] = [
-                    'id'                =>  $resultdata['data']['results'][$i]['id'],
-                    'title'             =>  $title,
-                    'snippet'           =>  $snippet,
-                    'link'              =>  'https://www.carousell.ph/p/'.$this->treatTitle($titlenotrans).'-'.$resultdata['data']['results'][$i]['id'],
-                    'image'             =>  $image,
-                    'thumbnailimage'    =>  $thumbnailimage,
-                    'source'            =>  'carousell'
-            ];
-            $count++;
-        }
-        return array(
-                'data'      => $carouselljsonfeed,
-                'result'    => true
-            );
     }
 
     /**
