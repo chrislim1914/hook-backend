@@ -107,9 +107,17 @@ $router->group(['prefix' => 'api'], function($router)
 });
 
 /**
+ * contact us
+ */
+$router->group(['prefix' => 'api'], function($router)
+{
+    $router->post('contactus', ['middleware' => 'cors', 'uses' => 'ContactUsController@createNewContact']);
+});
+
+/**
  * to test something
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('test', ['middleware' => 'cors', 'uses' => 'CarousellController@carousellKeywords']);
+    $router->get('test', ['middleware' => 'cors', 'uses' => 'ContactUsController@createNewContact']);
 });
