@@ -99,18 +99,18 @@ class AdsController extends Controller
                 'adsimage'      =>  $this->baseURL.$adslist[$adsdata]['adsimage'],
                 'adslink'       =>  $adslist[$adsdata]['adslink'],
             ];
-            return $adslist[$adsdata];
-            // return $newadsdata;
+            // return $adslist[$adsdata];
+            return $newadsdata;
         }
         $thisisskyscaper = [];
         for($i=0;$i<count($adsdata);$i++) {
-            $thisisskyscaper[] = $adslist[$adsdata[$i]];
-            // $thisisskyscaper[] = [
-            //     'idads'         =>  $adslist[$adsdata[$i]]['idads'],
-            //     'adstitle'      =>  $adslist[$adsdata[$i]]['adstitle'],
-            //     'adsimage'      =>  $this->baseURL.$adslist[$adsdata[$i]]['adsimage'],
-            //     'adslink'       =>  $adslist[$adsdata[$i]]['adslink'],
-            // ];
+            // $thisisskyscaper[] = $adslist[$adsdata[$i]];
+            $thisisskyscaper[] = [
+                'idads'         =>  $adslist[$adsdata[$i]]['idads'],
+                'adstitle'      =>  $adslist[$adsdata[$i]]['adstitle'],
+                'adsimage'      =>  $this->baseURL.$adslist[$adsdata[$i]]['adsimage'],
+                'adslink'       =>  $adslist[$adsdata[$i]]['adslink'],
+            ];
         }
         
         return $thisisskyscaper;
