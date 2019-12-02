@@ -115,9 +115,19 @@ $router->group(['prefix' => 'api'], function($router)
 });
 
 /**
+ * ads
+ */
+$router->group(['prefix' => 'api'], function($router)
+{
+    $router->post('ads/add', ['middleware' => 'cors', 'uses' => 'AdsController@createNewAds']);
+
+    $router->get('ads/load', ['middleware' => 'cors', 'uses' => 'AdsController@hookAds']);
+});
+
+/**
  * to test something
  */
 $router->group(['prefix' => 'api'], function($router)
 {
-    $router->get('test', ['middleware' => 'cors', 'uses' => 'ContactUsController@createNewContact']);
+    $router->get('test', ['middleware' => 'cors', 'uses' => 'AdsController@hookAds']);
 });
