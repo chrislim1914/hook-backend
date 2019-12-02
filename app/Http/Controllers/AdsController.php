@@ -61,7 +61,7 @@ class AdsController extends Controller
     public function hookAds() {
         // leaderboard
         $leaderboard = $this->randomSelectLeaderboard('leaderboard', 1);
-        
+
         // rectangle
         $rectangle = $this->randomSelectLeaderboard('rectangle', 1);
 
@@ -86,18 +86,31 @@ class AdsController extends Controller
     }
 
     protected function randomSelectLeaderboard($adsspaces, $num) {
+        $newadsdata = [];
         $currentdate = $this->todayIs();
 
         $adslist = $this->ads::where('adsspaces', $adsspaces)->whereDate('adsend', '>', $currentdate)->get();
         $adsdata = array_rand(json_decode(json_encode($adslist), true), $num);
 
         if(!is_array($adsdata)) {
-
-            return $adslist[$adsdata];
+            $newadsdata = [
+                'idads'         =>  $adslist[$adsdata]['idads'],
+                'adstitle'      =>  $adslist[$adsdata]['adstitle'],
+                'adsimage'      =>  $this->baseURL.$adslist[$adsdata]['adsimage'],
+                'adslink'       =>  $adslist[$adsdata]['adslink'],
+            ];
+            // return $adslist[$adsdata];
+            return $newadsdata;
         }
         $thisisskyscaper = [];
         for($i=0;$i<count($adsdata);$i++) {
-            $thisisskyscaper[] = $adslist[$adsdata[$i]];
+            // $thisisskyscaper[] = $adslist[$adsdata[$i]];
+            $thisisskyscaper[] = [
+                'idads'         =>  $adslist[$adsdata[$i]]['idads'],
+                'adstitle'      =>  $adslist[$adsdata[$i]]['adstitle'],
+                'adsimage'      =>  $this->baseURL.$adslist[$adsdata[$i]]['adsimage'],
+                'adslink'       =>  $adslist[$adsdata[$i]]['adslink'],
+            ];
         }
         
         return $thisisskyscaper;
