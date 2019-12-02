@@ -121,7 +121,7 @@ $router->group(['prefix' => 'api'], function($router)
 {
     $router->post('ads/add', ['middleware' => 'cors', 'uses' => 'AdsController@createNewAds']);
 
-    $router->get('ads/load', ['middleware' => 'cors', 'uses' => 'AdsController@hookAds']);
+    $router->get('adsload', ['middleware' => 'cors', 'uses' => 'AdsController@hookAds']);
 });
 
 /**
