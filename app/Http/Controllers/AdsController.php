@@ -11,6 +11,11 @@ class AdsController extends Controller
     private $ads;
     private $function;
     public $baseURL;
+    private $leaderboard    = 'img/advertisement/default-leaderboard970x90.jpg';
+    private $skyscraper     = 'img/advertisement/default-skyscraper120x600.jpg';
+    private $rectangle      = 'img/advertisement/default-rectangle300x250.jpg';
+    private $mobile         = 'img/advertisement/default-mobile300x250.jpg';
+    private $default_url     = 'https://allgamegeek.com';
 
     public function __construct(Ads $ads, Functions $function) {
         $this->ads = $ads;
@@ -60,16 +65,16 @@ class AdsController extends Controller
 
     public function hookAds() {
         // leaderboard
-        $leaderboard = $this->randomSelectLeaderboard('leaderboard', 1);
+        $leaderboard = $this->randomSelectads('leaderboard', 1);
 
         // rectangle
-        $rectangle = $this->randomSelectLeaderboard('rectangle', 1);
+        $rectangle = $this->randomSelectads('rectangle', 1);
 
         // skyscaper
-        $skyscaper = $this->randomSelectLeaderboard('skyscaper', 2);
+        $skyscaper = $this->randomSelectads('skyscaper', 2);
 
         // mobile
-        $mobile = $this->randomSelectLeaderboard('mobile', 1);
+        $mobile = $this->randomSelectads('mobile', 1);
 
         // return all
         $hookads = [
@@ -85,13 +90,16 @@ class AdsController extends Controller
         ]);
     }
 
-    protected function randomSelectLeaderboard($adsspaces, $num) {
+    protected function randomSelectads($adsspaces, $num) {        
         $newadsdata = [];
         $currentdate = $this->todayIs();
 
         $adslist = $this->ads::where('adsspaces', $adsspaces)->whereDate('adsend', '>', $currentdate)->get();
+        if($adslist->count() <= 0) {
+            return $this->defaultAds($adsspaces);
+        }
         $adsdata = array_rand(json_decode(json_encode($adslist), true), $num);
-
+        
         if(!is_array($adsdata)) {
             $newadsdata = [
                 'idads'         =>  $adslist[$adsdata]['idads'],
@@ -102,6 +110,7 @@ class AdsController extends Controller
             // return $adslist[$adsdata];
             return $newadsdata;
         }
+
         $thisisskyscaper = [];
         for($i=0;$i<count($adsdata);$i++) {
             // $thisisskyscaper[] = $adslist[$adsdata[$i]];
@@ -114,6 +123,49 @@ class AdsController extends Controller
         }
         
         return $thisisskyscaper;
+    }
+
+    protected function defaultAds($adsspaces) {
+        $defaultadsdata = [];
+        switch ($adsspaces) {
+            case 'leaderboard':
+                $defaultadsdata = [
+                    'idads'         =>  0,
+                    'adstitle'      =>  'hook default ads',
+                    'adsimage'      =>  $this->baseURL.$this->leaderboard,
+                    'adslink'       =>  $this->default_url,
+                ];
+
+                return $defaultadsdata;
+            case 'rectangle':
+                $defaultadsdata = [
+                    'idads'         =>  0,
+                    'adstitle'      =>  'hook default ads',
+                    'adsimage'      =>  $this->baseURL.$this->rectangle,
+                    'adslink'       =>  $this->default_url,
+                ];
+
+                return $defaultadsdata;
+            case 'skyscaper':
+                for($i=0;$i<2;$i++){
+                    $defaultadsdata[] = [
+                        'idads'         =>  $i,
+                        'adstitle'      =>  'hook default ads',
+                        'adsimage'      =>  $this->baseURL.$this->skyscraper,
+                        'adslink'       =>  $this->default_url,
+                    ];
+                }
+                return $defaultadsdata;
+            case 'mobile':
+                $defaultadsdata = [
+                    'idads'         =>  0,
+                    'adstitle'      =>  'hook default ads',
+                    'adsimage'      =>  $this->baseURL.$this->mobile,
+                    'adslink'       =>  $this->default_url,
+                ];
+
+                return $defaultadsdata;
+        }
     }
     
 }
