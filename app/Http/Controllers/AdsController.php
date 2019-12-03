@@ -15,14 +15,23 @@ class AdsController extends Controller
     private $skyscraper     = 'img/advertisement/default-skyscraper120x600.jpg';
     private $rectangle      = 'img/advertisement/default-rectangle300x250.jpg';
     private $mobile         = 'img/advertisement/default-mobile300x250.jpg';
-    private $default_url     = 'https://allgamegeek.com';
+    private $default_url    = 'https://allgamegeek.com';
 
+    /**
+     * instantiate Ads, Functions
+     */
     public function __construct(Ads $ads, Functions $function) {
         $this->ads = $ads;
         $this->function = $function;
         $this->baseURL = Functions::getAppURL();
     }
 
+    /**
+     * method to insert new ads
+     * 
+     * @param $request
+     * @return JSON
+     */
     public function createNewAds(Request $request) {
         // validate input
         $checkinput = $this->ads::validateAdsCreate($request->all());
@@ -58,11 +67,11 @@ class AdsController extends Controller
         }
     }
 
-    protected function todayIs() {
-        $todayis = $this->function->setDatetime();
-        return $todayis->toDateString();
-    }
-
+    /**
+     * method to display hook ads
+     * 
+     * @return JSON
+     */
     public function hookAds() {
         // leaderboard
         $leaderboard = $this->randomSelectads('leaderboard', 1);
@@ -90,14 +99,58 @@ class AdsController extends Controller
         ]);
     }
 
+    /**
+     * method to get current date
+     * format yyyy-mm-dd
+     * 
+     * @return $todayis
+     */
+    protected function todayIs() {
+        $todayis = $this->function->setDatetime();
+        return $todayis->toDateString();
+    }    
+
+    /**
+     * method to select random ads based in adsspaces
+     * adsspaces: leaderboard, rectangle, skyscraper, mobile
+     * 
+     * @param $adsspaces, $num
+     * @return $newadsdata
+     * @return $thisisskyscaper
+     */
     protected function randomSelectads($adsspaces, $num) {        
         $newadsdata = [];
         $currentdate = $this->todayIs();
+        $thisisskyscaper = [];
 
         $adslist = $this->ads::where('adsspaces', $adsspaces)->whereDate('adsend', '>', $currentdate)->get();
+        // if got nothing then we get the default image
         if($adslist->count() <= 0) {
             return $this->defaultAds($adsspaces);
         }
+
+        // this will catch if the skyscraper got one one active ads
+        if($adslist->count() == 1 && $adsspaces == 'skyscraper') {
+            // so get that one active skyscraper ads
+            // then add a default skyscraper ad
+            $adsdata = array_rand(json_decode(json_encode($adslist), true), 1);
+            $thisisskyscaper[] = [
+                'idads'         =>  $adslist[$adsdata]['idads'],
+                'adstitle'      =>  $adslist[$adsdata]['adstitle'],
+                'adsimage'      =>  $this->baseURL.$adslist[$adsdata]['adsimage'],
+                'adslink'       =>  $adslist[$adsdata]['adslink'],
+            ];
+
+            array_push($thisisskyscaper, [
+                        'idads'         =>  0,
+                        'adstitle'      =>  'hook default ads',
+                        'adsimage'      =>  $this->baseURL.$this->skyscraper,
+                        'adslink'       =>  $this->default_url,
+            ]);
+
+            return $thisisskyscaper;
+        }
+
         $adsdata = array_rand(json_decode(json_encode($adslist), true), $num);
         
         if(!is_array($adsdata)) {
@@ -110,8 +163,7 @@ class AdsController extends Controller
             // return $adslist[$adsdata];
             return $newadsdata;
         }
-
-        $thisisskyscaper = [];
+        
         for($i=0;$i<count($adsdata);$i++) {
             // $thisisskyscaper[] = $adslist[$adsdata[$i]];
             $thisisskyscaper[] = [
@@ -125,8 +177,15 @@ class AdsController extends Controller
         return $thisisskyscaper;
     }
 
+    /**
+     * method to get default hook ads template if randomSelectads is null
+     * 
+     * @param $adsspaces
+     * @return $defaultadsdata
+     */
     protected function defaultAds($adsspaces) {
         $defaultadsdata = [];
+
         switch ($adsspaces) {
             case 'leaderboard':
                 $defaultadsdata = [
