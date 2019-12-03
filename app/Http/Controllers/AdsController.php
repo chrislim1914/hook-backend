@@ -71,7 +71,7 @@ class AdsController extends Controller
         $rectangle = $this->randomSelectads('rectangle', 1);
 
         // skyscaper
-        $skyscaper = $this->randomSelectads('skyscaper', 2);
+        $skyscaper = $this->randomSelectads('skyscraper', 2);
 
         // mobile
         $mobile = $this->randomSelectads('mobile', 1);
@@ -80,7 +80,7 @@ class AdsController extends Controller
         $hookads = [
             'leaderboard'   => $leaderboard,
             'rectangle'     => $rectangle,
-            'skyscaper'     => $skyscaper,
+            'skyscraper'    => $skyscaper,
             'mobile'        => $mobile,
         ];
 
@@ -146,7 +146,7 @@ class AdsController extends Controller
                 ];
 
                 return $defaultadsdata;
-            case 'skyscaper':
+            case 'skyscraper':
                 for($i=0;$i<2;$i++){
                     $defaultadsdata[] = [
                         'idads'         =>  $i,
