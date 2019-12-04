@@ -2,6 +2,27 @@
 
 allgamegeek, geeknation, hook site backend using PHP Lumen Framework
 
+## Hook
+hook is a site intented for korean, japanese and chinese expat living in the philippines
+this site offer
+
+* News from
+    Rappler.com
+    Cnnphilippines.com
+    Abs-cbn.com
+    Mb.com.ph
+    Bworldonline.com
+    Businessmirror.com.ph
+    CNN
+    Bbc.com
+    Al Jazeera English
+
+* Buy and Sell from
+    carousell.ph only
+    hook
+  
+* Advertisement
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
@@ -50,6 +71,6 @@ run composer install
 
 ## Authors
 
-* *Christopher Lim** -[chrislim1914](https://github.com/chrislim1914)
+* *Christopher Lim* -[chrislim1914](https://github.com/chrislim1914)
 
 ## License
